@@ -1,1 +1,163 @@
+/* ==========================================================================
+   MECHPLANT - SISTEMA DE LAYOUT Y SIDEBAR CONTEXTUAL (layout.css)
+   ========================================================================== */
 
+.mp-page-wrapper {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 28px 24px 64px;
+}
+
+/* Distribución con Sidebar Lateral (Módulos, Equipos, Simuladores) */
+.mp-workspace {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+}
+
+/* Panel Lateral Contextual (Sidebar) */
+.mp-sidebar {
+  position: sticky;
+  top: calc(var(--navbar-height) + var(--breadcrumb-height) + 20px);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  max-height: calc(100vh - var(--navbar-height) - var(--breadcrumb-height) - 40px);
+  overflow-y: auto;
+}
+
+.mp-sidebar__header {
+  background: var(--color-navy-800);
+  color: #FFFFFF;
+  padding: 14px 16px;
+  border-bottom: 2px solid var(--color-cyan-500);
+}
+
+.mp-sidebar__kicker {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: #7DD3FC;
+  text-transform: uppercase;
+  display: block;
+}
+
+.mp-sidebar__title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.mp-sidebar__nav {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mp-sidebar__link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 12px;
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid transparent;
+  transition: all 0.15s ease;
+}
+
+.mp-sidebar__link:hover {
+  background: var(--bg-canvas);
+  color: var(--color-navy-800);
+}
+
+.mp-sidebar__link.is-active {
+  background: var(--color-cyan-100);
+  color: var(--color-navy-800);
+  font-weight: 700;
+  border-left-color: var(--color-cyan-500);
+}
+
+/* Contenido Principal de Ingeniería */
+.mp-main-content {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  box-shadow: var(--shadow-sm);
+}
+
+.mp-doc-header {
+  border-bottom: 2px solid var(--border-subtle);
+  padding-bottom: 20px;
+  margin-bottom: 28px;
+}
+
+.mp-doc-header__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.mp-doc-header__title {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: var(--color-navy-800);
+  line-height: 1.22;
+}
+
+.mp-doc-header__lead {
+  font-size: 0.98rem;
+  color: var(--text-secondary);
+  margin-top: 8px;
+}
+
+/* Rejilla de 2 columnas para Simuladores (Entradas vs Resultados) */
+.mp-sim-layout {
+  display: grid;
+  grid-template-columns: 380px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+/* Rejilla de 2 columnas iguales */
+.mp-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+/* Rejilla de 3 columnas iguales */
+.mp-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 1024px) {
+  .mp-workspace,
+  .mp-sim-layout {
+    grid-template-columns: 1fr;
+  }
+  .mp-sidebar {
+    position: static;
+    max-height: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .mp-main-content {
+    padding: 20px;
+  }
+  .mp-grid-2,
+  .mp-grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
