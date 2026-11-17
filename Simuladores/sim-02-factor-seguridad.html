@@ -1,1 +1,543 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SIM-02: Teorías de Falla Estática | MECHPLANT</title>
+  <link rel="manifest" href="../manifest.json" />
+  <meta name="theme-color" content="#0B192C" />
 
+  <link rel="stylesheet" href="../assets/css/tokens.css" />
+  <link rel="stylesheet" href="../assets/css/reset.css" />
+  <link rel="stylesheet" href="../assets/css/layout.css" />
+  <link rel="stylesheet" href="../assets/css/navbar.css" />
+  <link rel="stylesheet" href="../assets/css/components.css" />
+  <link rel="stylesheet" href="../assets/css/math-diagrams.css" />
+  <link rel="stylesheet" href="../assets/css/print.css" media="print" />
+
+  <style>
+    .sim-workspace {
+      display: grid;
+      grid-template-columns: 390px minmax(0, 1fr);
+      gap: 22px;
+      align-items: start;
+    }
+
+    @media (max-width: 960px) {
+      .sim-workspace {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 12px;
+    }
+
+    .field-group label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--color-navy-800);
+    }
+
+    .field-group input,
+    .field-group select {
+      padding: 8px 11px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
+      font-family: var(--font-mono);
+      background: #fff;
+    }
+
+    .field-hint {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+    }
+
+    .envelope-box {
+      background: #0B192C;
+      border: 1px solid #1E3A5F;
+      border-radius: var(--radius-md);
+      padding: 14px;
+      color: #E2E8F0;
+      margin-bottom: 18px;
+    }
+  </style>
+</head>
+<body data-root="../">
+  <header id="mp-navbar"></header>
+
+  <main class="mp-container" style="padding-top: 24px; padding-bottom: 52px;">
+    <nav aria-label="Ruta de navegación" style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 12px;">
+      <a href="../index.html">Inicio</a> &rsaquo;
+      <a href="index.html">Simuladores</a> &rsaquo;
+      <strong>SIM-02: Teorías de Falla Estática</strong>
+    </nav>
+
+    <!-- Cabecera del Simulador -->
+    <section class="mp-hero-banner" style="background: linear-gradient(135deg, #0B192C 0%, #163254 100%); color: #fff; padding: 22px 28px; border-radius: var(--radius-lg); margin-bottom: 24px; border-left: 5px solid var(--color-cyan-500);">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+        <div>
+          <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+            <span class="tech-badge tech-badge--cyan">SIM-02 · MÓDULO 01</span>
+            <span class="tech-badge">SHIGLEY CAP. 5 · ASTM A48</span>
+          </div>
+          <h1 style="font-size: 1.6rem; margin-bottom: 4px;">Teorías de Falla Estática (Materiales Dúctiles y Frágiles)</h1>
+          <p style="color: #CBD5E1; font-size: 0.9rem; max-width: 78ch;">
+            Evalúa factores de seguridad bajo cargas estáticas mediante <strong>Energía de Distorsión (Von Mises)</strong> y <strong>Esfuerzo Cortante Máximo (Tresca)</strong> para aceros dúctiles, o <strong>Coulomb-Mohr Modificado</strong> y <strong>Rankine</strong> para fundiciones grises y materiales frágiles.
+          </p>
+        </div>
+
+        <a href="../modulos/m1-esfuerzos-falla-tolerancias/index.html" class="btn btn--outline-light" style="font-size: 0.82rem;">
+          📘 Ver Teoría M01
+        </a>
+      </div>
+    </section>
+
+    <!-- Área de Trabajo -->
+    <div class="sim-workspace">
+      <!-- Panel Izquierdo: Entradas -->
+      <aside class="mp-card">
+        <h2 style="font-size: 1.05rem; color: var(--color-navy-800); margin-bottom: 14px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px;">
+          ⚙️ Comportamiento del Material y Cargas
+        </h2>
+
+        <form id="sim02-form">
+          <div class="field-group">
+            <label for="mat-type">Clasificación del Material</label>
+            <select id="mat-type">
+              <option value="ductil">Material Dúctil (εf ≥ 0.05 — Aceros, Bronces)</option>
+              <option value="fragil">Material Frágil (εf &lt; 0.05 — Fundición Gris ASTM A48)</option>
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label for="mat-preset">Material Industrial Predefinido</label>
+            <select id="mat-preset">
+              <option value="sae1045">Acero SAE 1045 CD (Sy = 530 MPa)</option>
+              <option value="sae4140">Acero SAE 4140 Q&amp;T (Sy = 900 MPa)</option>
+              <option value="aisi316">Acero Inox AISI 316L (Sy = 170 MPa)</option>
+              <option value="astm30">Fundición Gris ASTM A48 Cl. 30 (Sut=214, Suc=752 MPa)</option>
+              <option value="astm40">Fundición Gris ASTM A48 Cl. 40 (Sut=293, Suc=965 MPa)</option>
+            </select>
+          </div>
+
+          <!-- Propiedades Dúctiles -->
+          <div id="props-ductil">
+            <div class="field-group">
+              <label for="inp-sy">Límite de Fluencia Sy (MPa)</label>
+              <input type="number" id="inp-sy" step="any" min="10" value="530" />
+              <span class="field-hint">Resistencia a la fluencia en tracción (Syt = Syc = Sy)</span>
+            </div>
+          </div>
+
+          <!-- Propiedades Frágiles -->
+          <div id="props-fragil" style="display: none;">
+            <div class="form-grid-2">
+              <div class="field-group">
+                <label for="inp-sut">Resistencia Tracción Sut (MPa)</label>
+                <input type="number" id="inp-sut" step="any" min="10" value="214" />
+              </div>
+              <div class="field-group">
+                <label for="inp-suc">Resistencia Compresión Suc (MPa)</label>
+                <input type="number" id="inp-suc" step="any" min="10" value="752" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Esfuerzos Principales -->
+          <div style="border-top: 1px solid var(--border-subtle); padding-top: 12px; margin-top: 4px;">
+            <div style="font-size: 0.8rem; font-weight: 700; color: var(--color-navy-700); margin-bottom: 8px;">
+              Esfuerzos Principales en el Punto Crítico (σ1 ≥ σ2)
+            </div>
+
+            <div class="form-grid-2">
+              <div class="field-group">
+                <label for="inp-s1">Esfuerzo Principal σ1 (MPa)</label>
+                <input type="number" id="inp-s1" step="any" value="240" required />
+                <span class="field-hint">+ Tracción / - Compresión</span>
+              </div>
+              <div class="field-group">
+                <label for="inp-s2">Esfuerzo Principal σ2 (MPa)</label>
+                <input type="number" id="inp-s2" step="any" value="-110" required />
+                <span class="field-hint">+ Tracción / - Compresión</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 10px; margin-top: 14px;">
+            <button type="submit" class="btn btn--primary" style="flex: 1;">
+              ⚡ Evaluar Teorías de Falla
+            </button>
+            <button type="button" id="btn-reset-sim02" class="btn btn--outline-dark">
+              Reiniciar
+            </button>
+          </div>
+        </form>
+      </aside>
+
+      <!-- Panel Derecho: Envolvente Gráfica 2D + Reporte -->
+      <section>
+        <div class="envelope-box">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+            <span id="env-title-label" style="font-size: 0.82rem; font-weight: 700; color: #38BDF8; letter-spacing: 0.04em;">
+              ENVOLVENTE DE FALLA 2D: VON MISES (ELIPSE) vs TRESCA (HEXÁGONO)
+            </span>
+            <span id="env-point-label" style="font-family: var(--font-mono); font-size: 0.78rem; color: #CBD5E1;">
+              Punto Operación: (240.0, -110.0) MPa
+            </span>
+          </div>
+
+          <svg id="envelope-svg" viewBox="0 0 640 310" width="100%" height="285" style="background: #081220; border-radius: 6px; border: 1px solid #1E3A5F;">
+            <!-- Ejes -->
+            <line x1="60" y1="155" x2="580" y2="155" stroke="#334155" stroke-width="1.5" />
+            <line x1="320" y1="20" x2="320" y2="290" stroke="#334155" stroke-width="1.5" />
+            <text x="562" y="147" fill="#94A3B8" font-size="11" font-family="monospace">+σ1</text>
+            <text x="66" y="147" fill="#94A3B8" font-size="11" font-family="monospace">-σ1</text>
+            <text x="326" y="32" fill="#94A3B8" font-size="11" font-family="monospace">+σ2</text>
+            <text x="326" y="284" fill="#94A3B8" font-size="11" font-family="monospace">-σ2</text>
+
+            <!-- Envolvente Primaria (Von Mises o Coulomb-Mohr) -->
+            <polygon id="env-primary-poly" points="" fill="rgba(0, 149, 217, 0.14)" stroke="#0095D9" stroke-width="2.4" />
+            <!-- Envolvente Secundaria (Tresca o Rankine) -->
+            <polygon id="env-secondary-poly" points="" fill="none" stroke="#F59E0B" stroke-width="1.7" stroke-dasharray="5 4" />
+
+            <!-- Línea de carga desde el origen -->
+            <line id="load-ray" x1="320" y1="155" x2="380" y2="120" stroke="#38BDF8" stroke-width="1.5" stroke-dasharray="3 3" />
+
+            <!-- Punto de estado tensional actual -->
+            <circle id="op-point" cx="380" cy="120" r="6" fill="#22C55E" stroke="#fff" stroke-width="1.5" />
+            <text id="op-point-text" x="390" y="116" fill="#4ADE80" font-size="11" font-family="monospace">(σ1, σ2)</text>
+
+            <!-- Leyenda -->
+            <rect x="22" y="18" width="12" height="4" fill="#0095D9" />
+            <text id="leg-primary" x="40" y="23" fill="#CBD5E1" font-size="10.5" font-family="sans-serif">Von Mises (DE)</text>
+            <rect x="22" y="34" width="12" height="4" fill="#F59E0B" />
+            <text id="leg-secondary" x="40" y="39" fill="#CBD5E1" font-size="10.5" font-family="sans-serif">Tresca (MSS)</text>
+          </svg>
+        </div>
+
+        <div id="sim02-output"></div>
+      </section>
+    </div>
+  </main>
+
+  <script src="../assets/js/data/db-curriculum.js"></script>
+  <script src="../assets/js/data/db-equipos.js"></script>
+  <script src="../assets/js/data/db-componentes.js"></script>
+  <script src="../assets/js/data/db-normas.js"></script>
+  <script src="../assets/js/core/navbar.js"></script>
+  <script src="../assets/js/core/search-engine.js"></script>
+  <script src="../assets/js/core/unit-converter.js"></script>
+  <script src="../assets/js/core/progress-tracker.js"></script>
+  <script src="../assets/js/core/app-init.js"></script>
+
+  <!-- Solver y Renderizador -->
+  <script src="../assets/js/solvers/solver-falla-estatica.js"></script>
+  <script src="../assets/js/ui-simulator/sim-renderer.js"></script>
+
+  <script>
+    (function () {
+      const form = document.getElementById("sim02-form");
+      const matType = document.getElementById("mat-type");
+      const matPreset = document.getElementById("mat-preset");
+      const propsDuctil = document.getElementById("props-ductil");
+      const propsFragil = document.getElementById("props-fragil");
+
+      function syncMaterialUI() {
+        const isDuctil = matType.value === "ductil";
+        propsDuctil.style.display = isDuctil ? "block" : "none";
+        propsFragil.style.display = isDuctil ? "none" : "block";
+      }
+
+      matType.addEventListener("change", () => {
+        syncMaterialUI();
+        runCalculation();
+      });
+
+      matPreset.addEventListener("change", () => {
+        const p = matPreset.value;
+        if (p === "sae1045") {
+          matType.value = "ductil";
+          document.getElementById("inp-sy").value = 530;
+        } else if (p === "sae4140") {
+          matType.value = "ductil";
+          document.getElementById("inp-sy").value = 900;
+        } else if (p === "aisi316") {
+          matType.value = "ductil";
+          document.getElementById("inp-sy").value = 170;
+        } else if (p === "astm30") {
+          matType.value = "fragil";
+          document.getElementById("inp-sut").value = 214;
+          document.getElementById("inp-suc").value = 752;
+        } else if (p === "astm40") {
+          matType.value = "fragil";
+          document.getElementById("inp-sut").value = 293;
+          document.getElementById("inp-suc").value = 965;
+        }
+        syncMaterialUI();
+        runCalculation();
+      });
+
+      function updateEnvelopeSVG(isDuctil, params, s1, s2, fsPrimary) {
+        const cx = 320;
+        const cy = 155;
+        const primaryPoly = document.getElementById("env-primary-poly");
+        const secondaryPoly = document.getElementById("env-secondary-poly");
+        const envTitle = document.getElementById("env-title-label");
+        const legPrimary = document.getElementById("leg-primary");
+        const legSecondary = document.getElementById("leg-secondary");
+
+        let scale = 1;
+
+        if (isDuctil) {
+          const Sy = params.Sy;
+          const maxRef = Math.max(Sy * 1.15, Math.abs(s1), Math.abs(s2), 50);
+          scale = 110 / maxRef;
+
+          envTitle.textContent = "ENVOLVENTE DE FALLA 2D: VON MISES (ELIPSE) vs TRESCA (HEXÁGONO)";
+          legPrimary.textContent = "Von Mises (Energía Distorsión)";
+          legSecondary.textContent = "Tresca (Cortante Máximo)";
+
+          // Generar puntos de la elipse de Von Mises: sA^2 - sA*sB + sB^2 = Sy^2
+          const ellipsePts = [];
+          const steps = 64;
+          for (let i = 0; i < steps; i++) {
+            const theta = (2 * Math.PI * i) / steps;
+            const denom = Math.sqrt(1 - Math.sin(theta) * Math.cos(theta));
+            const r = Sy / denom;
+            const x = cx + r * Math.cos(theta) * scale;
+            const y = cy - r * Math.sin(theta) * scale;
+            ellipsePts.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+          }
+          primaryPoly.setAttribute("points", ellipsePts.join(" "));
+
+          // Hexágono de Tresca
+          const S = Sy * scale;
+          const trescaPts = [
+            `${cx + S},${cy}`,
+            `${cx + S},${cy - S}`,
+            `${cx},${cy - S}`,
+            `${cx - S},${cy}`,
+            `${cx - S},${cy + S}`,
+            `${cx},${cy + S}`
+          ];
+          secondaryPoly.setAttribute("points", trescaPts.join(" "));
+        } else {
+          const { Sut, Suc } = params;
+          const maxRef = Math.max(Suc, Sut, Math.abs(s1), Math.abs(s2), 50);
+          scale = 115 / maxRef;
+
+          envTitle.textContent = "ENVOLVENTE FRÁGIL 2D: COULOMB-MOHR MODIFICADO vs RANKINE";
+          legPrimary.textContent = "Coulomb-Mohr Modificado";
+          legSecondary.textContent = "Rankine (Esfuerzo Normal Máx.)";
+
+          const t = Sut * scale;
+          const c = Suc * scale;
+
+          // Polígono Coulomb-Mohr Modificado
+          const cmPts = [
+            `${cx + t},${cy}`,
+            `${cx + t},${cy - t}`,
+            `${cx},${cy - t}`,
+            `${cx - c},${cy}`,
+            `${cx - c},${cy + c}`,
+            `${cx},${cy + c}`
+          ];
+          primaryPoly.setAttribute("points", cmPts.join(" "));
+
+          // Cuadrado Rankine
+          const rkPts = [
+            `${cx + t},${cy - t}`,
+            `${cx - c},${cy - t}`,
+            `${cx - c},${cy + c}`,
+            `${cx + t},${cy + c}`
+          ];
+          secondaryPoly.setAttribute("points", rkPts.join(" "));
+        }
+
+        const px = cx + s1 * scale;
+        const py = cy - s2 * scale;
+        const opDot = document.getElementById("op-point");
+        const loadRay = document.getElementById("load-ray");
+        const opText = document.getElementById("op-point-text");
+
+        loadRay.setAttribute("x2", px.toFixed(1));
+        loadRay.setAttribute("y2", py.toFixed(1));
+        opDot.setAttribute("cx", px.toFixed(1));
+        opDot.setAttribute("cy", py.toFixed(1));
+        opDot.setAttribute("fill", fsPrimary < 1.0 ? "#EF4444" : fsPrimary < 1.5 ? "#F59E0B" : "#22C55E");
+
+        opText.setAttribute("x", Math.min(px + 8, 550).toFixed(1));
+        opText.setAttribute("y", Math.max(py - 6, 24).toFixed(1));
+        opText.textContent = `(${s1.toFixed(0)}, ${s2.toFixed(0)})`;
+
+        document.getElementById("env-point-label").textContent =
+          `Punto Operación: (${s1.toFixed(1)}, ${s2.toFixed(1)}) MPa`;
+      }
+
+      function runCalculation() {
+        const solver = window.MECHPLANT_SOLVERS && window.MECHPLANT_SOLVERS.fallaEstatica;
+        const ui = window.MECHPLANT_SIM_UI;
+        if (!solver || !ui) return;
+
+        const isDuctil = matType.value === "ductil";
+        const s1Raw = parseFloat(document.getElementById("inp-s1").value) || 0;
+        const s2Raw = parseFloat(document.getElementById("inp-s2").value) || 0;
+        const s1 = Math.max(s1Raw, s2Raw);
+        const s2 = Math.min(s1Raw, s2Raw);
+
+        const steps = [];
+        let kpis = [];
+        let fsPrimary = 99;
+        let titleReport = "";
+        let verdict = {};
+
+        if (isDuctil) {
+          const Sy = Math.max(parseFloat(document.getElementById("inp-sy").value) || 530, 1);
+          const res = solver.evaluarDuctil(s1, s2, Sy);
+          fsPrimary = res.fsVonMises;
+
+          updateEnvelopeSVG(true, { Sy }, s1, s2, fsPrimary);
+
+          steps.push({
+            title: "Paso 1: Ordenamiento de esfuerzos principales en el plano (σ3 = 0)",
+            formula: `σ1 = ${s1.toFixed(2)} MPa,  σ2 = ${s2.toFixed(2)} MPa,  Sy = ${Sy.toFixed(1)} MPa`,
+            result: "Material dúctil evaluado"
+          });
+
+          steps.push({
+            title: "Paso 2: Teoría de Energía de Distorsión (Von Mises)",
+            formula: `σ' = √(σ1² - σ1·σ2 + σ2²) = √(${s1.toFixed(1)}² - (${s1.toFixed(1)})(${s2.toFixed(1)}) + ${s2.toFixed(1)}²) = ${res.esfuerzoVonMises.toFixed(2)} MPa`,
+            result: `FS (Von Mises) = Sy / σ' = ${res.fsVonMises.toFixed(2)}`
+          });
+
+          steps.push({
+            title: "Paso 3: Teoría del Esfuerzo Cortante Máximo (Tresca — Conservadora)",
+            formula: `τmáx_abs = máx(|σ1 - σ2|, |σ1|, |σ2|) / 2 = ${res.tauMaxAbsoluto.toFixed(2)} MPa`,
+            result: `FS (Tresca) = (Sy / 2) / τmáx_abs = ${res.fsTresca.toFixed(2)}`
+          });
+
+          titleReport = "Memoria de Cálculo: Falla Estática en Material Dúctil";
+          kpis = [
+            { label: "Esfuerzo Von Mises σ'", value: `${res.esfuerzoVonMises.toFixed(2)} MPa` },
+            { label: "FS Von Mises (DE)", value: res.fsVonMises.toFixed(2), highlight: true },
+            { label: "FS Tresca (MSS)", value: res.fsTresca.toFixed(2), highlight: true },
+            { label: "Cortante Máx. Abs.", value: `${res.tauMaxAbsoluto.toFixed(2)} MPa` }
+          ];
+
+          if (res.fsVonMises < 1.0) {
+            verdict = {
+              status: "danger",
+              title: "FALLA POR FLUENCIA DÚCTIL (FS Von Mises < 1.0)",
+              message: `El esfuerzo equivalente σ' (${res.esfuerzoVonMises.toFixed(1)} MPa) excede el límite de fluencia Sy (${Sy} MPa). Se producirá deformación plástica permanente.`
+            };
+          } else if (res.fsTresca < 1.25 || res.fsVonMises < 1.5) {
+            verdict = {
+              status: "warn",
+              title: "ZONA DE PRECAUCIÓN ESTÁTICA (1.0 ≤ FS < 1.5)",
+              message: `El punto está dentro de la elipse de Von Mises (FS = ${res.fsVonMises.toFixed(2)}), pero presenta bajo margen frente a sobrecargas de arranque o impacto.`
+            };
+          } else {
+            verdict = {
+              status: "ok",
+              title: "DISEÑO ESTÁTICO SEGURO (FS ≥ 1.50)",
+              message: `Tanto Von Mises (FS = ${res.fsVonMises.toFixed(2)}) como Tresca (FS = ${res.fsTresca.toFixed(2)}) confirman operación elástica segura.`
+            };
+          }
+        } else {
+          const Sut = Math.max(parseFloat(document.getElementById("inp-sut").value) || 214, 1);
+          const Suc = Math.max(parseFloat(document.getElementById("inp-suc").value) || 752, 1);
+          const res = solver.evaluarFragil(s1, s2, Sut, Suc);
+          fsPrimary = res.fsCoulombMohr;
+
+          updateEnvelopeSVG(false, { Sut, Suc }, s1, s2, fsPrimary);
+
+          steps.push({
+            title: "Paso 1: Parámetros asimétricos del material frágil",
+            formula: `Sut = ${Sut.toFixed(1)} MPa (Tracción)  |  Suc = ${Suc.toFixed(1)} MPa (Compresión)  |  σ1 = ${s1.toFixed(1)} MPa, σ2 = ${s2.toFixed(1)} MPa`,
+            result: `Relación Suc / Sut = ${(Suc / Sut).toFixed(2)}`
+          });
+
+          steps.push({
+            title: "Paso 2: Criterio de Coulomb-Mohr Modificado (Shigley Cap. 5)",
+            formula: `Cuadrante evaluado: ${res.cuadrante}  →  Ecuación lineal de interacción tracción-compresión`,
+            result: `FS (Coulomb-Mohr Mod.) = ${res.fsCoulombMohr.toFixed(2)}`
+          });
+
+          steps.push({
+            title: "Paso 3: Teoría del Esfuerzo Normal Máximo (Rankine)",
+            formula: `Comparación directa de σ1 contra Sut y |σ2| contra Suc`,
+            result: `FS (Rankine) = ${res.fsRankine.toFixed(2)}`
+          });
+
+          titleReport = "Memoria de Cálculo: Falla Estática en Material Frágil";
+          kpis = [
+            { label: "FS Coulomb-Mohr Mod.", value: res.fsCoulombMohr.toFixed(2), highlight: true },
+            { label: "FS Rankine (MNS)", value: res.fsRankine.toFixed(2) },
+            { label: "Cuadrante Tensional", value: res.cuadrante },
+            { label: "Asimetría Suc / Sut", value: (Suc / Sut).toFixed(2) }
+          ];
+
+          if (res.fsCoulombMohr < 1.0) {
+            verdict = {
+              status: "danger",
+              title: "FRACTURA FRÁGIL SÚBITA (FS Coulomb-Mohr < 1.0)",
+              message: `El estado de esfuerzos excede la envolvente de fractura del material frágil. En fundiciones grises la rotura ocurre sin fluencia previa.`
+            };
+          } else if (res.fsCoulombMohr < 2.0) {
+            verdict = {
+              status: "warn",
+              title: "MARGEN BAJO PARA MATERIAL FRÁGIL (1.0 ≤ FS < 2.0)",
+              message: `Para carcasas y piezas fundidas (ASTM A48) se recomienda un FS ≥ 2.0 – 2.5 debido a la dispersión estadística de defectos internos.`
+            };
+          } else {
+            verdict = {
+              status: "ok",
+              title: "DISEÑO SEGURO PARA MATERIAL FRÁGIL (FS ≥ 2.0)",
+              message: `El estado tensional cumple satisfactoriamente el criterio de Coulomb-Mohr Modificado (FS = ${res.fsCoulombMohr.toFixed(2)}).`
+            };
+          }
+        }
+
+        ui.renderReport("sim02-output", {
+          simCode: "SIM-02",
+          title: titleReport,
+          kpis,
+          steps,
+          verdict
+        });
+
+        if (window.MECHPLANT_PROGRESS && typeof window.MECHPLANT_PROGRESS.markSimulatorUsed === "function") {
+          window.MECHPLANT_PROGRESS.markSimulatorUsed("SIM-02");
+        }
+      }
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        runCalculation();
+      });
+
+      document.getElementById("btn-reset-sim02").addEventListener("click", () => {
+        form.reset();
+        matType.value = "ductil";
+        matPreset.value = "sae1045";
+        syncMaterialUI();
+        runCalculation();
+      });
+
+      syncMaterialUI();
+      runCalculation();
+    })();
+  </script>
+</body>
+</html>
