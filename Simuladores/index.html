@@ -1,1 +1,317 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simuladores de Cálculo de Ingeniería (14 Herramientas) | MECHPLANT</title>
+  <link rel="manifest" href="../manifest.json" />
+  <meta name="theme-color" content="#0B192C" />
 
+  <link rel="stylesheet" href="../assets/css/tokens.css" />
+  <link rel="stylesheet" href="../assets/css/reset.css" />
+  <link rel="stylesheet" href="../assets/css/layout.css" />
+  <link rel="stylesheet" href="../assets/css/navbar.css" />
+  <link rel="stylesheet" href="../assets/css/components.css" />
+  <link rel="stylesheet" href="../assets/css/math-diagrams.css" />
+  <link rel="stylesheet" href="../assets/css/print.css" media="print" />
+</head>
+<body data-root="../">
+  <header id="mp-navbar"></header>
+
+  <main class="mp-container" style="padding-top: 28px; padding-bottom: 52px;">
+    <nav aria-label="Ruta de navegación" style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 14px;">
+      <a href="../index.html">Inicio</a> &rsaquo; <strong>Simuladores de Ingeniería</strong>
+    </nav>
+
+    <!-- Cabecera del Centro de Cálculo -->
+    <section class="mp-hero-banner" style="background: linear-gradient(135deg, #0B192C 0%, #163254 100%); color: #fff; padding: 28px 32px; border-radius: var(--radius-lg); margin-bottom: 26px; border-left: 5px solid var(--color-cyan-500);">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px;">
+        <div style="max-width: 74ch;">
+          <span class="tech-badge tech-badge--cyan">MOTORES DE CÁLCULO · SHIGLEY, NORTON, ISO &amp; AGMA</span>
+          <h1 style="font-size: 1.85rem; margin: 10px 0 8px;">Simuladores Interactivos de Diseño y Mantenimiento</h1>
+          <p style="color: #CBD5E1; font-size: 0.94rem;">
+            14 calculadoras especializadas con memoria de cálculo paso a paso, evaluación automática de factores de seguridad, verificación normativa y exportación directa a memoria técnica imprimible en PDF.
+          </p>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.16); border-radius: var(--radius-md); padding: 14px 18px; min-width: 240px;">
+          <div style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: #94A3B8;">Prácticas Ejecutadas</div>
+          <div id="sims-used-kpi" style="font-size: 1.55rem; font-weight: 800; font-family: var(--font-mono); color: #38BDF8; margin: 4px 0;">0 / 14</div>
+          <div style="font-size: 0.78rem; color: #CBD5E1;">Memorias con salida paso a paso</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Barra de Filtros y Buscador -->
+    <div class="mp-card" style="margin-bottom: 22px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+      <div id="sim-filter-bar" style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <button type="button" class="btn btn--primary" data-cat="ALL">Todos (14)</button>
+        <button type="button" class="btn btn--outline-dark" data-cat="fundamentos">Esfuerzos, Falla y Uniones (5)</button>
+        <button type="button" class="btn btn--outline-dark" data-cat="rotativos">Ejes y Rodamientos (2)</button>
+        <button type="button" class="btn btn--outline-dark" data-cat="transmisiones">Fajas, Cadenas y Engranajes (5)</button>
+        <button type="button" class="btn btn--outline-dark" data-cat="confiabilidad">Alineamiento y Confiabilidad (2)</button>
+      </div>
+
+      <input type="search" id="sim-search-input" placeholder="Buscar SIM-04, engranajes, L10, shims..."
+        style="padding: 8px 14px; border: 1px solid var(--border-strong); border-radius: var(--radius-md); min-width: 250px; font-size: 0.86rem;" />
+    </div>
+
+    <!-- Grilla de los 14 Simuladores -->
+    <section id="simuladores-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(335px, 1fr)); gap: 20px;"></section>
+  </main>
+
+  <script src="../assets/js/data/db-curriculum.js"></script>
+  <script src="../assets/js/data/db-equipos.js"></script>
+  <script src="../assets/js/data/db-componentes.js"></script>
+  <script src="../assets/js/data/db-normas.js"></script>
+  <script src="../assets/js/core/navbar.js"></script>
+  <script src="../assets/js/core/search-engine.js"></script>
+  <script src="../assets/js/core/unit-converter.js"></script>
+  <script src="../assets/js/core/progress-tracker.js"></script>
+  <script src="../assets/js/core/app-init.js"></script>
+
+  <script>
+    (function () {
+      const SIMULADORES_CATALOG = [
+        {
+          id: "SIM-01",
+          cat: "fundamentos",
+          modulo: "M01",
+          titulo: "Esfuerzos Básicos y Círculo de Mohr 2D",
+          descripcion: "Cálculo de esfuerzos axiales, de flexión, torsión, cortante directo, aplastamiento y esfuerzos principales (σ1, σ2, τmáx).",
+          entradas: "Fuerzas (N), Momentos (N·m), Geometría de sección",
+          salidas: "σx, τxy, σ1, σ2, τmáx y ángulo principal θp",
+          normas: ["Shigley Cap. 3", "ASME"],
+          url: "sim-01-esfuerzos-basicos.html"
+        },
+        {
+          id: "SIM-02",
+          cat: "fundamentos",
+          modulo: "M01",
+          titulo: "Teorías de Falla Estática (Dúctil y Frágil)",
+          descripcion: "Evaluación de fluencia por Energía de Distorsión (Von Mises) y Esfuerzo Cortante Máximo (Tresca), además de Coulomb-Mohr para fundiciones.",
+          entradas: "σ1, σ2, Sy (o Sut/Suc para materiales frágiles)",
+          salidas: "Esfuerzo equivalente σ' y Factor de Seguridad estático n",
+          normas: ["Shigley Cap. 5", "ASTM A48"],
+          url: "sim-02-falla-estatica.html"
+        },
+        {
+          id: "SIM-03",
+          cat: "fundamentos",
+          modulo: "M01",
+          titulo: "Tolerancias y Ajustes Eje-Agujero ISO 286",
+          descripcion: "Cálculo de desviaciones límite, juego máximo/mínimo o apriete (interferencia) y presión de contacto en montajes mecánicos.",
+          entradas: "Diámetro nominal (mm), Ajuste (H7/g6, H7/k6, H7/p6, etc.)",
+          salidas: "Cotas límite, tipo de ajuste (Juego/Transición/Apriete)",
+          normas: ["ISO 286-1", "ISO 286-2"],
+          url: "sim-03-tolerancias-ajustes.html"
+        },
+        {
+          id: "SIM-04",
+          cat: "rotativos",
+          modulo: "M03",
+          titulo: "Diseño de Ejes por Fatiga (Criterio DE-Goodman)",
+          descripcion: "Dimensionamiento de diámetro mínimo de árboles de transmisión sometidos a flexión alternante y torsión constante con factores de Marin.",
+          entradas: "Potencia, RPM, Momento flector Ma, Sut, Sy, Kt/Kf",
+          salidas: "Límite de fatiga Se, Diámetro mínimo d y Factor de Seguridad nf",
+          normas: ["ASME B106.1M", "Shigley Cap. 7"],
+          url: "sim-04-diseno-ejes.html"
+        },
+        {
+          id: "SIM-05",
+          cat: "fundamentos",
+          modulo: "M02",
+          titulo: "Dimensionamiento de Chavetas y Chaveteros DIN 6885",
+          descripcion: "Selección automática de sección normalizada (b × h) según diámetro del eje y verificación por esfuerzo cortante y aplastamiento.",
+          entradas: "Diámetro del eje (mm), Torque o Potencia/RPM, Material (Sy)",
+          salidas: "Sección b×h, longitud mínima Lmin, FS corte y FS aplastamiento",
+          normas: ["DIN 6885-1", "ISO R773"],
+          url: "sim-05-chavetas-chaveteros.html"
+        },
+        {
+          id: "SIM-06",
+          cat: "fundamentos",
+          modulo: "M02",
+          titulo: "Uniones Empernadas, Precarga y Torque de Apriete",
+          descripcion: "Cálculo de precarga inicial Fi, torque de instalación, factor de seguridad contra fluencia, separación de junta y fatiga del perno.",
+          entradas: "Diámetro métrico/pulgadas, Grado SAE / Clase ISO, Carga externa",
+          salidas: "Precarga Fi, Torque T (N·m), FS fluencia y FS separación",
+          normas: ["SAE J429", "ISO 898-1"],
+          url: "sim-06-uniones-empernadas.html"
+        },
+        {
+          id: "SIM-07",
+          cat: "rotativos",
+          modulo: "M04",
+          titulo: "Selección y Vida Nominal de Rodamientos (ISO 281)",
+          descripcion: "Cálculo de carga dinámica equivalente P, vida básica L10 en millones de revoluciones, horas de servicio L10h y factor estático s0.",
+          entradas: "Cargas Fr y Fa, Capacidades C y C0, RPM, Tipo de elemento rodante",
+          salidas: "Carga equivalente P, Vida L10, Vida L10h (horas) y s0",
+          normas: ["ISO 281", "ISO 76"],
+          url: "sim-07-seleccion-vida-rodamientos.html"
+        },
+        {
+          id: "SIM-08",
+          cat: "transmisiones",
+          modulo: "M05",
+          titulo: "Transmisión por Fajas en V y Poleas",
+          descripcion: "Análisis de velocidad lineal, efecto centrífugo Fc, arco de contacto en polea menor, tensiones T1/T2 y cantidad de correas requeridas.",
+          entradas: "Potencia motor, RPM, Diámetros D1/D2, Distancia entre centros, Perfil",
+          salidas: "Velocidad correa (m/s), Tensiones T1/T2 y Número de fajas",
+          normas: ["ISO 4184", "RMA IP-20"],
+          url: "sim-08-transmision-fajas-poleas.html"
+        },
+        {
+          id: "SIM-09",
+          cat: "transmisiones",
+          modulo: "M05",
+          titulo: "Transmisión por Cadenas de Rodillos (ANSI B29.1)",
+          descripcion: "Cálculo de relación de transmisión, longitud de cadena en pasos pares, efecto poligonal, fuerza de trabajo y régimen de lubricación.",
+          entradas: "Paso ANSI (#40–#160), Dientes Z1/Z2, Potencia, RPM, Distancia C",
+          salidas: "Longitud en eslabones, Velocidad lineal, Tensión y Tipo lubricación",
+          normas: ["ANSI/ASME B29.1", "ISO 606"],
+          url: "sim-09-transmision-cadenas.html"
+        },
+        {
+          id: "SIM-10",
+          cat: "transmisiones",
+          modulo: "M07",
+          titulo: "Cálculo de Engranajes Rectos y Helicoidales (AGMA)",
+          descripcion: "Determinación de fuerzas en el diente (Wt, Wr, Wa), esfuerzos de flexión en raíz y picadura superficial (pitting) con factores de seguridad.",
+          entradas: "Módulo m, Dientes Z1/Z2, Ángulo hélice β, Ancho cara b, Potencia, RPM",
+          salidas: "Fuerzas Wt/Wr/Wa, Esfuerzos AGMA σF/σH y Factores SF / SH",
+          normas: ["ANSI/AGMA 2001-D04", "ISO 6336"],
+          url: "sim-10-diseno-engranajes.html"
+        },
+        {
+          id: "SIM-11",
+          cat: "transmisiones",
+          modulo: "M07",
+          titulo: "Cinemática de Trenes de Engranajes Compuestos",
+          descripcion: "Análisis de trenes de 2 y 3 etapas: relación de transmisión total, sentido de giro, velocidades intermedias y torque en cada eje.",
+          entradas: "Potencia entrada, RPM motor, Número de dientes por etapa (Z1..Z6)",
+          salidas: "Relación total i, RPM de salida, Torque salida y eficiencia global",
+          normas: ["Shigley Cap. 13", "Norton Cap. 9"],
+          url: "sim-11-trenes-engranajes.html"
+        },
+        {
+          id: "SIM-12",
+          cat: "transmisiones",
+          modulo: "M07",
+          titulo: "Selección Mecánica y Térmica de Reductores",
+          descripcion: "Verificación de potencia equivalente corregida por factor de servicio AGMA y validación de capacidad térmica sin enfriamiento auxiliar.",
+          entradas: "Potencia absorbida, Factor servicio AGMA, Capacidad catálogo y térmica",
+          salidas: "Factor de servicio real Fs, Margen térmico (%) y dictamen",
+          normas: ["AGMA 6010", "ISO 14179"],
+          url: "sim-12-seleccion-reductores.html"
+        },
+        {
+          id: "SIM-13",
+          cat: "confiabilidad",
+          modulo: "M06",
+          titulo: "Alineamiento Láser de Ejes y Cálculo de Shims",
+          descripcion: "Evaluación de desalineamiento paralelo (offset) y angular frente a tolerancias API 686 / ANSI S2.75 y cálculo exacto de calzas en patas.",
+          entradas: "RPM equipo, Offset/Angularidad H-V, Distancias patas motor (L1, L2)",
+          salidas: "Estado según API 686 y espesor exacto de shims delanteros/traseros",
+          normas: ["API 686", "ANSI/ASA S2.75"],
+          url: "sim-13-alineamiento-ejes.html"
+        },
+        {
+          id: "SIM-14",
+          cat: "confiabilidad",
+          modulo: "M08",
+          titulo: "Severidad Vibratoria (ISO 20816-3) y Confiabilidad",
+          descripcion: "Clasificación de severidad vibratoria RMS en Zonas A/B/C/D y cálculo de indicadores KPI de mantenimiento (MTBF, MTTR, λ y Disponibilidad).",
+          entradas: "Velocidad RMS (mm/s), Grupo máquina, Horas operación, Fallas, Horas paro",
+          salidas: "Zona ISO 20816-3, MTBF, MTTR, Tasa de fallas y Disponibilidad (%)",
+          normas: ["ISO 20816-3", "ISO 14224"],
+          url: "sim-14-vibraciones-confiabilidad.html"
+        }
+      ];
+
+      const grid = document.getElementById("simuladores-grid");
+      const filterBar = document.getElementById("sim-filter-bar");
+      const searchInput = document.getElementById("sim-search-input");
+      const usedKpi = document.getElementById("sims-used-kpi");
+      let activeCat = "ALL";
+
+      function getUsedSimulators() {
+        if (window.MECHPLANT_PROGRESS && typeof window.MECHPLANT_PROGRESS.getState === "function") {
+          const st = window.MECHPLANT_PROGRESS.getState();
+          return Array.isArray(st.usedSimulators) ? st.usedSimulators : [];
+        }
+        return [];
+      }
+
+      function renderSimuladores() {
+        const usedList = getUsedSimulators();
+        const usedCount = SIMULADORES_CATALOG.filter(s => usedList.includes(s.id)).length;
+        usedKpi.textContent = `${usedCount} / ${SIMULADORES_CATALOG.length}`;
+
+        const q = searchInput.value.toLowerCase().trim();
+        const filtered = SIMULADORES_CATALOG.filter(sim => {
+          const matchCat = activeCat === "ALL" || sim.cat === activeCat;
+          const haystack = `${sim.id} ${sim.modulo} ${sim.titulo} ${sim.descripcion} ${sim.normas.join(" ")}`.toLowerCase();
+          return matchCat && (!q || haystack.includes(q));
+        });
+
+        if (!filtered.length) {
+          grid.innerHTML = `
+            <div class="mp-callout mp-callout--norma" style="grid-column: 1 / -1;">
+              <div class="mp-callout__title">No se encontraron simuladores</div>
+              <p>Intenta con otro término de búsqueda o selecciona "Todos (14)".</p>
+            </div>
+          `;
+          return;
+        }
+
+        grid.innerHTML = filtered.map(sim => {
+          const isUsed = usedList.includes(sim.id);
+          return `
+            <article class="mp-card" style="display:flex; flex-direction:column; justify-content:space-between; border-top: 4px solid ${isUsed ? "#16A34A" : "var(--color-cyan-500)"};">
+              <div>
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px;">
+                  <div style="display:flex; gap:6px; align-items:center;">
+                    <span class="tech-badge tech-badge--cyan">${sim.id}</span>
+                    <span class="tech-badge">${sim.modulo}</span>
+                  </div>
+                  <span style="font-size:0.75rem; font-weight:700; color:${isUsed ? "#15803D" : "var(--text-muted)"};">
+                    ${isUsed ? "✔ Practicado" : "Disponible"}
+                  </span>
+                </div>
+
+                <h2 style="font-size:1.12rem; color:var(--color-navy-800); margin-bottom:8px;">${sim.titulo}</h2>
+                <p style="font-size:0.86rem; color:var(--text-secondary); margin-bottom:12px;">${sim.descripcion}</p>
+
+                <div style="background:#F8FAFC; border:1px solid var(--border-subtle); border-radius:var(--radius-sm); padding:9px 11px; font-size:0.81rem; margin-bottom:14px; display:grid; gap:4px;">
+                  <div><strong>Entradas:</strong> <span style="color:var(--text-secondary);">${sim.entradas}</span></div>
+                  <div><strong>Salidas:</strong> <span style="color:var(--color-navy-700); font-weight:600;">${sim.salidas}</span></div>
+                </div>
+              </div>
+
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; border-top:1px solid var(--border-subtle); padding-top:12px;">
+                <span style="font-size:0.75rem; font-family:var(--font-mono); color:var(--text-muted);">${sim.normas.join(" · ")}</span>
+                <a href="${sim.url}" class="btn btn--primary" style="font-size:0.82rem;">⚡ Abrir Simulador</a>
+              </div>
+            </article>
+          `;
+        }).join("");
+      }
+
+      filterBar.addEventListener("click", (e) => {
+        const btn = e.target.closest("button[data-cat]");
+        if (!btn) return;
+        filterBar.querySelectorAll("button").forEach(b => {
+          b.className = "btn btn--outline-dark";
+        });
+        btn.className = "btn btn--primary";
+        activeCat = btn.dataset.cat;
+        renderSimuladores();
+      });
+
+      searchInput.addEventListener("input", renderSimuladores);
+      renderSimuladores();
+    })();
+  </script>
+</body>
+</html>
