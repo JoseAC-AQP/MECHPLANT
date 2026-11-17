@@ -1,1 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Casos de Estudio ABP y Diagnóstico de Fallas | MECHPLANT</title>
+  <link rel="manifest" href="../manifest.json" />
+  <meta name="theme-color" content="#0B192C" />
 
+  <link rel="stylesheet" href="../assets/css/tokens.css" />
+  <link rel="stylesheet" href="../assets/css/reset.css" />
+  <link rel="stylesheet" href="../assets/css/layout.css" />
+  <link rel="stylesheet" href="../assets/css/navbar.css" />
+  <link rel="stylesheet" href="../assets/css/components.css" />
+  <link rel="stylesheet" href="../assets/css/math-diagrams.css" />
+  <link rel="stylesheet" href="../assets/css/print.css" media="print" />
+</head>
+<body data-root="../">
+  <header id="mp-navbar"></header>
+
+  <main class="mp-container" style="padding-top: 28px; padding-bottom: 52px;">
+    <nav aria-label="Ruta de navegación" style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 14px;">
+      <a href="../index.html">Inicio</a> &rsaquo; <strong>Casos de Estudio ABP</strong>
+    </nav>
+
+    <!-- Cabecera ABP / RCA -->
+    <section class="mp-hero-banner" style="background: linear-gradient(135deg, #0B192C 0%, #163254 100%); color: #fff; padding: 28px 32px; border-radius: var(--radius-lg); margin-bottom: 26px; border-left: 5px solid var(--color-cyan-500);">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px;">
+        <div style="max-width: 74ch;">
+          <span class="tech-badge tech-badge--cyan">APRENDIZAJE BASADO EN PROBLEMAS (ABP) · RCA</span>
+          <h1 style="font-size: 1.85rem; margin: 10px 0 8px;">Casos de Estudio de Fallas en Planta</h1>
+          <p style="color: #CBD5E1; font-size: 0.94rem;">
+            Investigación forense de eventos reales en activos industriales. Analiza síntomas operacionales, espectros vibratorios y evidencias de fractura para determinar la causa raíz y rediseñar el componente mediante los simuladores de ingeniería.
+          </p>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.16); border-radius: var(--radius-md); padding: 14px 18px; min-width: 240px;">
+          <div style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: #94A3B8;">Metodología de Resolución</div>
+          <ol style="font-size: 0.81rem; color: #E2E8F0; margin-top: 6px; padding-left: 16px; display: grid; gap: 4px;">
+            <li>Evidencia y síntomas de campo</li>
+            <li>Hipótesis de mecanismo de falla</li>
+            <li>Verificación analítica en simulador</li>
+            <li>Acción correctiva y rediseño</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- Filtros de dominio y buscador -->
+    <div class="mp-card" style="margin-bottom: 22px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+      <div id="abp-filter-bar" style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <button type="button" class="btn btn--primary" data-area="ALL">Todos los Casos (8)</button>
+        <button type="button" class="btn btn--outline-dark" data-area="fatiga">Fatiga y Ejes</button>
+        <button type="button" class="btn btn--outline-dark" data-area="rodamientos">Rodamientos y Alineamiento</button>
+        <button type="button" class="btn btn--outline-dark" data-area="transmisiones">Engranajes, Fajas y Cadenas</button>
+        <button type="button" class="btn btn--outline-dark" data-area="uniones">Uniones y Estructuras</button>
+      </div>
+
+      <input type="search" id="abp-search-input" placeholder="Buscar por síntoma, bomba, molino, chaveta..."
+        style="padding: 8px 14px; border: 1px solid var(--border-strong); border-radius: var(--radius-md); min-width: 260px; font-size: 0.86rem;" />
+    </div>
+
+    <!-- Grilla de Casos ABP -->
+    <section id="abp-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(345px, 1fr)); gap: 20px;"></section>
+  </main>
+
+  <script src="../assets/js/data/db-curriculum.js"></script>
+  <script src="../assets/js/data/db-equipos.js"></script>
+  <script src="../assets/js/data/db-componentes.js"></script>
+  <script src="../assets/js/data/db-normas.js"></script>
+  <script src="../assets/js/data/db-evaluaciones.js"></script>
+  <script src="../assets/js/core/navbar.js"></script>
+  <script src="../assets/js/core/search-engine.js"></script>
+  <script src="../assets/js/core/unit-converter.js"></script>
+  <script src="../assets/js/core/progress-tracker.js"></script>
+  <script src="../assets/js/core/app-init.js"></script>
+
+  <script>
+    (function () {
+      const FALLBACK_CASOS = [
+        {
+          id: "ABP-01",
+          area: "fatiga",
+          equipo: "Bomba Centrífuga de Pulpa (EQ-09)",
+          titulo: "Fractura por fatiga flexo-torsional en hombro de eje SAE 4140",
+          sintoma: "Rotura súbita en el escalón del impulsor tras 4,200 horas; marcas de playa visibles en 65% de la sección transversal.",
+          causaProbable: "Radio de filete insuficiente (r = 0.8 mm) tras mecanizado de recuperación y sobrecarga radial fuera del BEP.",
+          simuladores: [
+            { code: "SIM-04", url: "../simuladores/sim-04-diseno-ejes.html" },
+            { code: "SIM-01", url: "../simuladores/sim-01-esfuerzos-basicos.html" }
+          ],
+          normas: ["ASME B106.1M", "DE-Goodman"],
+          url: "abp-01-fractura-eje-bomba-pulpa.html"
+        },
+        {
+          id: "ABP-02",
+          area: "uniones",
+          equipo: "Molino de Bolas 16×24 ft (EQ-03)",
+          titulo: "Cizallamiento recurrente de pernos de revestimiento (Liners)",
+          sintoma: "Fuga de pulpa por cabezas de pernos y rotura por corte en zona de impacto de carga de bolas.",
+          causaProbable: "Pérdida de precarga inicial Fi por apriete sin llave dinamométrica calibrada y asentamiento de empaquetaduras.",
+          simuladores: [
+            { code: "SIM-06", url: "../simuladores/sim-06-uniones-empernadas.html" }
+          ],
+          normas: ["SAE J429 Grado 8", "ISO 898-1"],
+          url: "abp-02-pernos-revestimiento-molino.html"
+        },
+        {
+          id: "ABP-03",
+          area: "rodamientos",
+          equipo: "Ventilador Centrífugo de Tiro Inducido (EQ-15)",
+          titulo: "Spalling prematuro y temperatura elevada (94 °C) en chumacera lado acople",
+          sintoma: "Incremento de aceleración envolvente gE y vibración axial 2X tras cambio de motor eléctrico.",
+          causaProbable: "Pata coja (Soft Foot de 0.35 mm) no corregida y desalineamiento angular superior al límite API 686 para 1,780 RPM.",
+          simuladores: [
+            { code: "SIM-07", url: "../simuladores/sim-07-seleccion-vida-rodamientos.html" },
+            { code: "SIM-13", url: "../simuladores/sim-13-alineamiento-ejes.html" }
+          ],
+          normas: ["ISO 281", "ISO 15243", "API 686"],
+          url: "abp-03-falla-rodamiento-ventilador.html"
+        },
+        {
+          id: "ABP-04",
+          area: "transmisiones",
+          equipo: "Faja Transportadora Principal (EQ-05)",
+          titulo: "Degollamiento de chaveta paralela en tambor motriz de 250 kW",
+          sintoma: "Deslizamiento del cubo del tambor con deformación plástica en las paredes del chavetero durante arranque con carga.",
+          causaProbable: "Chaveta instalada en acero SAE 1020 sin verificación de aplastamiento y ajuste con juego en lugar de transición H7/k6.",
+          simuladores: [
+            { code: "SIM-05", url: "../simuladores/sim-05-chavetas-chaveteros.html" },
+            { code: "SIM-03", url: "../simuladores/sim-03-tolerancias-ajustes.html" }
+          ],
+          normas: ["DIN 6885-1", "ISO 286"],
+          url: "abp-04-falla-chaveta-tambor-motriz.html"
+        },
+        {
+          id: "ABP-05",
+          area: "transmisiones",
+          equipo: "Reductor Helicoidal de 3 Etapas (EQ-13)",
+          titulo: "Pitting severo (picadura destructiva) en flancos de piñón de alta velocidad",
+          sintoma: "Ruido metálico de alta frecuencia (GMF con bandas laterales) y partículas ferrosas laminares en análisis de aceite.",
+          causaProbable: "Incremento de potencia de proceso (+22%) que redujo el factor de seguridad por contacto AGMA SH por debajo de 1.0.",
+          simuladores: [
+            { code: "SIM-10", url: "../simuladores/sim-10-diseno-engranajes.html" },
+            { code: "SIM-12", url: "../simuladores/sim-12-seleccion-reductores.html" }
+          ],
+          normas: ["ANSI/AGMA 2001-D04", "ISO 10825"],
+          url: "abp-05-pitting-pinon-reductor.html"
+        },
+        {
+          id: "ABP-06",
+          area: "transmisiones",
+          equipo: "Chancadora de Quijadas Primaria (EQ-01)",
+          titulo: "Inversión y rotura prematura de fajas en V perfil 8V en servicio de choque",
+          sintoma: "Chirrido intenso en picos de trituración, desgaste lateral de canales y volteo de correas en la polea conducida.",
+          causaProbable: "Factor de servicio subestimado (Ks = 1.1 en lugar de 1.5) y tensión estática insuficiente frente a carga de impacto.",
+          simuladores: [
+            { code: "SIM-08", url: "../simuladores/sim-08-transmision-fajas-poleas.html" }
+          ],
+          normas: ["RMA IP-22", "ISO 4184"],
+          url: "abp-06-desgaste-fajas-chancadora.html"
+        },
+        {
+          id: "ABP-07",
+          area: "transmisiones",
+          equipo: "Alimentador de Orugas / Apron Feeder (EQ-06)",
+          titulo: "Elongación acelerada y salto de diente en cadena de rodillos paso doble",
+          sintoma: "Golpeteo periódico sincronizado con el paso de eslabones y desgaste en gancho de los dientes del piñón motriz.",
+          causaProbable: "Piñón motriz seleccionado con solo 12 dientes (alto efecto poligonal) y lubricación manual deficiente en ambiente abrasivo.",
+          simuladores: [
+            { code: "SIM-09", url: "../simuladores/sim-09-transmision-cadenas.html" }
+          ],
+          normas: ["ANSI/ASME B29.1"],
+          url: "abp-07-elongacion-cadena-alimentador.html"
+        },
+        {
+          id: "ABP-08",
+          area: "rodamientos",
+          equipo: "Bomba Multietapa de Agua de Proceso (EQ-19)",
+          titulo: "Escalado de vibración global a 8.4 mm/s RMS (Zona D ISO 20816-3)",
+          sintoma: "Disparo por alta vibración horizontal tras intervención de mantenimiento; espectro dominado por pico 1X y armónicos.",
+          causaProbable: "Desbalanceo residual del rotor combinado con baja disponibilidad (MTBF reducido) por falta de protocolo de balanceo y alineamiento.",
+          simuladores: [
+            { code: "SIM-14", url: "../simuladores/sim-14-vibraciones-confiabilidad.html" },
+            { code: "SIM-13", url: "../simuladores/sim-13-alineamiento-ejes.html" }
+          ],
+          normas: ["ISO 20816-3", "ISO 14224"],
+          url: "abp-08-severidad-vibratoria-bomba.html"
+        }
+      ];
+
+      const casosData = (window.MECHPLANT_DB && Array.isArray(window.MECHPLANT_DB.casosEstudio) && window.MECHPLANT_DB.casosEstudio.length)
+        ? window.MECHPLANT_DB.casosEstudio
+        : FALLBACK_CASOS;
+
+      const grid = document.getElementById("abp-grid");
+      const filterBar = document.getElementById("abp-filter-bar");
+      const searchInput = document.getElementById("abp-search-input");
+      let activeArea = "ALL";
+
+      function renderCasos() {
+        const q = searchInput.value.toLowerCase().trim();
+        const filtered = casosData.filter(c => {
+          const matchArea = activeArea === "ALL" || (c.area || "").toLowerCase() === activeArea;
+          const text = `${c.id} ${c.equipo} ${c.titulo} ${c.sintoma} ${c.causaProbable}`.toLowerCase();
+          return matchArea && (!q || text.includes(q));
+        });
+
+        if (!filtered.length) {
+          grid.innerHTML = `
+            <div class="mp-callout mp-callout--norma" style="grid-column: 1 / -1;">
+              <div class="mp-callout__title">Sin casos coincidentes</div>
+              <p>Prueba seleccionando otro filtro temático o limpiando el término de búsqueda.</p>
+            </div>
+          `;
+          return;
+        }
+
+        grid.innerHTML = filtered.map(c => {
+          const sims = (c.simuladores || []).map(s =>
+            `<a href="${s.url}" class="tech-badge tech-badge--cyan" style="text-decoration:none;">⚡ ${s.code}</a>`
+          ).join(" ");
+
+          return `
+            <article class="mp-card" style="display:flex; flex-direction:column; justify-content:space-between; border-top:4px solid #DC2626;">
+              <div>
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px;">
+                  <span class="tech-badge" style="background:#FEE2E2; color:#991B1B;">${c.id} · FALLA DE PLANTA</span>
+                  <span style="font-size:0.75rem; font-family:var(--font-mono); color:var(--text-muted);">${(c.normas || []).join(" · ")}</span>
+                </div>
+
+                <div style="font-size:0.8rem; font-weight:700; color:var(--color-cyan-700, #0369A1); margin-bottom:4px;">${c.equipo}</div>
+                <h2 style="font-size:1.1rem; color:var(--color-navy-800); margin-bottom:10px;">${c.titulo}</h2>
+
+                <div style="background:#F8FAFC; border-left:3px solid #D97706; padding:8px 12px; border-radius:4px; margin-bottom:10px; font-size:0.83rem;">
+                  <strong>Síntoma observado:</strong> ${c.sintoma}
+                </div>
+
+                <p style="font-size:0.84rem; color:var(--text-secondary); margin-bottom:14px;">
+                  <strong>Enfoque de análisis:</strong> ${c.causaProbable}
+                </p>
+
+                <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px;">
+                  ${sims}
+                </div>
+              </div>
+
+              <div style="border-top:1px solid var(--border-subtle); padding-top:12px; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.78rem; color:var(--text-muted);">Caso guiado RCA</span>
+                <a href="${c.url}" class="btn btn--primary" style="font-size:0.82rem;">Resolver Caso &rarr;</a>
+              </div>
+            </article>
+          `;
+        }).join("");
+      }
+
+      filterBar.addEventListener("click", (e) => {
+        const btn = e.target.closest("button[data-area]");
+        if (!btn) return;
+        filterBar.querySelectorAll("button").forEach(b => {
+          b.className = "btn btn--outline-dark";
+        });
+        btn.className = "btn btn--primary";
+        activeArea = btn.dataset.area;
+        renderCasos();
+      });
+
+      searchInput.addEventListener("input", renderCasos);
+      renderCasos();
+    })();
+  </script>
+</body>
+</html>
