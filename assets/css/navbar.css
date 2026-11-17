@@ -1,1 +1,361 @@
+/* ==========================================================================
+   MECHPLANT - BARRA DE NAVEGACIÓN DINÁMICA COMÚN (navbar.css)
+   ========================================================================== */
 
+.mp-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  background: var(--color-navy-800);
+  color: var(--text-inverse);
+  border-bottom: 2px solid var(--color-cyan-500);
+  box-shadow: var(--shadow-md);
+}
+
+.mp-navbar {
+  height: var(--navbar-height);
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* Logo e identidad */
+.mp-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.mp-brand__icon {
+  width: 36px;
+  height: 36px;
+  background: var(--color-cyan-500);
+  border-radius: var(--radius-sm);
+  display: grid;
+  place-items: center;
+  color: #FFFFFF;
+}
+
+.mp-brand__text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.mp-brand__title {
+  font-weight: 800;
+  font-size: 1.15rem;
+  letter-spacing: 0.04em;
+  color: #FFFFFF;
+}
+
+.mp-brand__sub {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: #7DD3FC;
+  letter-spacing: 0.03em;
+}
+
+/* Menú principal */
+.mp-nav-list {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  gap: 4px;
+  height: 100%;
+}
+
+.mp-nav-item {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.mp-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 12px;
+  font-size: 0.86rem;
+  font-weight: 500;
+  color: #E2E8F0;
+  border-radius: var(--radius-sm);
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.mp-nav-link:hover,
+.mp-nav-link.is-active {
+  background: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
+}
+
+.mp-nav-link.is-active {
+  box-shadow: inset 0 -2px 0 var(--color-cyan-500);
+}
+
+/* Mega-menús desplegables */
+.mp-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 540px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-light);
+  border-top: 3px solid var(--color-cyan-500);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: 18px;
+  display: none;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  z-index: 1010;
+}
+
+.mp-dropdown--wide {
+  min-width: 680px;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.mp-nav-item:hover .mp-dropdown,
+.mp-nav-item:focus-within .mp-dropdown {
+  display: grid;
+}
+
+.mp-drop-card {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  transition: all 0.15s;
+}
+
+.mp-drop-card:hover {
+  background: var(--bg-canvas);
+  border-color: var(--color-cyan-500);
+}
+
+.mp-drop-card__code {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--color-cyan-600);
+}
+
+.mp-drop-card__title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-navy-800);
+  margin: 2px 0;
+}
+
+.mp-drop-card__meta {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+/* Herramientas derechas: Buscador, Unidades, Progreso */
+.mp-tools {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mp-search-box {
+  position: relative;
+}
+
+.mp-search-input {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: #FFFFFF;
+  padding: 6px 12px 6px 32px;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  width: 210px;
+  transition: width 0.2s, background 0.2s;
+}
+
+.mp-search-input::placeholder {
+  color: #94A3B8;
+}
+
+.mp-search-input:focus {
+  outline: none;
+  width: 260px;
+  background: var(--color-navy-900);
+  border-color: var(--color-cyan-500);
+}
+
+.mp-search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94A3B8;
+  pointer-events: none;
+}
+
+.mp-search-results {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  width: 360px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  max-height: 360px;
+  overflow-y: auto;
+  display: none;
+  z-index: 1050;
+}
+
+.mp-search-results.is-open {
+  display: block;
+}
+
+.mp-search-item {
+  display: block;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.mp-search-item:hover {
+  background: var(--color-cyan-100);
+}
+
+/* Selector Unidades SI / IPS */
+.mp-unit-toggle {
+  background: var(--color-navy-900);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #7DD3FC;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 5px 9px;
+  border-radius: var(--radius-sm);
+}
+
+.mp-unit-toggle:hover {
+  border-color: var(--color-cyan-500);
+}
+
+/* Pill de Progreso */
+.mp-progress-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 149, 217, 0.18);
+  border: 1px solid rgba(0, 149, 217, 0.45);
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: #E0F2FE;
+}
+
+/* Barra secundaria: Migas de pan + Accesos cruzados */
+.mp-subbar {
+  height: var(--breadcrumb-height);
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+}
+
+.mp-subbar__inner {
+  max-width: var(--container-max);
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mp-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mp-breadcrumb a:hover {
+  color: var(--color-cyan-600);
+  text-decoration: underline;
+}
+
+.mp-context-links {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mp-context-chip {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-canvas);
+  border: 1px solid var(--border-light);
+  color: var(--color-navy-700);
+  transition: all 0.15s;
+}
+
+.mp-context-chip:hover {
+  background: var(--color-cyan-500);
+  color: #FFFFFF;
+  border-color: var(--color-cyan-500);
+}
+
+/* Botón hamburguesa móvil */
+.mp-mobile-btn {
+  display: none;
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #FFFFFF;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+}
+
+@media (max-width: 1120px) {
+  .mp-nav-list {
+    display: none;
+    position: absolute;
+    top: var(--navbar-height);
+    left: 0;
+    width: 100%;
+    height: auto;
+    background: var(--color-navy-900);
+    flex-direction: column;
+    align-items: stretch;
+    padding: 16px;
+    border-bottom: 2px solid var(--color-cyan-500);
+  }
+  .mp-nav-list.is-mobile-open {
+    display: flex;
+  }
+  .mp-dropdown {
+    position: static;
+    min-width: 100%;
+    grid-template-columns: 1fr;
+    margin-top: 6px;
+  }
+  .mp-mobile-btn {
+    display: inline-flex;
+  }
+  .mp-search-input {
+    width: 140px;
+  }
+}
