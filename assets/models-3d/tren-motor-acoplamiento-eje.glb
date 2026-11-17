@@ -1,1 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Generador GLB — Tren Motor - Acoplamiento - Eje</title>
+</head>
+<body style="font-family: sans-serif; padding: 24px; background: #0B192C; color: #fff;">
+  <h2>Exportador CAD a Binario (.glb) — Tren Motor, Acoplamiento Flexible y Eje Apoyado</h2>
+  <button id="btn-export" style="padding: 12px 20px; font-size: 16px; cursor: pointer;">
+    ⬇ Descargar tren-motor-acoplamiento-eje.glb
+  </button>
 
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/GLTFExporter.js"></script>
+  <script>
+    function buildTrenMotorAcoplamientoEje() {
+      const root = new THREE.Group();
+      root.name = "Ensamble_Tren_Motor_Acoplamiento_Eje";
+
+      const matBancada = new THREE.MeshStandardMaterial({ color: 0x1E3A5F, metalness: 0.65, roughness: 0.35 });
+      const matMotor = new THREE.MeshStandardMaterial({ color: 0x0095D9, metalness: 0.72, roughness: 0.28 });
+      const matAcero = new THREE.MeshStandardMaterial({ color: 0xCBD5E1, metalness: 0.85, roughness: 0.2 });
+      const matChumacera = new THREE.MeshStandardMaterial({ color: 0xD97706, metalness: 0.8, roughness: 0.3 });
+      const matElastomero = new THREE.MeshStandardMaterial({ color: 0xDC2626, metalness: 0.3, roughness: 0.55 });
+      const matShims = new THREE.MeshStandardMaterial({ color: 0x22C55E, metalness: 0.85, roughness: 0.2 });
+
+      // 1. Bancada estructural común (Skid / Baseplate)
+      const bancada = new THREE.Mesh(new THREE.BoxGeometry(5.2, 0.24, 1.45), matBancada);
+      bancada.name = "Bancada_Estructural_Comun_ASTM_A36";
+      bancada.position.set(0, -0.78, 0);
+      root.add(bancada);
+
+      // 2. Calzas calibradas (Shims de alineamiento láser API 686) en patas del motor
+      const patasCoords = [
+        { name: "Calzas_Shims_Pata_Delantera_Izq", x: -1.15, z: -0.45 },
+        { name: "Calzas_Shims_Pata_Delantera_Der", x: -1.15, z: 0.45 },
+        { name: "Calzas_Shims_Pata_Trasera_Izq", x: -2.15, z: -0.45 },
+        { name: "Calzas_Shims_Pata_Trasera_Der", x: -2.15, z: 0.45 }
+      ];
+
+      patasCoords.forEach(p => {
+        const shim = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.04, 0.24), matShims);
+        shim.name = p.name;
+        shim.position.set(p.x, -0.64, p.z);
+        root.add(shim);
+      });
+
+      // 3. Motor Eléctrico Trifásico (Carcasa aletada + Patas + Caja de bornes)
+      const carcasaMotor = new THREE.Mesh(new THREE.CylinderGeometry(0.54, 0.54, 1.35, 32), matMotor);
+      carcasaMotor.name = "Carcasa_Motor_Electrico_NEMA_IEC";
+      carcasaMotor.rotation.z = Math.PI / 2;
+      carcasaMotor.position.set(-1.65, -0.05, 0);
+      root.add(carcasaMotor);
+
+      const patasMotor = new THREE.Mesh(new THREE.BoxGeometry(1.18, 0.22, 1.05), matBancada);
+      patasMotor.name = "Patas_Anclaje_Motor_Soft_Foot";
+      patasMotor.position.set(-1.65, -0.51, 0);
+      root.add(patasMotor);
+
+      const cajaBornes = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.24, 0.32), matBancada);
+      cajaBornes.name = "Caja_Conexiones_Electricas";
+      cajaBornes.position.set(-1.65, 0.56, 0);
+      root.add(cajaBornes);
+
+      // 4. Eje Motriz (Motor Shaft)
+      const ejeMotor = new THREE.Mesh(new THREE.CylinderGeometry(0.095, 0.095, 0.65, 24), matAcero);
+      ejeMotor.name = "Eje_Motriz_Salida_Motor";
+      ejeMotor.rotation.z = Math.PI / 2;
+      ejeMotor.position.set(-0.72, -0.05, 0);
+      root.add(ejeMotor);
+
+      // 5. Acoplamiento Flexible (Cubo Motriz, Elemento Elástico/Rejilla y Cubo Conducido)
+      const cuboMotriz = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.16, 28), matAcero);
+      cuboMotriz.name = "Cubo_Acoplamiento_Lado_Motor";
+      cuboMotriz.rotation.z = Math.PI / 2;
+      cuboMotriz.position.set(-0.34, -0.05, 0);
+      root.add(cuboMotriz);
+
+      const elementoFlexible = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.14, 28), matElastomero);
+      elementoFlexible.name = "Elemento_Flexible_Elastomero_Rejilla";
+      elementoFlexible.rotation.z = Math.PI / 2;
+      elementoFlexible.position.set(-0.18, -0.05, 0);
+      root.add(elementoFlexible);
+
+      const cuboConducido = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.16, 28), matAcero);
+      cuboConducido.name = "Cubo_Acoplamiento_Lado_Conducido";
+      cuboConducido.rotation.z = Math.PI / 2;
+      cuboConducido.position.set(-0.02, -0.05, 0);
+      root.add(cuboConducido);
+
+      // 6. Eje Conducido SAE 4140 + Dos Chumaceras Bipartidas de Apoyo
+      const ejeConducido = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 2.25, 24), matAcero);
+      ejeConducido.name = "Eje_Transmision_Conducido_SAE_4140";
+      ejeConducido.rotation.z = Math.PI / 2;
+      ejeConducido.position.set(1.15, -0.05, 0);
+      root.add(ejeConducido);
+
+      const chumacera1 = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.62, 0.68), matChumacera);
+      chumacera1.name = "Chumacera_Apoyo_1_Lado_Acople";
+      chumacera1.position.set(0.45, -0.35, 0);
+      root.add(chumacera1);
+
+      const chumacera2 = chumacera1.clone();
+      chumacera2.name = "Chumacera_Apoyo_2_Lado_Carga";
+      chumacera2.position.set(1.65, -0.35, 0);
+      root.add(chumacera2);
+
+      // 7. Rotor / Volante de inercia conducido (Carga rotativa)
+      const volanteCarga = new THREE.Mesh(new THREE.CylinderGeometry(0.56, 0.56, 0.22, 36), matMotor);
+      volanteCarga.name = "Rotor_Volante_Carga_Conducida";
+      volanteCarga.rotation.z = Math.PI / 2;
+      volanteCarga.position.set(2.18, -0.05, 0);
+      root.add(volanteCarga);
+
+      return root;
+    }
+
+    document.getElementById("btn-export").addEventListener("click", () => {
+      const scene = new THREE.Scene();
+      scene.add(buildTrenMotorAcoplamientoEje());
+
+      const exporter = new THREE.GLTFExporter();
+      exporter.parse(
+        scene,
+        (glbBuffer) => {
+          const blob = new Blob([glbBuffer], { type: "model/gltf-binary" });
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = "tren-motor-acoplamiento-eje.glb";
+          link.click();
+        },
+        { binary: true }
+      );
+    });
+  </script>
+</body>
+</html>
