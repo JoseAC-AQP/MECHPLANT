@@ -1,1 +1,52 @@
+/* ==========================================================================
+   MECHPLANT - ESTILOS DE IMPRESIÓN Y EXPORTACIÓN PDF (print.css)
+   ========================================================================== */
 
+@media print {
+  body {
+    background: #FFFFFF !important;
+    background-image: none !important;
+    color: #000000 !important;
+    padding-top: 0 !important;
+    font-size: 11pt;
+  }
+
+  /* Ocultar elementos interactivos de navegación */
+  .mp-header,
+  .mp-sidebar,
+  .mp-tabs,
+  .mp-form-panel,
+  .btn,
+  .mp-footer {
+    display: none !important;
+  }
+
+  .mp-page-wrapper,
+  .mp-workspace,
+  .mp-sim-layout {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .mp-main-content {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+
+  .mp-equation-box,
+  .mp-calc-step,
+  .mp-kpi-card,
+  .mp-callout {
+    break-inside: avoid;
+    border: 1px solid #999999 !important;
+  }
+
+  .mp-table thead {
+    background: #E2E8F0 !important;
+    color: #000000 !important;
+  }
+}
