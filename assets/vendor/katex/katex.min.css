@@ -1,1 +1,275 @@
+/* MECHPLANT — KaTeX Core Stylesheet (v0.16.11 compatible + Offline Math Layout)
+ * Ruta: assets/js/vendor/katex/katex.min.css
+ */
 
+@font-face {
+  font-family: "KaTeX_Main";
+  src: url("fonts/KaTeX_Main-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "KaTeX_Main";
+  src: url("fonts/KaTeX_Main-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "KaTeX_Main";
+  src: url("fonts/KaTeX_Main-Italic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "KaTeX_Math";
+  src: url("fonts/KaTeX_Math-Italic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "KaTeX_AMS";
+  src: url("fonts/KaTeX_AMS-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "KaTeX_Size1";
+  src: url("fonts/KaTeX_Size1-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "KaTeX_Size2";
+  src: url("fonts/KaTeX_Size2-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Contenedor principal inline */
+.katex {
+  font: normal 1.12em "KaTeX_Main", "Cambria Math", "STIX Two Math", "Times New Roman", serif;
+  line-height: 1.25;
+  text-indent: 0;
+  text-rendering: auto;
+  color: inherit;
+  white-space: nowrap;
+}
+
+.katex * {
+  box-sizing: border-box;
+  border-color: currentColor;
+}
+
+/* Contenedor bloque centrado ($$ ... $$) */
+.katex-display {
+  display: block;
+  margin: 0.9em 0;
+  padding: 0.55em 0.85em;
+  text-align: center;
+  overflow-x: auto;
+  overflow-y: hidden;
+  background: rgba(11, 25, 44, 0.45);
+  border-left: 3px solid #0095D9;
+  border-radius: 6px;
+}
+
+.katex-display > .katex {
+  display: inline-block;
+  text-align: initial;
+  max-width: 100%;
+}
+
+/* Ocultar MathML accesible visualmente manteniendo lectura de pantalla */
+.katex .katex-mathml {
+  position: absolute;
+  clip: rect(1px, 1px, 1px, 1px);
+  padding: 0;
+  border: 0;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+}
+
+.katex .katex-html {
+  display: inline-block;
+  vertical-align: baseline;
+}
+
+.katex .base {
+  position: relative;
+  display: inline-block;
+  white-space: nowrap;
+  width: min-content;
+}
+
+.katex .strut {
+  display: inline-block;
+}
+
+/* Tipografía de variables y operadores */
+.katex .mathnormal,
+.katex .mathit {
+  font-family: "KaTeX_Math", "KaTeX_Main", "Cambria Math", "Times New Roman", serif;
+  font-style: italic;
+}
+
+.katex .mathrm {
+  font-family: "KaTeX_Main", "Cambria Math", "Times New Roman", serif;
+  font-style: normal;
+}
+
+.katex .mathbf {
+  font-family: "KaTeX_Main", "Cambria Math", serif;
+  font-weight: 700;
+}
+
+.katex .amsrm {
+  font-family: "KaTeX_AMS", "Cambria Math", serif;
+}
+
+.katex .mbin {
+  margin: 0 0.22em;
+}
+
+.katex .mrel {
+  margin: 0 0.28em;
+}
+
+.katex .mop {
+  margin-right: 0.16em;
+}
+
+.katex .mpunct {
+  margin-right: 0.16em;
+}
+
+/* Listas verticales y superíndices / subíndices */
+.katex .vlist-t {
+  display: inline-table;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+.katex .vlist-r {
+  display: table-row;
+}
+
+.katex .vlist {
+  display: table-cell;
+  vertical-align: bottom;
+  position: relative;
+}
+
+.katex .vlist > span {
+  display: block;
+  height: 0;
+  position: relative;
+}
+
+.katex .vlist > span > span {
+  display: inline-block;
+}
+
+.katex .msupsub {
+  text-align: left;
+  font-size: 0.76em;
+}
+
+.katex .mp-sup {
+  vertical-align: super;
+  font-size: 0.76em;
+  line-height: 0;
+}
+
+.katex .mp-sub {
+  vertical-align: sub;
+  font-size: 0.76em;
+  line-height: 0;
+}
+
+/* Fracciones */
+.katex .mfrac > span > span {
+  text-align: center;
+}
+
+.katex .mfrac .frac-line {
+  display: inline-block;
+  width: 100%;
+  border-bottom-style: solid;
+  border-bottom-width: 0.06em;
+}
+
+.katex .mp-frac {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: middle;
+  margin: 0 0.2em;
+  font-size: 0.92em;
+}
+
+.katex .mp-frac-num {
+  padding: 0 0.25em 0.12em;
+  border-bottom: 1.5px solid currentColor;
+  line-height: 1.15;
+}
+
+.katex .mp-frac-den {
+  padding: 0.14em 0.25em 0;
+  line-height: 1.15;
+}
+
+/* Raíces cuadradas */
+.katex .msqrt {
+  display: inline-flex;
+  align-items: stretch;
+  vertical-align: middle;
+}
+
+.katex .sqrt-sign {
+  position: relative;
+  font-family: "KaTeX_Size1", "KaTeX_Main", serif;
+  padding-right: 0.05em;
+}
+
+.katex .mp-sqrt-body {
+  border-top: 1.4px solid currentColor;
+  padding: 0.06em 0.18em 0;
+  display: inline-block;
+}
+
+/* Matrices y tablas de ecuaciones */
+.katex .mtable {
+  display: inline-table;
+  vertical-align: middle;
+  border-collapse: collapse;
+}
+
+.katex .mtr {
+  display: table-row;
+}
+
+.katex .mtd {
+  display: table-cell;
+  padding: 0.15em 0.45em;
+}
+
+/* Resalte de error LaTeX */
+.katex-error {
+  color: #F87171;
+  font-family: monospace;
+  font-size: 0.9em;
+}
