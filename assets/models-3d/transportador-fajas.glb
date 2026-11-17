@@ -1,1 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Generador GLB — Transportador de Fajas</title>
+</head>
+<body style="font-family: sans-serif; padding: 24px; background: #0B192C; color: #fff;">
+  <h2>Exportador CAD a Binario (.glb) — Faja Transportadora Industrial (Conveyor)</h2>
+  <button id="btn-export" style="padding: 12px 20px; font-size: 16px; cursor: pointer;">
+    ⬇ Descargar transportador-fajas.glb
+  </button>
 
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/GLTFExporter.js"></script>
+  <script>
+    function buildTransportadorFajas() {
+      const root = new THREE.Group();
+      root.name = "Ensamble_Transportador_Fajas";
+
+      const matEstructura = new THREE.MeshStandardMaterial({ color: 0x1E3A5F, metalness: 0.65, roughness: 0.35 });
+      const matBanda = new THREE.MeshStandardMaterial({ color: 0x1E293B, metalness: 0.2, roughness: 0.75 });
+      const matTambor = new THREE.MeshStandardMaterial({ color: 0x0095D9, metalness: 0.75, roughness: 0.28 });
+      const matAcero = new THREE.MeshStandardMaterial({ color: 0xCBD5E1, metalness: 0.85, roughness: 0.2 });
+      const matChumacera = new THREE.MeshStandardMaterial({ color: 0xD97706, metalness: 0.8, roughness: 0.3 });
+
+      // 1. Largueros estructurales laterales (Stringers)
+      const largueroIzq = new THREE.Mesh(new THREE.BoxGeometry(5.6, 0.22, 0.12), matEstructura);
+      largueroIzq.name = "Larguero_Estructural_Izquierdo";
+      largueroIzq.position.set(0, 0, -0.78);
+      root.add(largueroIzq);
+
+      const largueroDer = largueroIzq.clone();
+      largueroDer.name = "Larguero_Estructural_Derecho";
+      largueroDer.position.set(0, 0, 0.78);
+      root.add(largueroDer);
+
+      // Patas de soporte
+      [-2.4, 0, 2.4].forEach((xPos, idx) => {
+        const pata = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.95, 1.68), matEstructura);
+        pata.name = `Soporte_Estructural_Tramo_${idx + 1}`;
+        pata.position.set(xPos, -0.45, 0);
+        root.add(pata);
+      });
+
+      // 2. Tambor Motriz Revestido (Head Drive Pulley) + Eje
+      const tamborMotriz = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 1.32, 32), matTambor);
+      tamborMotriz.name = "Tambor_Motriz_Revestido_Caucho";
+      tamborMotriz.rotation.x = Math.PI / 2;
+      tamborMotriz.position.set(2.75, 0.08, 0);
+      root.add(tamborMotriz);
+
+      const ejeMotriz = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 2.15, 24), matAcero);
+      ejeMotriz.name = "Eje_Tambor_Motriz_SAE_4140";
+      ejeMotriz.rotation.x = Math.PI / 2;
+      ejeMotriz.position.set(2.75, 0.08, 0.2);
+      root.add(ejeMotriz);
+
+      // Chumaceras bipartidas SNL del tambor motriz
+      const chum1 = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.32, 0.24), matChumacera);
+      chum1.name = "Chumacera_Bipartida_Motriz_Izq";
+      chum1.position.set(2.75, 0.08, -0.78);
+      root.add(chum1);
+
+      const chum2 = chum1.clone();
+      chum2.name = "Chumacera_Bipartida_Motriz_Der";
+      chum2.position.set(2.75, 0.08, 0.78);
+      root.add(chum2);
+
+      // 3. Reductor Pendular + Motor Eléctrico en eje motriz
+      const reductor = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.78, 0.34), matEstructura);
+      reductor.name = "Reductor_Pendular_Ejes_Paralelos";
+      reductor.position.set(2.55, -0.15, 1.08);
+      root.add(reductor);
+
+      const motor = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.65, 24), matTambor);
+      motor.name = "Motor_Electrico_NEMA_4P";
+      motor.rotation.z = Math.PI / 2;
+      motor.position.set(2.05, -0.35, 1.08);
+      root.add(motor);
+
+      // 4. Tambor de Cola (Tail Pulley) + Tambor Deflector (Snub Pulley)
+      const tamborCola = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 1.32, 32), matTambor);
+      tamborCola.name = "Tambor_Cola_Tensor_Tornillo";
+      tamborCola.rotation.x = Math.PI / 2;
+      tamborCola.position.set(-2.75, 0.08, 0);
+      root.add(tamborCola);
+
+      const tamborSnub = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 1.32, 24), matAcero);
+      tamborSnub.name = "Tambor_Deflector_Snub_Pulley";
+      tamborSnub.rotation.x = Math.PI / 2;
+      tamborSnub.position.set(2.15, -0.22, 0);
+      root.add(tamborSnub);
+
+      // 5. Banda Transportadora (Tramo superior e inferior)
+      const bandaSup = new THREE.Mesh(new THREE.BoxGeometry(5.5, 0.05, 1.24), matBanda);
+      bandaSup.name = "Banda_Transportadora_EP_Tramo_Carga";
+      bandaSup.position.set(0, 0.42, 0);
+      root.add(bandaSup);
+
+      const bandaInf = new THREE.Mesh(new THREE.BoxGeometry(5.5, 0.05, 1.24), matBanda);
+      bandaInf.name = "Banda_Transportadora_EP_Tramo_Retorno";
+      bandaInf.position.set(0, -0.24, 0);
+      root.add(bandaInf);
+
+      // 6. Estaciones de Polines de Carga y Retorno
+      [-1.8, -0.9, 0, 0.9, 1.8].forEach((xPos, idx) => {
+        const polinCarga = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.075, 1.28, 20), matAcero);
+        polinCarga.name = `Estacion_Polines_Carga_${idx + 1}`;
+        polinCarga.rotation.x = Math.PI / 2;
+        polinCarga.position.set(xPos, 0.31, 0);
+        root.add(polinCarga);
+
+        const polinRetorno = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.065, 1.3, 20), matAcero);
+        polinRetorno.name = `Polin_Retorno_Liso_${idx + 1}`;
+        polinRetorno.rotation.x = Math.PI / 2;
+        polinRetorno.position.set(xPos, -0.34, 0);
+        root.add(polinRetorno);
+      });
+
+      return root;
+    }
+
+    document.getElementById("btn-export").addEventListener("click", () => {
+      const scene = new THREE.Scene();
+      scene.add(buildTransportadorFajas());
+
+      const exporter = new THREE.GLTFExporter();
+      exporter.parse(
+        scene,
+        (glbBuffer) => {
+          const blob = new Blob([glbBuffer], { type: "model/gltf-binary" });
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = "transportador-fajas.glb";
+          link.click();
+        },
+        { binary: true }
+      );
+    });
+  </script>
+</body>
+</html>
