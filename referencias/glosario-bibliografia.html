@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Glosario Técnico y Bibliografía | MECHPLANT</title>
+  <link rel="manifest" href="../manifest.json" />
+  <meta name="theme-color" content="#0B192C" />
+
+  <link rel="stylesheet" href="../assets/css/tokens.css" />
+  <link rel="stylesheet" href="../assets/css/reset.css" />
+  <link rel="stylesheet" href="../assets/css/layout.css" />
+  <link rel="stylesheet" href="../assets/css/navbar.css" />
+  <link rel="stylesheet" href="../assets/css/components.css" />
+  <link rel="stylesheet" href="../assets/css/math-diagrams.css" />
+  <link rel="stylesheet" href="../assets/css/print.css" media="print" />
+</head>
+<body data-root="../">
+  <header id="mp-navbar"></header>
+
+  <main class="mp-container" style="padding-top: 28px; padding-bottom: 48px;">
+    <nav aria-label="Ruta de navegación" style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 14px;">
+      <a href="../index.html">Inicio</a> &rsaquo; <a href="index.html">Referencias</a> &rsaquo; <strong>Glosario y Bibliografía</strong>
+    </nav>
+
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;">
+      <div>
+        <span class="tech-badge tech-badge--cyan">TERMINOLOGÍA DE INGENIERÍA DE PLANTA</span>
+        <h1 style="font-size: 1.75rem; color: var(--color-navy-800); margin-top: 6px;">Glosario Técnico y Bibliografía Base</h1>
+      </div>
+
+      <input type="search" id="glosario-search" placeholder="Buscar término (ej. Pitting, Soft Foot, Goodman)..."
+        style="padding: 9px 14px; border: 1px solid var(--border-strong); border-radius: var(--radius-md); min-width: 300px; font-size: 0.88rem;" />
+    </div>
+
+    <!-- Glosario Técnico -->
+    <section id="glosario-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 16px; margin-bottom: 36px;">
+      <article class="mp-card glosario-item">
+        <span class="tech-badge">M01 · FATIGA</span>
+        <h3 style="font-size: 1.05rem; color: var(--color-navy-800); margin: 8px 0 6px;">Marcas de Playa (Beach Marks)</h3>
+        <p style="font-size: 0.86rem; color: var(--text-secondary);">
+          Líneas macroscópicas concéntricas en la superficie de fractura de un eje o perno que evidencian la propagación progresiva de una grieta por fatiga bajo cargas cíclicas variables antes de la rotura súbita final.
+        </p>
+      </article>
+
+      <article class="mp-card glosario-item">
+        <span class="tech-badge">M02 · UNIONES</span>
+        <h3 style="font-size: 1.05rem; color: var(--color-navy-800); margin: 8px 0 6px;">Precarga de Perno ($F_i$)</h3>
+        <p style="font-size: 0.86rem; color: var(--text-secondary);">
+          Tensión axial inicial inducida en el vástago del perno al aplicar el torque de apriete, responsable de mantener comprimidos los miembros de la junta y evitar su separación o deslizamiento bajo carga externa.
+        </p>
+      </article>
+
+      <article class="mp-card glosario-item">
+        <span class="tech-badge">M03 · EJES</span>
+        <h3 style="font-size: 1.05rem; color: var(--color-navy-800); margin: 8px 0 6px;">Concentrador de Esfuerzos ($K_t / K_f$)</h3>
+        <p style="font-size: 0.86rem; color: var(--text-secondary);">
+          Factor que cuantifica el incremento localizado del esfuerzo nominal debido a discontinuidades geométricas como cambios de diámetro (hombros), chaveteros, ranuras para anillos Seeger o agujeros transversales.
+        </p>
+      </article>
+
+      <article class="mp-card glosario-item">
+        <span class="tech-badge">M04 · RODAMIENTOS</span>
+        <h3 style="font-size: 1.05rem; color: var(--color-navy-800); margin: 8px 0 6px;">Spalling (Desconchado por Fatiga)</h3>
+        <p style="font-size: 0.86rem; color: var(--text-secondary);">
+          Desprendimiento de escamas metálicas en las pistas de rodadura o elementos rodantes causado por grietas subsuperficiales de fatiga por contacto rodante tras superar la vida útil o sufrir sobrecarga.
+        </p>
+      </article>
+
+      <article class="mp-card glosario-item">
+        <span class="tech-badge">M05 · CADENAS</span>
+        <h3 style="font-size: 1.05rem; color: var(--color-navy-800); margin: 8px 0 6px;">Efecto Poligonal (Cordal)</h3>
+        <p style="font-size: 0.86rem; color: var(--text-secondary);">
+          Fluctuación periódica de la velocidad lineal de una cadena de rodillos causada porque el eslabón se articula sobre los vértices de un polígono (los dientes del piñón) en lugar de un círculo continuo. Se reduce usando $Z_1 \ge 17$.
+        </p>
+      </article>
+
+      <article class="mp-card glosario-item">
+        <span class="tech-badge">M06 · ALINEAMIENTO</span>
+        <h3 style="font-size: 1.05rem; color: var(--color-navy-800); margin: 8px 0 6px;">Pata Coja (Soft Foot)</h3>
+        <p style="font-size: 0.86rem; color: var(--text-secondary);">
+          Condición en la que una o más patas de la carcasa de un motor o bomba no apoyan en el mismo plano que las demás, provocando deformación del bastidor y desalineamiento interno de rodamientos al apretar los pernos de anclaje.
+        </p>
+      </article>
+
+      <article class="mp-card glosario-item">
+        <span class="tech-badge">M07 · ENGRANAJES</span>
+        <h3 style="font-size: 1.05rem; color: var(--color-navy-800); margin: 8px 0 6px;">Pitting (Picadura Superficial)</h3>
+        <p style="font-size: 0.86rem; color: var(--text-secondary);">
+          Falla superficial en el flanco activo de los dientes de engranajes (cerca de la línea primitiva) provocada por esfuerzos de contacto hertzianos repetitivos superiores a la resistencia superficial del material o pérdida de película lubricante.
+        </p>
+      </article>
+
+      <article class="mp-card glosario-item">
+        <span class="tech-badge">M08 · CONFIABILIDAD</span>
+        <h3 style="font-size: 1.05rem; color: var(--color-navy-800); margin: 8px 0 6px;">MTBF y Disponibilidad Inherente ($A_i$)</h3>
+        <p style="font-size: 0.86rem; color: var(--text-secondary);">
+          <strong>MTBF</strong> es el tiempo operativo promedio entre fallas reparables. La Disponibilidad Inherente se calcula como $A_i = \text{MTBF} / (\text{MTBF} + \text{MTTR})$, excluyendo demoras logísticas o administrativas.
+        </p>
+      </article>
+    </section>
+
+    <!-- Bibliografía Oficial -->
+    <section class="mp-card">
+      <h2 style="font-size: 1.2rem; color: var(--color-navy-800); margin-bottom: 12px;">Bibliografía Fundamental y Manuales de Referencia</h2>
+      <ul style="display: grid; gap: 10px; font-size: 0.9rem; color: var(--text-secondary); padding-left: 18px;">
+        <li>
+          <strong>Budynas, R. G., &amp; Nisbett, J. K. (2020).</strong> <em>Shigley's Mechanical Engineering Design</em> (11.ª ed.). McGraw-Hill Education. (Base de ecuaciones para esfuerzos combinados, falla estática, fatiga DE-Goodman, uniones empernadas, ejes, fajas, cadenas y engranajes AGMA).
+        </li>
+        <li>
+          <strong>Norton, R. L. (2020).</strong> <em>Machine Design: An Integrated Approach</em> (6.ª ed.). Pearson. (Metodología de síntesis de diseño, factores de concentración de esfuerzos, tribología y diseño de ejes).
+        </li>
+        <li>
+          <strong>SKF Group. (2023).</strong> <em>Rolling Bearings Catalogue &amp; Maintenance Handbook</em>. (Tablas de capacidad dinámica $C$, estática $C_0$, ajustes ISO 286, lubricación y análisis de fallas ISO 15243).
+        </li>
+        <li>
+          <strong>Bloch, H. P., &amp; Geitner, F. K. (2012).</strong> <em>Machinery Failure Analysis and Troubleshooting</em> (4.ª ed.). Butterworth-Heinemann. (Diagnóstico de fallas en bombas centrífugas, reductores, acoplamientos y maquinaria rotativa de planta).
+        </li>
+      </ul>
+    </section>
+  </main>
+
+  <script src="../assets/js/data/db-curriculum.js"></script>
+  <script src="../assets/js/data/db-equipos.js"></script>
+  <script src="../assets/js/data/db-componentes.js"></script>
+  <script src="../assets/js/data/db-normas.js"></script>
+  <script src="../assets/js/core/navbar.js"></script>
+  <script src="../assets/js/core/search-engine.js"></script>
+  <script src="../assets/js/core/unit-converter.js"></script>
+  <script src="../assets/js/core/progress-tracker.js"></script>
+  <script src="../assets/js/core/app-init.js"></script>
+
+  <script>
+    document.getElementById("glosario-search").addEventListener("input", function (e) {
+      const q = e.target.value.toLowerCase().trim();
+      document.querySelectorAll(".glosario-item").forEach(card => {
+        card.style.display = card.textContent.toLowerCase().includes(q) ? "" : "none";
+      });
+    });
+  </script>
+</body>
+</html>
