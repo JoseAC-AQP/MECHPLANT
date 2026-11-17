@@ -1,1 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Generador GLB — Chancadora de Quijadas</title>
+</head>
+<body style="font-family: sans-serif; padding: 24px; background: #0B192C; color: #fff;">
+  <h2>Exportador CAD a Binario (.glb) — Chancadora de Quijadas Primaria (Blake)</h2>
+  <button id="btn-export" style="padding: 12px 20px; font-size: 16px; cursor: pointer;">
+    ⬇ Descargar chancadora-quijadas.glb
+  </button>
 
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/GLTFExporter.js"></script>
+  <script>
+    function buildChancadoraQuijadas() {
+      const root = new THREE.Group();
+      root.name = "Ensamble_Chancadora_Quijadas";
+
+      const matBastidor = new THREE.MeshStandardMaterial({ color: 0x1E3A5F, metalness: 0.65, roughness: 0.35 });
+      const matManganeso = new THREE.MeshStandardMaterial({ color: 0x0095D9, metalness: 0.72, roughness: 0.28 });
+      const matAcero = new THREE.MeshStandardMaterial({ color: 0xCBD5E1, metalness: 0.85, roughness: 0.2 });
+      const matBronce = new THREE.MeshStandardMaterial({ color: 0xD97706, metalness: 0.8, roughness: 0.3 });
+      const matResorte = new THREE.MeshStandardMaterial({ color: 0xDC2626, metalness: 0.6, roughness: 0.35 });
+
+      // 1. Bastidor principal lateral izquierdo y derecho + frontal
+      const placaIzq = new THREE.Mesh(new THREE.BoxGeometry(2.8, 1.85, 0.22), matBastidor);
+      placaIzq.name = "Bastidor_Lateral_Izquierdo";
+      placaIzq.position.set(0, 0, -0.95);
+      root.add(placaIzq);
+
+      const placaDer = placaIzq.clone();
+      placaDer.name = "Bastidor_Lateral_Derecho";
+      placaDer.position.set(0, 0, 0.95);
+      root.add(placaDer);
+
+      const soporteFrontal = new THREE.Mesh(new THREE.BoxGeometry(0.35, 1.85, 2.12), matBastidor);
+      soporteFrontal.name = "Cabezal_Frontal_Bastidor";
+      soporteFrontal.position.set(-1.25, 0, 0);
+      root.add(soporteFrontal);
+
+      const soporteTrasero = new THREE.Mesh(new THREE.BoxGeometry(0.32, 1.45, 2.12), matBastidor);
+      soporteTrasero.name = "Travesano_Trasero_Ajuste";
+      soporteTrasero.position.set(1.25, -0.2, 0);
+      root.add(soporteTrasero);
+
+      // 2. Muela fija (Fixed Jaw Liner - Acero al Manganeso)
+      const muelaFija = new THREE.Mesh(new THREE.BoxGeometry(0.22, 1.55, 1.62), matManganeso);
+      muelaFija.name = "Muela_Fija_Acero_Manganeso_ASTM_A128";
+      muelaFija.position.set(-0.98, 0.08, 0);
+      root.add(muelaFija);
+
+      // 3. Biela móvil (Pitman) + Muela móvil inclinada
+      const pitman = new THREE.Mesh(new THREE.BoxGeometry(0.46, 1.75, 1.64), matBastidor);
+      pitman.name = "Biela_Movil_Pitman";
+      pitman.rotation.z = -0.24;
+      pitman.position.set(-0.08, 0.12, 0);
+      root.add(pitman);
+
+      const muelaMovil = new THREE.Mesh(new THREE.BoxGeometry(0.22, 1.55, 1.62), matManganeso);
+      muelaMovil.name = "Muela_Movil_Acero_Manganeso";
+      muelaMovil.rotation.z = -0.24;
+      muelaMovil.position.set(-0.36, 0.06, 0);
+      root.add(muelaMovil);
+
+      // 4. Eje excéntrico SAE 4340
+      const ejeExcentrico = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 2.95, 28), matAcero);
+      ejeExcentrico.name = "Eje_Excentrico_SAE_4340";
+      ejeExcentrico.rotation.x = Math.PI / 2;
+      ejeExcentrico.position.set(0.02, 0.72, 0);
+      root.add(ejeExcentrico);
+
+      // 5. Chumaceras bipartidas con rodamientos a rótula
+      const chumaceraIzq = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 0.34, 24), matBronce);
+      chumaceraIzq.name = "Chumacera_Rodamiento_Rotula_Izq";
+      chumaceraIzq.rotation.x = Math.PI / 2;
+      chumaceraIzq.position.set(0.02, 0.72, -0.95);
+      root.add(chumaceraIzq);
+
+      const chumaceraDer = chumaceraIzq.clone();
+      chumaceraDer.name = "Chumacera_Rodamiento_Rotula_Der";
+      chumaceraDer.position.set(0.02, 0.72, 0.95);
+      root.add(chumaceraDer);
+
+      // 6. Volantes de inercia (Contrapesado y Polea Acanalada 8V)
+      const volanteLiso = new THREE.Mesh(new THREE.CylinderGeometry(0.95, 0.95, 0.24, 36), matAcero);
+      volanteLiso.name = "Volante_Inercia_Contrapesado";
+      volanteLiso.rotation.x = Math.PI / 2;
+      volanteLiso.position.set(0.02, 0.72, -1.35);
+      root.add(volanteLiso);
+
+      const volantePolea = new THREE.Mesh(new THREE.CylinderGeometry(0.95, 0.95, 0.32, 36), matAcero);
+      volantePolea.name = "Volante_Polea_Motriz_Fajas_8V";
+      volantePolea.rotation.x = Math.PI / 2;
+      volantePolea.position.set(0.02, 0.72, 1.38);
+      root.add(volantePolea);
+
+      // 7. Placa basculante (Toggle Plate - Fusible Mecánico)
+      const togglePlate = new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.12, 1.38), matBronce);
+      togglePlate.name = "Placa_Basculante_Toggle_Fusible_Mecanico";
+      togglePlate.rotation.z = -0.18;
+      togglePlate.position.set(0.62, -0.58, 0);
+      root.add(togglePlate);
+
+      // 8. Barra y resorte de tensión de retorno
+      const resorteRetorno = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.85, 20), matResorte);
+      resorteRetorno.name = "Resorte_Retorno_Biela";
+      resorteRetorno.rotation.z = Math.PI / 2;
+      resorteRetorno.position.set(0.68, -0.82, 0);
+      root.add(resorteRetorno);
+
+      return root;
+    }
+
+    document.getElementById("btn-export").addEventListener("click", () => {
+      const scene = new THREE.Scene();
+      scene.add(buildChancadoraQuijadas());
+
+      const exporter = new THREE.GLTFExporter();
+      exporter.parse(
+        scene,
+        (glbBuffer) => {
+          const blob = new Blob([glbBuffer], { type: "model/gltf-binary" });
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = "chancadora-quijadas.glb";
+          link.click();
+        },
+        { binary: true }
+      );
+    });
+  </script>
+</body>
+</html>
