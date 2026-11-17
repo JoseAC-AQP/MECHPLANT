@@ -1,1 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Generador GLB — Reductor de Engranajes Helicoidales</title>
+</head>
+<body style="font-family: sans-serif; padding: 24px; background: #0B192C; color: #fff;">
+  <h2>Exportador CAD a Binario (.glb) — Reductor Industrial de Engranajes Helicoidales (2 Etapas)</h2>
+  <button id="btn-export" style="padding: 12px 20px; font-size: 16px; cursor: pointer;">
+    ⬇ Descargar reductor-engranajes.glb
+  </button>
 
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/GLTFExporter.js"></script>
+  <script>
+    function buildReductorEngranajes() {
+      const root = new THREE.Group();
+      root.name = "Ensamble_Reductor_Engranajes_Helicoidales";
+
+      const matCarcasa = new THREE.MeshStandardMaterial({
+        color: 0x1E3A5F,
+        metalness: 0.65,
+        roughness: 0.35,
+        transparent: true,
+        opacity: 0.88
+      });
+      const matPinon = new THREE.MeshStandardMaterial({ color: 0x0095D9, metalness: 0.78, roughness: 0.24 });
+      const matEngranaje = new THREE.MeshStandardMaterial({ color: 0xCBD5E1, metalness: 0.85, roughness: 0.22 });
+      const matEje = new THREE.MeshStandardMaterial({ color: 0x94A3B8, metalness: 0.88, roughness: 0.18 });
+      const matRodamiento = new THREE.MeshStandardMaterial({ color: 0xD97706, metalness: 0.8, roughness: 0.3 });
+
+      // 1. Carcasa Bipartida Inferior y Superior (ASTM A48 Clase 30)
+      const carcasaInf = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.85, 1.45), matCarcasa);
+      carcasaInf.name = "Carcasa_Inferior_Fundicion_ASTM_A48";
+      carcasaInf.position.set(0, -0.45, 0);
+      root.add(carcasaInf);
+
+      const carcasaSup = new THREE.Mesh(new THREE.BoxGeometry(2.65, 0.78, 1.38), matCarcasa);
+      carcasaSup.name = "Tapa_Superior_Bipartida_Inspeccion";
+      carcasaSup.position.set(0, 0.38, 0);
+      root.add(carcasaSup);
+
+      // 2. Eje de Entrada Alta Velocidad + Piñón Helicoidal Etapa 1
+      const ejeEntrada = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 1.95, 24), matEje);
+      ejeEntrada.name = "Eje_Entrada_Alta_Velocidad_SAE_4140";
+      ejeEntrada.rotation.x = Math.PI / 2;
+      ejeEntrada.position.set(-0.82, 0.25, 0.28);
+      root.add(ejeEntrada);
+
+      const pinon1 = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.34, 28), matPinon);
+      pinon1.name = "Pinon_Helicoidal_Etapa_1_Z18";
+      pinon1.rotation.x = Math.PI / 2;
+      pinon1.position.set(-0.82, 0.25, -0.25);
+      root.add(pinon1);
+
+      // 3. Eje Intermedio + Engranaje Conducido Etapa 1 + Piñón Etapa 2
+      const ejeIntermedio = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 1.25, 24), matEje);
+      ejeIntermedio.name = "Eje_Intermedio_SAE_4340";
+      ejeIntermedio.rotation.x = Math.PI / 2;
+      ejeIntermedio.position.set(-0.08, -0.05, 0);
+      root.add(ejeIntermedio);
+
+      const engranaje1 = new THREE.Mesh(new THREE.CylinderGeometry(0.58, 0.58, 0.32, 36), matEngranaje);
+      engranaje1.name = "Engranaje_Helicoidal_Etapa_1_Z74";
+      engranaje1.rotation.x = Math.PI / 2;
+      engranaje1.position.set(-0.08, -0.05, -0.25);
+      root.add(engranaje1);
+
+      const pinon2 = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.42, 28), matPinon);
+      pinon2.name = "Pinon_Helicoidal_Etapa_2_Z19";
+      pinon2.rotation.x = Math.PI / 2;
+      pinon2.position.set(-0.08, -0.05, 0.26);
+      root.add(pinon2);
+
+      // 4. Eje de Salida Alto Torque + Corona Helicoidal Etapa 2
+      const ejeSalida = new THREE.Mesh(new THREE.CylinderGeometry(0.19, 0.19, 2.05, 28), matEje);
+      ejeSalida.name = "Eje_Salida_Alto_Torque_SAE_4340";
+      ejeSalida.rotation.x = Math.PI / 2;
+      ejeSalida.position.set(0.78, -0.22, -0.25);
+      root.add(ejeSalida);
+
+      const corona2 = new THREE.Mesh(new THREE.CylinderGeometry(0.68, 0.68, 0.4, 40), matEngranaje);
+      corona2.name = "Corona_Helicoidal_Etapa_2_Z85";
+      corona2.rotation.x = Math.PI / 2;
+      corona2.position.set(0.78, -0.22, 0.26);
+      root.add(corona2);
+
+      // 5. Rodamientos de Rodillos Cónicos (Apoyos principales)
+      const posicionesRod = [
+        { name: "Rodamiento_Conico_Entrada_1", x: -0.82, y: 0.25, z: -0.58, r: 0.19 },
+        { name: "Rodamiento_Conico_Entrada_2", x: -0.82, y: 0.25, z: 0.58, r: 0.19 },
+        { name: "Rodamiento_Conico_Intermedio_1", x: -0.08, y: -0.05, z: -0.58, r: 0.22 },
+        { name: "Rodamiento_Conico_Intermedio_2", x: -0.08, y: -0.05, z: 0.58, r: 0.22 },
+        { name: "Rodamiento_Conico_Salida_1", x: 0.78, y: -0.22, z: -0.58, r: 0.28 },
+        { name: "Rodamiento_Conico_Salida_2", x: 0.78, y: -0.22, z: 0.58, r: 0.28 }
+      ];
+
+      posicionesRod.forEach(p => {
+        const rod = new THREE.Mesh(new THREE.TorusGeometry(p.r, 0.045, 14, 28), matRodamiento);
+        rod.name = p.name;
+        rod.position.set(p.x, p.y, p.z);
+        root.add(rod);
+      });
+
+      return root;
+    }
+
+    document.getElementById("btn-export").addEventListener("click", () => {
+      const scene = new THREE.Scene();
+      scene.add(buildReductorEngranajes());
+
+      const exporter = new THREE.GLTFExporter();
+      exporter.parse(
+        scene,
+        (glbBuffer) => {
+          const blob = new Blob([glbBuffer], { type: "model/gltf-binary" });
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = "reductor-engranajes.glb";
+          link.click();
+        },
+        { binary: true }
+      );
+    });
+  </script>
+</body>
+</html>
