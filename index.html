@@ -1,1 +1,512 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MECHPLANT | Diseño de Elementos de Máquinas aplicado al Mantenimiento Industrial</title>
+  <link rel="stylesheet" href="assets/css/tokens.css" />
+  <link rel="stylesheet" href="assets/css/navbar.css" />
+  <link rel="stylesheet" href="assets/css/home.css" />
+</head>
+<body data-root="" data-section="inicio" data-breadcrumb="Centro de Control de Ingeniería Aplicada">
 
+  <!-- 0. BARRA DE NAVEGACIÓN DINÁMICA COMÚN -->
+  <header id="mp-global-header" class="mp-header"></header>
+
+  <main>
+    <!-- 1. HERO DE INGENIERÍA APLICADA -->
+    <section class="hero-section">
+      <div class="container hero-grid">
+        <div>
+          <span class="hero-eyebrow">INGENIERÍA MECÁNICA APLICADA • PLANTA Y MINERÍA</span>
+          <h1 class="hero-title">Diseño de Elementos de Máquinas en el Corazón de la Planta Industrial</h1>
+          
+          <blockquote class="hero-principle">
+            <strong>Principio MECHPLANT:</strong> "No estudiar un elemento de máquina de manera aislada. Comprender cómo funciona, cómo se diseña, dónde trabaja, cómo falla y cómo se mantiene dentro de un equipo industrial real."
+          </blockquote>
+
+          <div class="hero-actions">
+            <a href="modulos/m1-introduccion-diseno/index.html" class="btn btn--primary">
+              ▶ Iniciar Ruta Académica (Módulo 1)
+            </a>
+            <a href="#explorador-planta" class="btn btn--outline">
+              ⚙ Explorar Equipos de Planta
+            </a>
+          </div>
+
+          <div class="hero-refs">
+            <span>Referencias Base:</span>
+            <span class="tech-badge">Shigley (11ª Ed.)</span>
+            <span class="tech-badge">Norton (6ª Ed.)</span>
+            <span class="tech-badge">ISO • ASME • AGMA • SAE</span>
+          </div>
+        </div>
+
+        <!-- Diagrama Interactivo del Tren de Accionamiento -->
+        <div class="powertrain-card">
+          <div class="powertrain-card__header">
+            <span>ESQUEMA INTERACTIVO: TREN DE ACCIONAMIENTO</span>
+            <span>[Clic en un componente]</span>
+          </div>
+
+          <svg class="powertrain-svg" viewBox="0 0 560 190" role="img" aria-label="Tren de accionamiento industrial interactivo">
+            <!-- Línea base estructural -->
+            <line x1="20" y1="155" x2="540" y2="155" stroke="#334155" stroke-width="4" />
+            <!-- Línea de eje central -->
+            <line x1="35" y1="95" x2="525" y2="95" stroke="#0095D9" stroke-width="1.5" stroke-dasharray="6 4" />
+
+            <!-- 1. Motor Eléctrico -->
+            <g class="pt-node is-selected" data-pt="motor">
+              <rect x="30" y="50" width="110" height="90" rx="6" fill="#1E293B" stroke="#64748B" stroke-width="2" />
+              <line x1="45" y1="65" x2="125" y2="65" stroke="#475569" stroke-width="2" />
+              <line x1="45" y1="80" x2="125" y2="80" stroke="#475569" stroke-width="2" />
+              <line x1="45" y1="110" x2="125" y2="110" stroke="#475569" stroke-width="2" />
+              <line x1="45" y1="125" x2="125" y2="125" stroke="#475569" stroke-width="2" />
+              <text x="85" y="175" fill="#CBD5E1" font-size="11" font-family="JetBrains Mono" text-anchor="middle">1. MOTOR</text>
+            </g>
+
+            <!-- 2. Acoplamiento y Chaveta -->
+            <g class="pt-node" data-pt="acoplamiento">
+              <rect x="140" y="86" width="25" height="18" fill="#475569" />
+              <rect x="165" y="72" width="32" height="46" rx="3" fill="#1E293B" stroke="#94A3B8" stroke-width="2" />
+              <line x1="181" y1="72" x2="181" y2="118" stroke="#0095D9" stroke-width="2" />
+              <text x="181" y="175" fill="#CBD5E1" font-size="11" font-family="JetBrains Mono" text-anchor="middle">2. ACOPLE</text>
+            </g>
+
+            <!-- 3. Reductor de Engranajes -->
+            <g class="pt-node" data-pt="reductor">
+              <rect x="215" y="42" width="125" height="105" rx="6" fill="#1E293B" stroke="#64748B" stroke-width="2" />
+              <circle cx="255" cy="82" r="18" fill="none" stroke="#94A3B8" stroke-width="2" stroke-dasharray="4 2" />
+              <circle cx="298" cy="108" r="24" fill="none" stroke="#94A3B8" stroke-width="2" stroke-dasharray="5 2" />
+              <text x="277" y="175" fill="#CBD5E1" font-size="11" font-family="JetBrains Mono" text-anchor="middle">3. REDUCTOR</text>
+            </g>
+
+            <!-- 4. Eje y Rodamientos -->
+            <g class="pt-node" data-pt="rodamientos">
+              <rect x="340" y="87" width="115" height="16" fill="#64748B" />
+              <rect x="372" y="74" width="26" height="42" rx="3" fill="#1E293B" stroke="#94A3B8" stroke-width="2" />
+              <line x1="372" y1="74" x2="398" y2="116" stroke="#94A3B8" stroke-width="1.5" />
+              <line x1="398" y1="74" x2="372" y2="116" stroke="#94A3B8" stroke-width="1.5" />
+              <text x="395" y="175" fill="#CBD5E1" font-size="11" font-family="JetBrains Mono" text-anchor="middle">4. EJE/ROD.</text>
+            </g>
+
+            <!-- 5. Polea Motriz / Carga -->
+            <g class="pt-node" data-pt="polea">
+              <circle cx="485" cy="95" r="38" fill="#1E293B" stroke="#94A3B8" stroke-width="2.5" />
+              <circle cx="485" cy="95" r="12" fill="#0F2942" stroke="#0095D9" stroke-width="2" />
+              <text x="485" y="175" fill="#CBD5E1" font-size="11" font-family="JetBrains Mono" text-anchor="middle">5. POLEA</text>
+            </g>
+          </svg>
+
+          <!-- Inspector Dinámico del Componente Seleccionado -->
+          <div class="powertrain-inspector" id="pt-inspector">
+            <div>
+              <div class="powertrain-inspector__title" id="pt-title">1. Motor Eléctrico y Base Empernada</div>
+              <div class="powertrain-inspector__desc" id="pt-desc">
+                Módulo 2 y 8 • Pernos SAE J429, alineamiento láser (ISO 20816) y rodamientos DE/NDE.
+              </div>
+            </div>
+            <a href="modulos/m2-uniones-elementos-fijacion/index.html" id="pt-link" class="btn btn--primary" style="padding: 8px 14px; font-size: 0.8rem; white-space: nowrap;">
+              Estudiar →
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. BARRA DE ESTADO Y CONTINUIDAD DEL ESTUDIANTE -->
+    <section class="status-strip">
+      <div class="container status-grid">
+        <div class="status-card">
+          <span class="status-card__label">Progreso Curricular</span>
+          <div class="status-card__val" id="dash-progress-text">0 de 8 Módulos (0%)</div>
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="dash-progress-bar"></div>
+          </div>
+        </div>
+
+        <div class="status-card">
+          <span class="status-card__label">Continuar Aprendizaje</span>
+          <div class="status-card__val" id="dash-last-topic" style="font-size: 0.95rem;">M1: Fundamentos de Diseño</div>
+          <a href="modulos/m1-introduccion-diseno/index.html" id="dash-last-link" style="font-size: 0.78rem; color: var(--color-cyan-600); font-weight: 600;">
+            Retomar lectura →
+          </a>
+        </div>
+
+        <div class="status-card">
+          <span class="status-card__label">Simulaciones Ejecutadas</span>
+          <div class="status-card__val" id="dash-sims-count">0 Cálculos</div>
+          <a href="simuladores/index.html" style="font-size: 0.78rem; color: var(--color-cyan-600); font-weight: 600;">
+            Abrir laboratorio de cálculo →
+          </a>
+        </div>
+
+        <div class="status-card">
+          <span class="status-card__label">Orden de Trabajo Activa (ABP)</span>
+          <div class="status-card__val" style="font-size: 0.95rem;">OT-01: Falla en Chancadora</div>
+          <a href="casos-estudio/caso-01-falla-rodamiento-chancadora.html" style="font-size: 0.78rem; color: var(--color-cyan-600); font-weight: 600;">
+            Diagnosticar falla →
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. EXPLORADOR INTERACTIVO DE PLANTA INDUSTRIAL -->
+    <section class="section-block" id="explorador-planta">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Explorador Bidireccional de Equipos de Planta</h2>
+            <p class="section-subtitle">Selecciona un equipo real para inspeccionar sus elementos de máquinas y acceder directamente a su cálculo.</p>
+          </div>
+          <a href="equipos/index.html" class="btn btn--outline" style="padding: 8px 14px; font-size: 0.84rem;">
+            Ver los 19 Equipos →
+          </a>
+        </div>
+
+        <div class="plant-tabs" role="tablist">
+          <button class="plant-tab is-active" data-cat="minerales">⛏ Procesamiento de Minerales</button>
+          <button class="plant-tab" data-cat="auxiliares">⚙ Equipos Auxiliares de Planta</button>
+          <button class="plant-tab" data-cat="manufactureros">🏭 Maquinaria Manufacturera</button>
+        </div>
+
+        <div class="plant-explorer">
+          <div class="equipment-grid" id="eq-grid-container"></div>
+
+          <div class="eq-detail-panel" id="eq-detail-container">
+            <!-- Renderizado dinámico por JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. RUTA ACADÉMICA: LOS 8 MÓDULOS DE APRENDIZAJE -->
+    <section class="section-block">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Estructura Académica Progresiva (8 Módulos)</h2>
+            <p class="section-subtitle">Cada tema integra: Fundamento Teórico • Equipo Real • Cálculo • Normativa • Mantenimiento y Fallas.</p>
+          </div>
+          <a href="modulos/index.html" class="btn btn--outline" style="padding: 8px 14px; font-size: 0.84rem;">
+            Matriz de Competencias →
+          </a>
+        </div>
+
+        <div class="modules-grid" id="modules-grid-container"></div>
+      </div>
+    </section>
+
+    <!-- 5. SIMULADORES DE INGENIERÍA Y LABORATORIO VIRTUAL 3D -->
+    <section class="section-block">
+      <div class="container tools-split">
+        <div class="sim-list-box">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 class="section-title" style="font-size: 1.3rem;">Laboratorio de Simuladores de Diseño</h2>
+            <span class="tech-badge tech-badge--cyan">SI / IPS</span>
+          </div>
+          <p class="section-subtitle" style="margin-top: 4px;">
+            Motores de cálculo verificables paso a paso con advertencias normativas y gráficos.
+          </p>
+
+          <div class="sim-mini-grid" id="home-sims-container"></div>
+
+          <div style="margin-top: 16px; text-align: right;">
+            <a href="simuladores/index.html" style="font-weight: 700; font-size: 0.88rem; color: var(--color-cyan-600);">
+              Acceder a los 14 Simuladores Interactivos →
+            </a>
+          </div>
+        </div>
+
+        <div class="lab3d-banner">
+          <div>
+            <span class="tech-badge" style="background: rgba(0,149,217,0.25); color: #7DD3FC; border-color: #0095D9;">
+              THREE.JS • MODELOS GLB
+            </span>
+            <h2 style="font-size: 1.45rem; margin: 14px 0 10px;">Laboratorio Virtual 3D de Maquinaria</h2>
+            <p style="font-size: 0.9rem; color: #CBD5E1; margin-bottom: 16px;">
+              Inspecciona equipos industriales por dentro: ejecuta despieces explosivos, activa vistas de rayos X y consulta las propiedades mecánicas de cada componente.
+            </p>
+            <ul style="list-style: none; font-size: 0.84rem; color: #E2E8F0; display: grid; gap: 6px; margin-bottom: 20px;">
+              <li>✔ Chancadora Cónica y de Quijadas</li>
+              <li>✔ Molino de Bolas y Reductor de Engranajes</li>
+              <li>✔ Bomba Centrífuga y Transportador de Fajas</li>
+            </ul>
+          </div>
+
+          <a href="lab-3d/index.html" class="btn btn--primary" style="width: 100%;">
+            🧊 Ingresar al Laboratorio 3D
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. CASOS DE ESTUDIO DE MANTENIMIENTO INDUSTRIAL (ABP) -->
+    <section class="section-block">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Casos de Estudio de Falla en Planta (ABP)</h2>
+            <p class="section-subtitle">Asume el rol de ingeniero de confiabilidad: analiza síntomas reales, calcula y propón el rediseño.</p>
+          </div>
+          <a href="casos-estudio/index.html" class="btn btn--outline" style="padding: 8px 14px; font-size: 0.84rem;">
+            Ver los 5 Casos →
+          </a>
+        </div>
+
+        <div class="cases-grid">
+          <article class="case-card">
+            <span class="tech-badge" style="background: var(--status-warn-bg); color: #92400E;">OT-01 • RODAMIENTOS</span>
+            <h3 style="font-size: 1.02rem; margin: 10px 0 6px; color: var(--color-navy-800);">
+              Falla prematura de rodamiento en Chancadora
+            </h3>
+            <p style="font-size: 0.84rem; color: var(--text-secondary); margin-bottom: 14px;">
+              Incremento de temperatura a 98 °C y alta vibración axial tras 3,200 h de operación. Evalúa carga equivalente ISO 281 y lubricación.
+            </p>
+            <a href="casos-estudio/caso-01-falla-rodamiento-chancadora.html" style="font-size: 0.84rem; font-weight: 700; color: var(--color-cyan-600);">
+              Analizar reporte de falla →
+            </a>
+          </article>
+
+          <article class="case-card">
+            <span class="tech-badge" style="background: var(--status-danger-bg); color: #991B1B;">OT-02 • FATIGA DE EJES</span>
+            <h3 style="font-size: 1.02rem; margin: 10px 0 6px; color: var(--color-navy-800);">
+              Rotura por fatiga en eje de polea motriz
+            </h3>
+            <p style="font-size: 0.84rem; color: var(--text-secondary); margin-bottom: 14px;">
+              Fractura abrupta en el cambio de sección junto al chavetero. Determina el factor Kt, criterio de Goodman y rediseño geométrico.
+            </p>
+            <a href="casos-estudio/caso-02-rotura-eje-transportador.html" style="font-size: 0.84rem; font-weight: 700; color: var(--color-cyan-600);">
+              Analizar reporte de falla →
+            </a>
+          </article>
+
+          <article class="case-card">
+            <span class="tech-badge" style="background: var(--status-warn-bg); color: #92400E;">OT-03 • ENGRANAJES</span>
+            <h3 style="font-size: 1.02rem; margin: 10px 0 6px; color: var(--color-navy-800);">
+              Picadura severa (Pitting) en reductor industrial
+            </h3>
+            <p style="font-size: 0.84rem; color: var(--text-secondary); margin-bottom: 14px;">
+              Desprendimiento superficial en flancos de dientes helicoidales. Verifica esfuerzo de contacto AGMA/ISO 6336 y viscosidad de aceite.
+            </p>
+            <a href="casos-estudio/caso-04-falla-engranajes-reductor.html" style="font-size: 0.84rem; font-weight: 700; color: var(--color-cyan-600);">
+              Analizar reporte de falla →
+            </a>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 7. FOOTER TÉCNICO -->
+  <footer class="mp-footer">
+    <div class="container">
+      <div class="mp-footer__grid">
+        <div>
+          <strong style="color: #FFFFFF; font-size: 1.05rem;">MECHPLANT</strong>
+          <p style="margin-top: 8px; line-height: 1.5;">
+            Plataforma educativa de ingeniería aplicada para la asignatura de Diseño de Elementos de Máquinas. Conexión directa entre metodología académica y mantenimiento industrial.
+          </p>
+        </div>
+        <div>
+          <strong style="color: #FFFFFF;">Base Bibliográfica</strong>
+          <ul style="list-style: none; margin-top: 8px; display: grid; gap: 4px;">
+            <li>• Diseño en Ingeniería Mecánica de Shigley</li>
+            <li>• Diseño de Máquinas de Robert L. Norton</li>
+            <li>• Normativa ISO, ASME, ANSI, SAE, AGMA</li>
+          </ul>
+        </div>
+        <div>
+          <strong style="color: #FFFFFF;">Acceso Directo</strong>
+          <ul style="list-style: none; margin-top: 8px; display: grid; gap: 4px;">
+            <li><a href="referencias/normativa-internacional.html">Matriz de Normas Internacionales</a></li>
+            <li><a href="referencias/bibliografia-shigley-norton.html">Comparativa Shigley vs. Norton</a></li>
+            <li><a href="simuladores/index.html">Calculadoras de Ingeniería</a></li>
+          </ul>
+        </div>
+      </div>
+      <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px; font-size: 0.78rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+        <span>MECHPLANT • Uso Académico y Formativo en Educación Superior Tecnológica.</span>
+        <span>Nota técnica: Los cálculos de simuladores tienen fines educativos y requieren validación normativa para fabricación.</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts de Datos y Navegación Común -->
+  <script src="assets/js/data/db-curriculum.js"></script>
+  <script src="assets/js/core/navbar.js"></script>
+
+  <!-- Lógica Interactiva de la Página Principal -->
+  <script>
+    (function () {
+      const db = window.MECHPLANT_DB;
+
+      // 1. Interactividad del Tren de Accionamiento en el Hero
+      const ptData = {
+        motor: {
+          title: "1. Motor Eléctrico y Base Empernada",
+          desc: "Módulo 2 y 8 • Pernos SAE J429, alineamiento láser (ISO 20816) y rodamientos DE/NDE.",
+          url: "modulos/m2-uniones-elementos-fijacion/index.html"
+        },
+        acoplamiento: {
+          title: "2. Acoplamiento Mecánico y Chaveta Paralela",
+          desc: "Módulo 2 • Cálculo de chavetas por corte/aplastamiento (DIN 6885) y absorción de desalineación.",
+          url: "simuladores/sim-05-chavetas-chaveteros.html"
+        },
+        reductor: {
+          title: "3. Reductor de Velocidad (Engranajes)",
+          desc: "Módulo 7 • Fuerzas tangenciales/radiales, resistencia a flexión y contacto (AGMA / ISO 6336).",
+          url: "modulos/m7-engranajes-reductores/index.html"
+        },
+        rodamientos: {
+          title: "4. Eje de Transmisión y Rodamientos",
+          desc: "Módulo 3 y 4 • Dimensionamiento por fatiga (Goodman), ajustes ISO 286 y vida nominal L10 (ISO 281).",
+          url: "modulos/m4-rodamientos-cojinetes/index.html"
+        },
+        polea: {
+          title: "5. Polea Motriz / Transmisión por Fajas",
+          desc: "Módulo 5 • Tensiones en ramal tenso/flojo, potencia transmitida y verificación de deflexión.",
+          url: "modulos/m5-transmisiones-fajas-poleas/index.html"
+        }
+      };
+
+      document.querySelectorAll(".pt-node").forEach(node => {
+        node.addEventListener("click", () => {
+          document.querySelectorAll(".pt-node").forEach(n => n.classList.remove("is-selected"));
+          node.classList.add("is-selected");
+          const info = ptData[node.getAttribute("data-pt")];
+          if (info) {
+            document.getElementById("pt-title").textContent = info.title;
+            document.getElementById("pt-desc").textContent = info.desc;
+            document.getElementById("pt-link").setAttribute("href", info.url);
+          }
+        });
+      });
+
+      // 2. Renderizado del Explorador Interactivo de Planta
+      const eqGrid = document.getElementById("eq-grid-container");
+      const eqDetail = document.getElementById("eq-detail-container");
+
+      function renderEquipmentDetail(eq) {
+        eqDetail.innerHTML = `
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <span class="tech-badge tech-badge--cyan">${eq.code}</span>
+              <span style="font-size:0.78rem; color:var(--text-muted); font-weight:600;">${eq.proceso}</span>
+            </div>
+            <h3 style="font-size:1.25rem; color:var(--color-navy-800); margin-bottom:8px;">${eq.name}</h3>
+            <p style="font-size:0.88rem; color:var(--text-secondary); margin-bottom:14px;">${eq.descripcion}</p>
+            
+            <div style="font-size:0.8rem; font-weight:700; color:var(--color-navy-800); margin-bottom:6px;">
+              Elementos de Máquinas Críticos:
+            </div>
+            <ul style="font-size:0.83rem; color:var(--text-primary); padding-left:18px; margin-bottom:14px;">
+              ${eq.componentes.map(c => `<li style="margin-bottom:3px;">${c}</li>`).join("")}
+            </ul>
+
+            <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px;">
+              <span style="font-size:0.78rem; color:var(--text-muted);">Módulos vinculados:</span>
+              ${eq.modulosRelacionados.map(m => `<span class="tech-badge">${m}</span>`).join("")}
+            </div>
+          </div>
+
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <a href="${eq.urlFicha}" class="btn btn--primary" style="flex:1; padding:9px 12px; font-size:0.83rem;">
+              📋 Ficha Técnica (13 Puntos)
+            </a>
+            <a href="${eq.url3D}" class="btn btn--outline" style="padding:9px 12px; font-size:0.83rem;">
+              🧊 Ver en 3D
+            </a>
+          </div>
+        `;
+      }
+
+      function renderEquipmentCategory(catKey) {
+        const list = db.equiposPorCategoria[catKey] || [];
+        eqGrid.innerHTML = list.map((eq, idx) => `
+          <button class="eq-chip-btn ${idx === 0 ? 'is-active' : ''}" data-eq-idx="${idx}">
+            <div class="eq-chip-btn__code">${eq.code}</div>
+            <div class="eq-chip-btn__name">${eq.name}</div>
+          </button>
+        `).join("");
+
+        if (list.length > 0) renderEquipmentDetail(list[0]);
+
+        eqGrid.querySelectorAll(".eq-chip-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+            eqGrid.querySelectorAll(".eq-chip-btn").forEach(b => b.classList.remove("is-active"));
+            btn.classList.add("is-active");
+            const selected = list[parseInt(btn.getAttribute("data-eq-idx"), 10)];
+            renderEquipmentDetail(selected);
+          });
+        });
+      }
+
+      document.querySelectorAll(".plant-tab").forEach(tab => {
+        tab.addEventListener("click", () => {
+          document.querySelectorAll(".plant-tab").forEach(t => t.classList.remove("is-active"));
+          tab.classList.add("is-active");
+          renderEquipmentCategory(tab.getAttribute("data-cat"));
+        });
+      });
+
+      renderEquipmentCategory("minerales");
+
+      // 3. Renderizado de los 8 Módulos
+      const modulesContainer = document.getElementById("modules-grid-container");
+      const progressData = JSON.parse(localStorage.getItem("mp_progress") || '{"completedModules": [], "simsRun": 0}');
+
+      modulesContainer.innerHTML = db.modules.map(m => {
+        const isDone = progressData.completedModules.includes(m.id);
+        return `
+          <article class="module-card">
+            <div>
+              <div class="module-card__top">
+                <span class="module-card__num">${m.code}</span>
+                <span class="tech-badge" style="${isDone ? 'background:var(--status-ok-bg); color:#065F46;' : ''}">
+                  ${isDone ? '✔ Completado' : 'Disponible'}
+                </span>
+              </div>
+              <h3 class="module-card__title">
+                <a href="${m.folder}">${m.title}</a>
+              </h3>
+              <ul class="module-card__topics">
+                ${m.topics.map(t => `<li>${t}</li>`).join("")}
+              </ul>
+            </div>
+            <div>
+              <div class="module-card__footer">
+                ${m.normas.slice(0, 3).map(n => `<span class="tech-badge tech-badge--cyan">${n}</span>`).join("")}
+              </div>
+              <a href="${m.folder}" style="display:block; margin-top:12px; font-size:0.83rem; font-weight:700; color:var(--color-navy-800);">
+                Ingresar al módulo →
+              </a>
+            </div>
+          </article>
+        `;
+      }).join("");
+
+      // 4. Renderizado de Simuladores Destacados en Inicio
+      const simsContainer = document.getElementById("home-sims-container");
+      simsContainer.innerHTML = db.simuladores.slice(0, 6).map(s => `
+        <a href="${s.url}" class="sim-item-link">
+          <div style="display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:0.72rem; color:var(--color-cyan-600); font-weight:700;">
+            <span>${s.code}</span>
+            <span>${s.mod}</span>
+          </div>
+          <div style="font-weight:700; font-size:0.88rem; color:var(--color-navy-800); margin-top:4px;">
+            ${s.name}
+          </div>
+        </a>
+      `).join("");
+
+      // 5. Actualizar métricas de progreso en Dashboard
+      const completedCount = progressData.completedModules.length;
+      const pct = Math.round((completedCount / 8) * 100);
+      document.getElementById("dash-progress-text").textContent = `${completedCount} de 8 Módulos (${pct}%)`;
+      document.getElementById("dash-progress-bar").style.width = `${pct}%`;
+      document.getElementById("dash-sims-count").textContent = `${progressData.simsRun || 0} Cálculos`;
+    })();
+  </script>
+</body>
+</html>
