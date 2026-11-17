@@ -1,1 +1,305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Módulos Curriculares | MECHPLANT</title>
+  <link rel="manifest" href="../manifest.json" />
+  <meta name="theme-color" content="#0B192C" />
 
+  <link rel="stylesheet" href="../assets/css/tokens.css" />
+  <link rel="stylesheet" href="../assets/css/reset.css" />
+  <link rel="stylesheet" href="../assets/css/layout.css" />
+  <link rel="stylesheet" href="../assets/css/navbar.css" />
+  <link rel="stylesheet" href="../assets/css/components.css" />
+  <link rel="stylesheet" href="../assets/css/math-diagrams.css" />
+  <link rel="stylesheet" href="../assets/css/print.css" media="print" />
+</head>
+<body data-root="../">
+  <header id="mp-navbar"></header>
+
+  <main class="mp-container" style="padding-top: 28px; padding-bottom: 52px;">
+    <nav aria-label="Ruta de navegación" style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 14px;">
+      <a href="../index.html">Inicio</a> &rsaquo; <strong>Módulos Curriculares</strong>
+    </nav>
+
+    <!-- Cabecera de Ruta Formativa -->
+    <section class="mp-hero-banner" style="background: linear-gradient(135deg, #0B192C 0%, #163254 100%); color: #fff; padding: 28px 32px; border-radius: var(--radius-lg); margin-bottom: 26px; border-left: 5px solid var(--color-cyan-500);">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px;">
+        <div style="max-width: 72ch;">
+          <span class="tech-badge tech-badge--cyan">RUTA CURRICULAR · SHIGLEY &amp; NORTON</span>
+          <h1 style="font-size: 1.85rem; margin: 10px 0 8px;">Módulos de Diseño de Elementos de Máquinas</h1>
+          <p style="color: #CBD5E1; font-size: 0.94rem;">
+            Programa estructurado en 8 módulos progresivos que integran análisis de esfuerzos, fatiga, selección normalizada de componentes y diagnóstico de fallas en activos rotativos de planta.
+          </p>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.16); border-radius: var(--radius-md); padding: 14px 18px; min-width: 230px;">
+          <div style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: #94A3B8;">Progreso Curricular Global</div>
+          <div id="global-progress-text" style="font-size: 1.55rem; font-weight: 800; font-family: var(--font-mono); color: #38BDF8; margin: 4px 0;">0%</div>
+          <div style="height: 7px; background: rgba(255,255,255,0.15); border-radius: 999px; overflow: hidden;">
+            <div id="global-progress-bar" style="width: 0%; height: 100%; background: var(--color-cyan-500); transition: width 0.3s ease;"></div>
+          </div>
+          <div id="global-progress-detail" style="font-size: 0.78rem; color: #CBD5E1; margin-top: 6px;">0 de 8 módulos completados</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Barra de filtro rápido por bloque temático -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
+      <div id="mod-filter-bar" style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <button type="button" class="btn btn--primary" data-bloque="ALL">Todos (8)</button>
+        <button type="button" class="btn btn--outline-dark" data-bloque="fundamentos">Fundamentos y Uniones (M01–M02)</button>
+        <button type="button" class="btn btn--outline-dark" data-bloque="rotativos">Ejes y Rodamientos (M03–M04)</button>
+        <button type="button" class="btn btn--outline-dark" data-bloque="transmisiones">Transmisiones y Engranajes (M05–M07)</button>
+        <button type="button" class="btn btn--outline-dark" data-bloque="confiabilidad">Diagnóstico y Confiabilidad (M08)</button>
+      </div>
+
+      <a href="../simuladores/index.html" class="btn btn--outline-dark" style="font-size: 0.84rem;">
+        ⚡ Ir a los 14 Simuladores
+      </a>
+    </div>
+
+    <!-- Grilla de Módulos -->
+    <section id="modulos-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px;"></section>
+  </main>
+
+  <script src="../assets/js/data/db-curriculum.js"></script>
+  <script src="../assets/js/data/db-equipos.js"></script>
+  <script src="../assets/js/data/db-componentes.js"></script>
+  <script src="../assets/js/data/db-normas.js"></script>
+  <script src="../assets/js/core/navbar.js"></script>
+  <script src="../assets/js/core/search-engine.js"></script>
+  <script src="../assets/js/core/unit-converter.js"></script>
+  <script src="../assets/js/core/progress-tracker.js"></script>
+  <script src="../assets/js/core/app-init.js"></script>
+
+  <script>
+    (function () {
+      const MODULOS_CATALOG = [
+        {
+          id: "M01",
+          bloque: "fundamentos",
+          codigo: "MÓDULO 01",
+          titulo: "Esfuerzos Combinados, Falla Estática y Tolerancias",
+          descripcion: "Análisis de esfuerzos normales, cortantes y principales (Círculo de Mohr), teorías de falla dúctil (Von Mises, Tresca) y frágil (Coulomb-Mohr), y ajustes ISO 286.",
+          url: "m1-esfuerzos-falla-tolerancias/index.html",
+          normas: ["ISO 286-1/2", "ASME", "ASTM A48"],
+          temas: [
+            "Esfuerzos axiales, flexión, torsión y aplastamiento",
+            "Teorías de falla estática: Von Mises, Tresca y Coulomb-Mohr",
+            "Sistema de ajustes eje-agujero ISO 286 (H7/g6, H7/k6, H7/p6)"
+          ],
+          simuladores: [
+            { code: "SIM-01", url: "../simuladores/sim-01-esfuerzos-basicos.html" },
+            { code: "SIM-02", url: "../simuladores/sim-02-falla-estatica.html" },
+            { code: "SIM-03", url: "../simuladores/sim-03-tolerancias-ajustes.html" }
+          ]
+        },
+        {
+          id: "M02",
+          bloque: "fundamentos",
+          codigo: "MÓDULO 02",
+          titulo: "Uniones Empernadas, Precarga y Chavetas",
+          descripcion: "Mecánica de sujetadores roscados, constante de rigidez de junta, cálculo de precarga inicial, torque de apriete y dimensionamiento normalizado de chavetas DIN 6885-1.",
+          url: "m2-uniones-empernadas-chavetas/index.html",
+          normas: ["SAE J429", "ISO 898-1", "DIN 6885-1"],
+          temas: [
+            "Grados SAE J429 y Clases métricas ISO 898-1",
+            "Precarga inicial Fi, torque de apriete T = K·Fi·d y separación de junta",
+            "Selección y verificación por corte/aplastamiento de chavetas DIN 6885"
+          ],
+          simuladores: [
+            { code: "SIM-05", url: "../simuladores/sim-05-chavetas-chaveteros.html" },
+            { code: "SIM-06", url: "../simuladores/sim-06-uniones-empernadas.html" }
+          ]
+        },
+        {
+          id: "M03",
+          bloque: "rotativos",
+          codigo: "MÓDULO 03",
+          titulo: "Diseño de Ejes y Árboles de Transmisión por Fatiga",
+          descripcion: "Cargas fluctuantes en maquinaria rotativa, factores de Marin (ka, kb, ke), concentradores de esfuerzos Kt/Kf y dimensionamiento mediante el criterio DE-Goodman modificado.",
+          url: "m3-ejes-arboles-transmision/index.html",
+          normas: ["ASME B106.1M", "SAE 4140 / 4340"],
+          temas: [
+            "Diagramas de fuerza cortante y momento flector en dos planos",
+            "Curva S-N y factores modificadores del límite de fatiga (Marin)",
+            "Dimensionamiento de árboles por criterio DE-Goodman y Langer"
+          ],
+          simuladores: [
+            { code: "SIM-04", url: "../simuladores/sim-04-diseno-ejes.html" }
+          ]
+        },
+        {
+          id: "M04",
+          bloque: "rotativos",
+          codigo: "MÓDULO 04",
+          titulo: "Selección, Montaje y Vida Nominal de Rodamientos",
+          descripcion: "Tipología de rodamientos industriales, carga dinámica equivalente P, vida nominal básica L10 y L10h según ISO 281, capacidad estática ISO 76 y análisis de fallas ISO 15243.",
+          url: "m4-rodamientos-chumaceras/index.html",
+          normas: ["ISO 281", "ISO 76", "ISO 15243"],
+          temas: [
+            "Rodamientos rígidos de bolas, rodillos cilíndricos, cónicos y a rótula",
+            "Cálculo de vida nominal L10h y factor de seguridad estático s0",
+            "Lubricación, juego interno C3 y diagnóstico de spalling / fluting"
+          ],
+          simuladores: [
+            { code: "SIM-07", url: "../simuladores/sim-07-seleccion-vida-rodamientos.html" }
+          ]
+        },
+        {
+          id: "M05",
+          bloque: "transmisiones",
+          codigo: "MÓDULO 05",
+          titulo: "Transmisiones Flexibles: Fajas en V y Cadenas de Rodillos",
+          descripcion: "Cinemática y dinámica de transmisiones por correas trapezoidales (efecto centrífugo y arco de contacto) y cadenas de rodillos ANSI B29.1 (efecto poligonal y lubricación).",
+          url: "m5-transmisiones-flexibles/index.html",
+          normas: ["ISO 4184", "RMA IP-20", "ANSI/ASME B29.1"],
+          temas: [
+            "Tensiones T1/T2, fuerza centrífuga Fc y cálculo de número de fajas en V",
+            "Cadenas de rodillos ANSI: efecto poligonal y longitud en eslabones",
+            "Regímenes de lubricación y control de tensión/desgaste en planta"
+          ],
+          simuladores: [
+            { code: "SIM-08", url: "../simuladores/sim-08-transmision-fajas-poleas.html" },
+            { code: "SIM-09", url: "../simuladores/sim-09-transmision-cadenas.html" }
+          ]
+        },
+        {
+          id: "M06",
+          bloque: "transmisiones",
+          codigo: "MÓDULO 06",
+          titulo: "Acoplamientos y Alineamiento Láser de Ejes Rotativos",
+          descripcion: "Selección de acoplamientos rígidos y flexibles, diagnóstico de Pata Coja (Soft Foot), método Borde-Cara (Rim-Face) y cálculo de calzas (shims) según API 686.",
+          url: "m6-acoplamientos-alineamiento/index.html",
+          normas: ["API 686", "ANSI/ASA S2.75"],
+          temas: [
+            "Acoplamientos de elastómero, rejilla metálica, engranajes y láminas",
+            "Detección y corrección de Pata Coja (Soft Foot) previo al alineamiento",
+            "Cálculo de offset paralelo, angularidad y espesor de shims por RPM"
+          ],
+          simuladores: [
+            { code: "SIM-13", url: "../simuladores/sim-13-alineamiento-ejes.html" }
+          ]
+        },
+        {
+          id: "M07",
+          bloque: "transmisiones",
+          codigo: "MÓDULO 07",
+          titulo: "Engranajes Cilíndricos y Reductores Industriales",
+          descripcion: "Geometría involuta, fuerzas en el diente (Wt, Wr, Wa), resistencia a la flexión y picadura según ANSI/AGMA 2001-D04, trenes compuestos y capacidad térmica de reductores.",
+          url: "m7-engranajes-reductores/index.html",
+          normas: ["ANSI/AGMA 2001-D04", "ISO 6336", "ISO 10825"],
+          temas: [
+            "Cinemática y fuerzas en engranajes rectos y helicoidales",
+            "Trenes de engranajes compuestos de múltiples etapas",
+            "Selección mecánica (Fs AGMA) y verificación térmica de reductores"
+          ],
+          simuladores: [
+            { code: "SIM-10", url: "../simuladores/sim-10-diseno-engranajes.html" },
+            { code: "SIM-11", url: "../simuladores/sim-11-trenes-engranajes.html" },
+            { code: "SIM-12", url: "../simuladores/sim-12-seleccion-reductores.html" }
+          ]
+        },
+        {
+          id: "M08",
+          bloque: "confiabilidad",
+          codigo: "MÓDULO 08",
+          titulo: "Mantenimiento Predictivo, Vibraciones y Confiabilidad",
+          descripcion: "Evaluación de severidad vibratoria RMS según ISO 20816-3, identificación espectral de fallas mecánicas e indicadores de confiabilidad ISO 14224 (MTBF, MTTR y Disponibilidad).",
+          url: "m8-vibraciones-confiabilidad/index.html",
+          normas: ["ISO 20816-3", "ISO 14224", "ISO 17359"],
+          temas: [
+            "Zonas de severidad vibratoria A, B, C y D (ISO 20816-3)",
+            "Diagnóstico espectral FFT: desbalanceo (1X), desalineamiento (2X) y rodamientos",
+            "Cálculo de MTBF, MTTR, tasa de fallas y disponibilidad inherente"
+          ],
+          simuladores: [
+            { code: "SIM-14", url: "../simuladores/sim-14-vibraciones-confiabilidad.html" }
+          ]
+        }
+      ];
+
+      const grid = document.getElementById("modulos-grid");
+      const filterBar = document.getElementById("mod-filter-bar");
+
+      function getCompletedModules() {
+        if (window.MECHPLANT_PROGRESS && typeof window.MECHPLANT_PROGRESS.getState === "function") {
+          const st = window.MECHPLANT_PROGRESS.getState();
+          return Array.isArray(st.completedModules) ? st.completedModules : [];
+        }
+        return [];
+      }
+
+      function updateGlobalProgress() {
+        const completed = getCompletedModules();
+        const count = MODULOS_CATALOG.filter(m => completed.includes(m.id)).length;
+        const pct = Math.round((count / MODULOS_CATALOG.length) * 100);
+
+        document.getElementById("global-progress-text").textContent = `${pct}%`;
+        document.getElementById("global-progress-bar").style.width = `${pct}%`;
+        document.getElementById("global-progress-detail").textContent = `${count} de ${MODULOS_CATALOG.length} módulos completados`;
+      }
+
+      function renderModulos(bloque) {
+        const completed = getCompletedModules();
+        const filtered = bloque === "ALL"
+          ? MODULOS_CATALOG
+          : MODULOS_CATALOG.filter(m => m.bloque === bloque);
+
+        grid.innerHTML = filtered.map(mod => {
+          const isDone = completed.includes(mod.id);
+          const temasHTML = mod.temas.map(t => `<li style="margin-bottom:4px;">${t}</li>`).join("");
+          const simsHTML = mod.simuladores.map(s =>
+            `<a href="${s.url}" class="tech-badge" style="text-decoration:none;">⚡ ${s.code}</a>`
+          ).join(" ");
+
+          return `
+            <article class="mp-card" style="display:flex; flex-direction:column; justify-content:space-between; border-top: 4px solid ${isDone ? "#16A34A" : "var(--color-cyan-500)"};">
+              <div>
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px;">
+                  <span class="tech-badge tech-badge--cyan">${mod.codigo}</span>
+                  <span style="font-size:0.76rem; font-weight:700; color:${isDone ? "#15803D" : "var(--text-muted)"};">
+                    ${isDone ? "✔ Completado" : "Pendiente"}
+                  </span>
+                </div>
+
+                <h2 style="font-size:1.14rem; color:var(--color-navy-800); margin-bottom:8px;">${mod.titulo}</h2>
+                <p style="font-size:0.86rem; color:var(--text-secondary); margin-bottom:12px;">${mod.descripcion}</p>
+
+                <div style="font-size:0.8rem; font-weight:700; color:var(--color-navy-700); margin-bottom:6px;">Contenidos clave:</div>
+                <ul style="font-size:0.82rem; color:var(--text-secondary); padding-left:18px; margin-bottom:14px;">
+                  ${temasHTML}
+                </ul>
+
+                <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px;">
+                  ${simsHTML}
+                </div>
+              </div>
+
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; border-top:1px solid var(--border-subtle); padding-top:12px;">
+                <span style="font-size:0.75rem; font-family:var(--font-mono); color:var(--text-muted);">${mod.normas.join(" · ")}</span>
+                <a href="${mod.url}" class="btn btn--primary" style="font-size:0.82rem;">Ingresar &rarr;</a>
+              </div>
+            </article>
+          `;
+        }).join("");
+      }
+
+      filterBar.addEventListener("click", (e) => {
+        const btn = e.target.closest("button[data-bloque]");
+        if (!btn) return;
+        filterBar.querySelectorAll("button").forEach(b => {
+          b.className = "btn btn--outline-dark";
+        });
+        btn.className = "btn btn--primary";
+        renderModulos(btn.dataset.bloque);
+      });
+
+      updateGlobalProgress();
+      renderModulos("ALL");
+    })();
+  </script>
+</body>
+</html>
