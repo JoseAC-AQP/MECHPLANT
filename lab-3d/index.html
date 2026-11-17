@@ -1,1 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Laboratorio Virtual 3D | MECHPLANT</title>
+  <link rel="manifest" href="../manifest.json" />
+  <meta name="theme-color" content="#0B192C" />
 
+  <link rel="stylesheet" href="../assets/css/tokens.css" />
+  <link rel="stylesheet" href="../assets/css/reset.css" />
+  <link rel="stylesheet" href="../assets/css/layout.css" />
+  <link rel="stylesheet" href="../assets/css/navbar.css" />
+  <link rel="stylesheet" href="../assets/css/components.css" />
+  <link rel="stylesheet" href="../assets/css/math-diagrams.css" />
+  <link rel="stylesheet" href="../assets/css/print.css" media="print" />
+</head>
+<body data-root="../">
+  <header id="mp-navbar"></header>
+
+  <main class="mp-container" style="padding-top: 28px; padding-bottom: 52px;">
+    <nav aria-label="Ruta de navegación" style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 14px;">
+      <a href="../index.html">Inicio</a> &rsaquo; <strong>Laboratorio Virtual 3D</strong>
+    </nav>
+
+    <!-- Cabecera del Laboratorio 3D -->
+    <section class="mp-hero-banner" style="background: linear-gradient(135deg, #0B192C 0%, #163254 100%); color: #fff; padding: 28px 32px; border-radius: var(--radius-lg); margin-bottom: 26px; border-left: 5px solid var(--color-cyan-500);">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px;">
+        <div style="max-width: 74ch;">
+          <span class="tech-badge tech-badge--cyan">ENTORNO WEBGL · THREE.JS CAD INTERACTIVO</span>
+          <h1 style="font-size: 1.85rem; margin: 10px 0 8px;">Laboratorio Virtual 3D de Maquinaria Industrial</h1>
+          <p style="color: #CBD5E1; font-size: 0.94rem;">
+            Inspecciona ensambles mecánicos reales en 3D con control orbital, despiece explosivo progresivo (0% – 100%), modo Rayos X de carcasas y selección interactiva de componentes vinculada a normas ISO/AGMA y simuladores de cálculo.
+          </p>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.16); border-radius: var(--radius-md); padding: 14px 18px; min-width: 240px;">
+          <div style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: #94A3B8;">Capacidades del Visor</div>
+          <ul style="font-size: 0.82rem; color: #E2E8F0; margin-top: 6px; padding-left: 16px; display: grid; gap: 4px;">
+            <li>Despiece explosivo continuo</li>
+            <li>Modo Rayos X / Transparencia</li>
+            <li>Inspector técnico por pieza</li>
+            <li>Soporte GLB + CAD Paramétrico</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Barra de filtro por categoría -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
+      <div id="lab3d-filter-bar" style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <button type="button" class="btn btn--primary" data-cat="ALL">Todos los Modelos</button>
+        <button type="button" class="btn btn--outline-dark" data-cat="Procesamiento de Minerales">Procesamiento de Minerales</button>
+        <button type="button" class="btn btn--outline-dark" data-cat="Equipos Auxiliares de Planta">Equipos Auxiliares</button>
+      </div>
+
+      <a href="visor-3d.html?modelo=reductor-engranajes" class="btn btn--primary" style="font-size: 0.84rem;">
+        🧊 Abrir Visor 3D Directo
+      </a>
+    </div>
+
+    <!-- Grilla de Modelos 3D -->
+    <section id="lab3d-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px;"></section>
+  </main>
+
+  <script src="../assets/js/data/db-curriculum.js"></script>
+  <script src="../assets/js/data/db-equipos.js"></script>
+  <script src="../assets/js/data/db-componentes.js"></script>
+  <script src="../assets/js/data/db-normas.js"></script>
+  <script src="../assets/js/lab-3d/model-registry.js"></script>
+  <script src="../assets/js/core/navbar.js"></script>
+  <script src="../assets/js/core/search-engine.js"></script>
+  <script src="../assets/js/core/unit-converter.js"></script>
+  <script src="../assets/js/core/progress-tracker.js"></script>
+  <script src="../assets/js/core/app-init.js"></script>
+
+  <script>
+    (function () {
+      const registry = window.MECHPLANT_3D_REGISTRY || {};
+      const modelsList = Object.values(registry);
+      const grid = document.getElementById("lab3d-grid");
+      const filterBar = document.getElementById("lab3d-filter-bar");
+
+      function renderModels(category) {
+        const filtered = category === "ALL"
+          ? modelsList
+          : modelsList.filter(m => m.categoria === category);
+
+        if (!filtered.length) {
+          grid.innerHTML = `
+            <div class="mp-callout mp-callout--norma">
+              <div class="mp-callout__title">No hay modelos registrados en esta categoría</div>
+              <p>Selecciona otro filtro para visualizar los ensambles 3D disponibles.</p>
+            </div>
+          `;
+          return;
+        }
+
+        grid.innerHTML = filtered.map(model => {
+          const partesHTML = (model.partesClave || []).map(p => `<li style="margin-bottom: 3px;">${p}</li>`).join("");
+          const modsHTML = (model.modulos || []).map(m => `<span class="tech-badge">${m}</span>`).join(" ");
+          const simsHTML = (model.simuladores || []).map(s => `<span class="tech-badge tech-badge--cyan">${s.toUpperCase()}</span>`).join(" ");
+
+          return `
+            <article class="mp-card" style="display: flex; flex-direction: column; justify-content: space-between; border-top: 4px solid var(--color-cyan-500);">
+              <div>
+                <!-- Cabecera visual CAD simulada -->
+                <div style="background: radial-gradient(circle at 50% 40%, #163254 0%, #0B192C 100%); border-radius: var(--radius-md); padding: 16px; margin-bottom: 14px; color: #E2E8F0; border: 1px solid #1E3A5F; position: relative;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <span class="tech-badge tech-badge--cyan">${model.code}</span>
+                    <span style="font-family: var(--font-mono); font-size: 0.74rem; color: #38BDF8;">${model.glbFile}</span>
+                  </div>
+
+                  <!-- Iconografía vectorial blueprint del ensamble -->
+                  <div style="display: flex; align-items: center; justify-content: center; height: 84px;">
+                    <svg width="140" height="72" viewBox="0 0 140 72" fill="none" stroke="#38BDF8" stroke-width="1.6" aria-hidden="true">
+                      <rect x="14" y="20" width="32" height="32" rx="3" stroke="#94A3B8" />
+                      <line x1="46" y1="36" x2="94" y2="36" stroke="#38BDF8" stroke-width="2.5" />
+                      <rect x="58" y="26" width="12" height="20" rx="2" fill="rgba(0,149,217,0.2)" />
+                      <circle cx="108" cy="36" r="18" stroke="#38BDF8" />
+                      <circle cx="108" cy="36" r="7" stroke="#CBD5E1" />
+                      <line x1="6" y1="58" x2="134" y2="58" stroke="#1E3A5F" stroke-dasharray="3 3" />
+                    </svg>
+                  </div>
+
+                  <div style="font-size: 0.75rem; color: #94A3B8; text-align: right;">${model.categoria}</div>
+                </div>
+
+                <h2 style="font-size: 1.15rem; color: var(--color-navy-800); margin-bottom: 6px;">${model.nombre}</h2>
+                <p style="font-size: 0.86rem; color: var(--text-secondary); margin-bottom: 12px;">${model.descripcion}</p>
+
+                <div style="font-size: 0.8rem; font-weight: 700; color: var(--color-navy-700); margin-bottom: 5px;">
+                  Subcomponentes inspeccionables en 3D:
+                </div>
+                <ul style="font-size: 0.82rem; color: var(--text-secondary); padding-left: 18px; margin-bottom: 14px;">
+                  ${partesHTML}
+                </ul>
+
+                <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px;">
+                  ${modsHTML}
+                  ${simsHTML}
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 8px; flex-wrap: wrap; border-top: 1px solid var(--border-subtle); padding-top: 12px;">
+                <a href="visor-3d.html?modelo=${encodeURIComponent(model.id)}" class="btn btn--primary" style="flex: 1; text-align: center; font-size: 0.83rem;">
+                  🧊 Abrir en Visor 3D
+                </a>
+                <a href="${model.fichaUrl}" class="btn btn--outline-dark" style="font-size: 0.83rem;">
+                  Ficha Técnica
+                </a>
+              </div>
+            </article>
+          `;
+        }).join("");
+      }
+
+      filterBar.addEventListener("click", (e) => {
+        const btn = e.target.closest("button[data-cat]");
+        if (!btn) return;
+        filterBar.querySelectorAll("button").forEach(b => {
+          b.className = "btn btn--outline-dark";
+        });
+        btn.className = "btn btn--primary";
+        renderModels(btn.dataset.cat);
+      });
+
+      renderModels("ALL");
+    })();
+  </script>
+</body>
+</html>
