@@ -1,1 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Referencias Técnicas y Normativa | MECHPLANT</title>
+  <link rel="manifest" href="../manifest.json" />
+  <meta name="theme-color" content="#0B192C" />
 
+  <link rel="stylesheet" href="../assets/css/tokens.css" />
+  <link rel="stylesheet" href="../assets/css/reset.css" />
+  <link rel="stylesheet" href="../assets/css/layout.css" />
+  <link rel="stylesheet" href="../assets/css/navbar.css" />
+  <link rel="stylesheet" href="../assets/css/components.css" />
+  <link rel="stylesheet" href="../assets/css/math-diagrams.css" />
+  <link rel="stylesheet" href="../assets/css/print.css" media="print" />
+</head>
+<body data-root="../">
+  <header id="mp-navbar"></header>
+
+  <main class="mp-container" style="padding-top: 28px; padding-bottom: 48px;">
+    <nav aria-label="Ruta de navegación" style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 14px;">
+      <a href="../index.html">Inicio</a> &rsaquo; <strong>Referencias Técnicas</strong>
+    </nav>
+
+    <section class="mp-hero-banner" style="background: linear-gradient(135deg, #0B192C 0%, #163254 100%); color: #fff; padding: 28px 32px; border-radius: var(--radius-lg); margin-bottom: 28px; border-left: 5px solid var(--color-cyan-500);">
+      <span class="tech-badge tech-badge--cyan">MANUAL DE INGENIERÍA Y MANTENIMIENTO</span>
+      <h1 style="font-size: 1.85rem; margin: 10px 0 8px;">Referencias Técnicas, Normas y Tablas de Diseño</h1>
+      <p style="color: #CBD5E1; max-width: 78ch; font-size: 0.95rem;">
+        Compendio de propiedades mecánicas de materiales de ingeniería, estándares internacionales aplicados a activos rotativos, glosario técnico de planta y referencias bibliográficas de <em>Shigley</em> y <em>Norton</em>.
+      </p>
+    </section>
+
+    <!-- Tarjetas de acceso principal -->
+    <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 20px; margin-bottom: 32px;">
+      <article class="mp-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <span class="tech-badge">ISO · AGMA · DIN · SAE · API</span>
+          <h2 style="font-size: 1.2rem; color: var(--color-navy-800); margin: 10px 0 8px;">Normas y Estándares Internacionales</h2>
+          <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 16px;">
+            Alcance técnico, criterios de aceptación y aplicación en planta de ISO 281, ISO 286, ISO 20816-3, AGMA 2001, DIN 6885, SAE J429 y API 686.
+          </p>
+        </div>
+        <a href="normas-estandares.html" class="btn btn--primary">Consultar Normativa &rarr;</a>
+      </article>
+
+      <article class="mp-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <span class="tech-badge tech-badge--cyan">ASTM · SAE · AISI</span>
+          <h2 style="font-size: 1.2rem; color: var(--color-navy-800); margin: 10px 0 8px;">Tablas de Propiedades de Materiales</h2>
+          <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 16px;">
+            Resistencia última ($S_{ut}$), límite de fluencia ($S_y$), módulo elástico ($E$), dureza Brinell (HB) y aplicaciones típicas en ejes, engranajes, carcasas y pernos.
+          </p>
+        </div>
+        <a href="tablas-materiales.html" class="btn btn--primary">Abrir Tablas de Materiales &rarr;</a>
+      </article>
+
+      <article class="mp-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <span class="tech-badge">SHIGLEY · NORTON · ISO 14224</span>
+          <h2 style="font-size: 1.2rem; color: var(--color-navy-800); margin: 10px 0 8px;">Glosario Técnico y Bibliografía</h2>
+          <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 16px;">
+            Definiciones operativas de diseño mecánico y confiabilidad (fatiga, fretting, pata coja, MTBF, pitting) junto con el índice cruzado de libros base.
+          </p>
+        </div>
+        <a href="glosario-bibliografia.html" class="btn btn--primary">Explorar Glosario &rarr;</a>
+      </article>
+    </section>
+
+    <!-- Factores de conversión rápidos SI <-> IPS -->
+    <section class="mp-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 14px;">
+        <div>
+          <h2 style="font-size: 1.15rem; color: var(--color-navy-800);">Tabla Rápida de Conversión de Unidades de Ingeniería (SI &harr; IPS)</h2>
+          <p style="font-size: 0.85rem; color: var(--text-muted);">Factores exactos utilizados en los 14 simuladores de MECHPLANT.</p>
+        </div>
+        <button type="button" class="btn btn--outline-dark" onclick="window.print()" style="font-size: 0.82rem;">
+          🖨 Imprimir Hoja de Referencia
+        </button>
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table class="mp-table" style="width: 100%; border-collapse: collapse; font-size: 0.88rem;">
+          <thead>
+            <tr style="background: var(--color-navy-800); color: #fff; text-align: left;">
+              <th style="padding: 10px 12px;">Magnitud Física</th>
+              <th style="padding: 10px 12px;">Unidad Sistema Internacional (SI)</th>
+              <th style="padding: 10px 12px;">Unidad Sistema Inglés (IPS)</th>
+              <th style="padding: 10px 12px;">Factor de Conversión</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid var(--border-subtle);">
+              <td style="padding: 9px 12px;"><strong>Esfuerzo / Presión</strong></td>
+              <td style="padding: 9px 12px; font-family: var(--font-mono);">1 MPa (N/mm²)</td>
+              <td style="padding: 9px 12px; font-family: var(--font-mono);">145.038 psi (0.14504 kpsi)</td>
+              <td style="padding: 9px 12px; font-family: var(--font-mono);">1 kpsi = 6.89476 MPa</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border-subtle);">
+              <td style="padding: 9px 12px;"><strong>Fuerza / Carga</strong></td>
+              <td style="padding: 9px 12px; font-family: var(--font-mono);">1 kN (1,000 N)</td>
+              <td style="padding: 9px 12px; font-family: var(--font-mono);">224.809 lbf (0.2248 kip)</td>
+              <td style="padding: 9px 12px; font-family: var(--font-mono);">1 lbf = 4.44822 N</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border-subtle);">
+              <td style="padding: 9px 12px;"><strong>Par Torsor / Momento</strong></td>
+              <td style="padding: 9px 12px; font-family: var(--font-mono);">1 N·m</td>
+              <td style="padding: 9px 12px; font-family: var(--font-mono);">0.73756 lbf·ft (8.8507 lbf·in)</td>
+              <td style="padding: 9px 12px; font-family: var(--font-mono);">1 lbf·ft = 1.35582 N·m</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border-subtle);">
+              <td style="padding: 9px 12px;"><strong>Potencia Mecánica</strong></td>
+              <td style="padding: 9px 12px; font-family: var(--font-mono);">1 kW</td>
+              <td style="padding: 9px 12px; font-family: var(--font-mono);">1.34102 HP</td>
+              <td style="padding: 9px 12px; font-family: var(--font-mono);">1 HP = 0.74570 kW</td>
+            </tr>
+            <tr>
+              <td style="padding: 9px 12px;"><strong>Longitud / Tolerancias</strong></td>
+              <td style="padding: 9px 12px; font-family: var(--font-mono);">1 mm (1,000 µm)</td>
+              <td style="padding: 9px 12px; font-family: var(--font-mono);">0.03937 in (39.37 mil)</td>
+              <td style="padding: 9px 12px; font-family: var(--font-mono);">1 in = 25.400 mm | 1 mil = 25.4 µm</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="../assets/js/data/db-curriculum.js"></script>
+  <script src="../assets/js/data/db-equipos.js"></script>
+  <script src="../assets/js/data/db-componentes.js"></script>
+  <script src="../assets/js/data/db-normas.js"></script>
+  <script src="../assets/js/core/navbar.js"></script>
+  <script src="../assets/js/core/search-engine.js"></script>
+  <script src="../assets/js/core/unit-converter.js"></script>
+  <script src="../assets/js/core/progress-tracker.js"></script>
+  <script src="../assets/js/core/app-init.js"></script>
+</body>
+</html>
