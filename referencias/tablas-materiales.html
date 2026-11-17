@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tablas de Propiedades de Materiales | MECHPLANT</title>
+  <link rel="manifest" href="../manifest.json" />
+  <meta name="theme-color" content="#0B192C" />
+
+  <link rel="stylesheet" href="../assets/css/tokens.css" />
+  <link rel="stylesheet" href="../assets/css/reset.css" />
+  <link rel="stylesheet" href="../assets/css/layout.css" />
+  <link rel="stylesheet" href="../assets/css/navbar.css" />
+  <link rel="stylesheet" href="../assets/css/components.css" />
+  <link rel="stylesheet" href="../assets/css/math-diagrams.css" />
+  <link rel="stylesheet" href="../assets/css/print.css" media="print" />
+</head>
+<body data-root="../">
+  <header id="mp-navbar"></header>
+
+  <main class="mp-container" style="padding-top: 28px; padding-bottom: 48px;">
+    <nav aria-label="Ruta de navegación" style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 14px;">
+      <a href="../index.html">Inicio</a> &rsaquo; <a href="index.html">Referencias</a> &rsaquo; <strong>Tablas de Materiales</strong>
+    </nav>
+
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
+      <div>
+        <span class="tech-badge tech-badge--cyan">SHIGLEY TABLAS A-20 / A-22 / A-24</span>
+        <h1 style="font-size: 1.75rem; color: var(--color-navy-800); margin-top: 6px;">Propiedades Mecánicas de Materiales de Ingeniería</h1>
+        <p style="color: var(--text-secondary); font-size: 0.92rem;">
+          Valores mínimos garantizados y típicos para diseño de ejes, engranajes, carcasas, bujes de desgaste y sujetadores industriales.
+        </p>
+      </div>
+
+      <input type="search" id="mat-search" placeholder="Filtrar por SAE, ASTM, eje, engranaje..."
+        style="padding: 9px 14px; border: 1px solid var(--border-strong); border-radius: var(--radius-md); min-width: 270px; font-size: 0.88rem;" />
+    </div>
+
+    <div class="mp-card" style="overflow-x: auto; margin-bottom: 26px;">
+      <table class="mp-table" id="tabla-materiales" style="width: 100%; border-collapse: collapse; font-size: 0.86rem;">
+        <thead>
+          <tr style="background: var(--color-navy-800); color: #fff; text-align: left;">
+            <th style="padding: 10px 12px;">Designación</th>
+            <th style="padding: 10px 12px;">Condición / Tratamiento</th>
+            <th style="padding: 10px 12px;">$S_{ut}$ (MPa)</th>
+            <th style="padding: 10px 12px;">$S_y$ (MPa)</th>
+            <th style="padding: 10px 12px;">$E$ (GPa)</th>
+            <th style="padding: 10px 12px;">Dureza (HB)</th>
+            <th style="padding: 10px 12px;">Aplicación Típica en Planta</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid var(--border-subtle);">
+            <td style="padding: 9px 12px;"><strong>SAE / AISI 1020</strong></td>
+            <td style="padding: 9px 12px;">Estirado en frío (CD)</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">470</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">390</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">207</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">137</td>
+            <td style="padding: 9px 12px;">Ejes auxiliares de baja carga, espaciadores, guardas estructurales.</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border-subtle);">
+            <td style="padding: 9px 12px;"><strong>SAE / AISI 1045</strong></td>
+            <td style="padding: 9px 12px;">Estirado en frío (CD)</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">625</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">530</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">207</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">179</td>
+            <td style="padding: 9px 12px;">Ejes de transmisión estándar, chavetas DIN 6885, cubos de acoplamiento.</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border-subtle);">
+            <td style="padding: 9px 12px;"><strong>SAE / AISI 4140</strong></td>
+            <td style="padding: 9px 12px;">Templado y Revenido (Q&amp;T 540°C)</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">1020</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">900</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">207</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">302</td>
+            <td style="padding: 9px 12px;">Ejes de bombas de pulpa, contraejes de chancadoras, piñones y espárragos B7.</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border-subtle);">
+            <td style="padding: 9px 12px;"><strong>SAE / AISI 4340</strong></td>
+            <td style="padding: 9px 12px;">Templado y Revenido (Q&amp;T 425°C)</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">1310</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">1200</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">207</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">380</td>
+            <td style="padding: 9px 12px;">Ejes principales de chancadoras cónicas/quijadas y servicio severo de impacto.</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border-subtle);">
+            <td style="padding: 9px 12px;"><strong>SAE / AISI 8620</strong></td>
+            <td style="padding: 9px 12px;">Cementado (Núcleo / Superficie 60 HRC)</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">910</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">685</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">207</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">600+</td>
+            <td style="padding: 9px 12px;">Piñones y engranajes helicoidales de reductores de velocidad de alta carga.</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border-subtle);">
+            <td style="padding: 9px 12px;"><strong>AISI 316L</strong></td>
+            <td style="padding: 9px 12px;">Recocido (Austenítico)</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">485</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">170</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">193</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">146</td>
+            <td style="padding: 9px 12px;">Ejes de agitadores, bombas químicas y ambientes ácidos/corrosivos.</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border-subtle);">
+            <td style="padding: 9px 12px;"><strong>ASTM A48 Clase 30</strong></td>
+            <td style="padding: 9px 12px;">Hierro Fundido Gris ($S_{uc} = 752$ MPa)</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">214</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">Frágil</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">101</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">180</td>
+            <td style="padding: 9px 12px;">Carcasas de reductores, soportes de chumaceras y poleas de velocidad moderada.</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border-subtle);">
+            <td style="padding: 9px 12px;"><strong>ASTM A536 (65-45-12)</strong></td>
+            <td style="padding: 9px 12px;">Hierro Dúctil / Nodular</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">448</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">310</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">169</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">167</td>
+            <td style="padding: 9px 12px;">Poleas de alta velocidad, cuerpos de válvulas y carcasas sometidas a impacto.</td>
+          </tr>
+          <tr>
+            <td style="padding: 9px 12px;"><strong>Bronce ASTM B148 (C95400)</strong></td>
+            <td style="padding: 9px 12px;">Bronce al Aluminio</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">585</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">240</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">110</td>
+            <td style="padding: 9px 12px; font-family: var(--font-mono);">170</td>
+            <td style="padding: 9px 12px;">Coronas de tornillo sinfín, bujes excéntricos de chancadoras y tuercas de potencia.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mp-callout mp-callout--norma">
+      <div class="mp-callout__title">📌 Nota de Diseño Mecánico (Relación Dureza ↔ Resistencia)</div>
+      <p style="font-size: 0.86rem;">
+        Para aceros al carbono y aleados, puede estimarse rápidamente la resistencia última a la tracción a partir de la dureza Brinell medida en campo mediante un durómetro portátil: <strong>$S_{ut} \approx 3.45 \times \text{HB}$ (en MPa)</strong> o <strong>$S_{ut} \approx 0.50 \times \text{HB}$ (en kpsi)</strong>.
+      </p>
+    </div>
+  </main>
+
+  <script src="../assets/js/data/db-curriculum.js"></script>
+  <script src="../assets/js/data/db-equipos.js"></script>
+  <script src="../assets/js/data/db-componentes.js"></script>
+  <script src="../assets/js/data/db-normas.js"></script>
+  <script src="../assets/js/core/navbar.js"></script>
+  <script src="../assets/js/core/search-engine.js"></script>
+  <script src="../assets/js/core/unit-converter.js"></script>
+  <script src="../assets/js/core/progress-tracker.js"></script>
+  <script src="../assets/js/core/app-init.js"></script>
+
+  <script>
+    document.getElementById("mat-search").addEventListener("input", function (e) {
+      const q = e.target.value.toLowerCase().trim();
+      const rows = document.querySelectorAll("#tabla-materiales tbody tr");
+      rows.forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(q) ? "" : "none";
+      });
+    });
+  </script>
+</body>
+</html>
