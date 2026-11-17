@@ -1,1 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Catálogo de Equipos Industriales (19 Activos) | MECHPLANT</title>
+  <link rel="manifest" href="../manifest.json" />
+  <meta name="theme-color" content="#0B192C" />
 
+  <link rel="stylesheet" href="../assets/css/tokens.css" />
+  <link rel="stylesheet" href="../assets/css/reset.css" />
+  <link rel="stylesheet" href="../assets/css/layout.css" />
+  <link rel="stylesheet" href="../assets/css/navbar.css" />
+  <link rel="stylesheet" href="../assets/css/components.css" />
+  <link rel="stylesheet" href="../assets/css/math-diagrams.css" />
+  <link rel="stylesheet" href="../assets/css/print.css" media="print" />
+</head>
+<body data-root="../">
+  <header id="mp-navbar"></header>
+
+  <main class="mp-container" style="padding-top: 28px; padding-bottom: 52px;">
+    <nav aria-label="Ruta de navegación" style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 14px;">
+      <a href="../index.html">Inicio</a> &rsaquo; <strong>Equipos Industriales</strong>
+    </nav>
+
+    <!-- Cabecera del Catálogo de Activos -->
+    <section class="mp-hero-banner" style="background: linear-gradient(135deg, #0B192C 0%, #163254 100%); color: #fff; padding: 28px 32px; border-radius: var(--radius-lg); margin-bottom: 26px; border-left: 5px solid var(--color-cyan-500);">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px;">
+        <div style="max-width: 74ch;">
+          <span class="tech-badge tech-badge--cyan">INGENIERÍA DE ACTIVOS Y CONFIABILIDAD</span>
+          <h1 style="font-size: 1.85rem; margin: 10px 0 8px;">Catálogo de Maquinaria y Equipos Industriales</h1>
+          <p style="color: #CBD5E1; font-size: 0.94rem;">
+            19 activos críticos de procesamiento de minerales y servicios auxiliares de planta estructurados en <strong>13 bloques técnicos obligatorios</strong>: cinemática, transmisión de potencia, elementos críticos, fallas frecuentes, normativa y simuladores vinculados.
+          </p>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.16); border-radius: var(--radius-md); padding: 14px 18px; min-width: 230px;">
+          <div style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: #94A3B8;">Inventario Técnico</div>
+          <div id="equipos-count-kpi" style="font-size: 1.55rem; font-weight: 800; font-family: var(--font-mono); color: #38BDF8; margin: 4px 0;">19 Equipos</div>
+          <div style="font-size: 0.78rem; color: #CBD5E1;">13 bloques educativos por ficha</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Barra de filtros y búsqueda -->
+    <div class="mp-card" style="margin-bottom: 22px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+      <div id="eq-cat-filters" style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <button type="button" class="btn btn--primary" data-cat="ALL">Todos (19)</button>
+        <button type="button" class="btn btn--outline-dark" data-cat="Conminución y Clasificación">Conminución (4)</button>
+        <button type="button" class="btn btn--outline-dark" data-cat="Transporte de Sólidos y Fluidos">Transporte y Bombeo (5)</button>
+        <button type="button" class="btn btn--outline-dark" data-cat="Flotación y Espesamiento">Concentración (3)</button>
+        <button type="button" class="btn btn--outline-dark" data-cat="Servicios Auxiliares y Potencia">Servicios Auxiliares (7)</button>
+      </div>
+
+      <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+        <select id="eq-crit-filter" aria-label="Filtrar por criticidad" style="padding: 8px 12px; border: 1px solid var(--border-strong); border-radius: var(--radius-md); font-size: 0.85rem; background: #fff;">
+          <option value="ALL">Criticidad: Todas</option>
+          <option value="A">Criticidad A (Alta)</option>
+          <option value="B">Criticidad B (Media)</option>
+          <option value="C">Criticidad C (Auxiliar)</option>
+        </select>
+
+        <input type="search" id="eq-search-input" placeholder="Buscar equipo, eje, engranaje, bomba..."
+          style="padding: 8px 14px; border: 1px solid var(--border-strong); border-radius: var(--radius-md); min-width: 240px; font-size: 0.86rem;" />
+      </div>
+    </div>
+
+    <!-- Grilla de Equipos -->
+    <section id="equipos-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(335px, 1fr)); gap: 20px;"></section>
+  </main>
+
+  <script src="../assets/js/data/db-curriculum.js"></script>
+  <script src="../assets/js/data/db-equipos.js"></script>
+  <script src="../assets/js/data/db-componentes.js"></script>
+  <script src="../assets/js/data/db-normas.js"></script>
+  <script src="../assets/js/core/navbar.js"></script>
+  <script src="../assets/js/core/search-engine.js"></script>
+  <script src="../assets/js/core/unit-converter.js"></script>
+  <script src="../assets/js/core/progress-tracker.js"></script>
+  <script src="../assets/js/core/app-init.js"></script>
+
+  <script>
+    (function () {
+      const FALLBACK_EQUIPOS = [
+        { id: "EQ-01", slug: "chancadora-quijadas", nombre: "Chancadora de Quijadas (Mandíbulas)", categoria: "Conminución y Clasificación", criticidad: "A", potencia: "90 – 250 kW", componentes: ["Eje excéntrico SAE 4340", "Volantes de inercia", "Fajas en V", "Rodamientos a rótula"], simuladores: ["SIM-04", "SIM-07", "SIM-08"], modelo3d: "chancadora-quijadas", url: "eq-01-chancadora-quijadas.html" },
+        { id: "EQ-02", slug: "chancadora-conica", nombre: "Chancadora Cónica Secundaria/Terciaria", categoria: "Conminución y Clasificación", criticidad: "A", potencia: "160 – 450 kW", componentes: ["Contraejes de alta velocidad", "Piñón y corona cónica", "Bujes de bronce B148", "Resortes/Cilindros hidroneumáticos"], simuladores: ["SIM-04", "SIM-10"], modelo3d: "chancadora-conica", url: "eq-02-chancadora-conica.html" },
+        { id: "EQ-03", slug: "molino-bolas", nombre: "Molino de Bolas de Descarga por Rebosadero", categoria: "Conminución y Clasificación", criticidad: "A", potencia: "500 – 4,500 kW", componentes: ["Piñón y corona perimetral AGMA", "Chumaceras hidrodinámicas de muñón", "Pernos de revestimiento (liners)", "Acoplamiento de rejilla"], simuladores: ["SIM-06", "SIM-10", "SIM-13"], modelo3d: "molino-bolas", url: "eq-03-molino-bolas.html" },
+        { id: "EQ-04", slug: "zaranda-vibratoria", nombre: "Zaranda Vibratoria Inclinada de Dos Pisos", categoria: "Conminución y Clasificación", criticidad: "B", potencia: "15 – 45 kW", componentes: ["Eje excitador con contrapesos", "Rodamientos de rodillos vibratorios", "Transmisión cardánica / fajas", "Resortes helicoidales"], simuladores: ["SIM-07", "SIM-08", "SIM-14"], modelo3d: null, url: "eq-04-zaranda-vibratoria.html" },
+        { id: "EQ-05", slug: "faja-transportadora", nombre: "Faja Transportadora Overland / de Planta", categoria: "Transporte de Sólidos y Fluidos", criticidad: "A", potencia: "30 – 600 kW", componentes: ["Tambor motriz y de cola", "Reductor helicoidal de ejes paralelos", "Chumaceras bipartidas SNL", "Polines de carga y retorno"], simuladores: ["SIM-04", "SIM-05", "SIM-12"], modelo3d: "faja-transportadora", url: "eq-05-faja-transportadora.html" },
+        { id: "EQ-06", slug: "alimentador-orugas", nombre: "Alimentador de Orugas (Apron Feeder)", categoria: "Transporte de Sólidos y Fluidos", criticidad: "A", potencia: "37 – 110 kW", componentes: ["Cadenas de rodillos paso pesado", "Ruedas dentadas (sprockets)", "Reductor planetario", "Eje motriz de alto torque"], simuladores: ["SIM-05", "SIM-09", "SIM-12"], modelo3d: null, url: "eq-06-alimentador-orugas.html" },
+        { id: "EQ-07", slug: "elevador-cangilones", nombre: "Elevador de Cangilones Centrífugo", categoria: "Transporte de Sólidos y Fluidos", criticidad: "B", potencia: "11 – 55 kW", componentes: ["Cadena de eslabones de acero", "Tambor superior motriz", "Freno antirretroceso (backstop)", "Pernos de cangilón"], simuladores: ["SIM-06", "SIM-09"], modelo3d: null, url: "eq-07-elevador-cangilones.html" },
+        { id: "EQ-08", slug: "transportador-helicoidal", nombre: "Transportador de Tornillo Helicoidal (Sinfin)", categoria: "Transporte de Sólidos y Fluidos", criticidad: "B", potencia: "5.5 – 30 kW", componentes: ["Eje tubular con hélice", "Bujes colgantes intermedios", "Sellos de prensaestopas", "Motorreductor coaxial"], simuladores: ["SIM-01", "SIM-03", "SIM-12"], modelo3d: null, url: "eq-08-transportador-helicoidal.html" },
+        { id: "EQ-09", slug: "bomba-pulpa", nombre: "Bomba Centrífuga Horizontal de Pulpa (Slurry)", categoria: "Transporte de Sólidos y Fluidos", criticidad: "A", potencia: "45 – 500 kW", componentes: ["Eje en voladizo SAE 4140", "Rodamientos de contacto angular", "Transmisión por fajas en V", "Sello expulsor / mecánico"], simuladores: ["SIM-04", "SIM-07", "SIM-08", "SIM-13"], modelo3d: "bomba-centrifuga", url: "eq-09-bomba-pulpa.html" },
+        { id: "EQ-10", slug: "celda-flotacion", nombre: "Celda de Flotación Mecánica Agitada", categoria: "Flotación y Espesamiento", criticidad: "B", potencia: "22 – 160 kW", componentes: ["Eje vertical largo en voladizo", "Poleas y fajas en V", "Rodamientos de carga axial", "Impulsor y dispersor"], simuladores: ["SIM-04", "SIM-08"], modelo3d: null, url: "eq-10-celda-flotacion.html" },
+        { id: "EQ-11", slug: "espesador-concentrado", nombre: "Espesador de Concentrado / Relaves de Tracción Central", categoria: "Flotación y Espesamiento", criticidad: "A", potencia: "15 – 75 kW", componentes: ["Corona de giro de gran diámetro", "Tren de reducción planetario", "Eje vertical de rastras", "Limitador de torque"], simuladores: ["SIM-10", "SIM-11", "SIM-12"], modelo3d: null, url: "eq-11-espesador-concentrado.html" },
+        { id: "EQ-12", slug: "filtro-prensa", nombre: "Filtro Prensa de Placas Horizontales", categoria: "Flotación y Espesamiento", criticidad: "B", potencia: "18.5 – 55 kW", componentes: ["Tirantes laterales a tracción", "Pernos de anclaje estructural", "Mecanismo de traslado de placas", "Cilindros hidráulicos"], simuladores: ["SIM-01", "SIM-02", "SIM-06"], modelo3d: null, url: "eq-12-filtro-prensa.html" },
+        { id: "EQ-13", slug: "reductor-velocidad", nombre: "Reductor Industrial de Engranajes Helicoidales", categoria: "Servicios Auxiliares y Potencia", criticidad: "A", potencia: "15 – 800 kW", componentes: ["Piñones y engranajes helicoidales", "Ejes escalonados con chavetas", "Rodamientos de rodillos cónicos", "Carcasa partida ASTM A48"], simuladores: ["SIM-10", "SIM-11", "SIM-12", "SIM-14"], modelo3d: "reductor-engranajes", url: "eq-13-reductor-velocidad.html" },
+        { id: "EQ-14", slug: "compresor-tornillo", nombre: "Compresor Rotativo de Tornillo Lubricado", categoria: "Servicios Auxiliares y Potencia", criticidad: "A", potencia: "37 – 315 kW", componentes: ["Rotores helicoidales macho/hembra", "Acoplamiento flexible de elastómero", "Rodamientos de precisión", "Alineamiento motor-unidad"], simuladores: ["SIM-07", "SIM-13", "SIM-14"], modelo3d: null, url: "eq-14-compresor-tornillo.html" },
+        { id: "EQ-15", slug: "ventilador-centrifugo", nombre: "Ventilador Centrífugo de Tiro Inducido / Mina", categoria: "Servicios Auxiliares y Potencia", criticidad: "B", potencia: "30 – 400 kW", componentes: ["Rotor balanceado dinámicamente", "Chumaceras con rodamientos a rótula", "Acoplamiento de láminas", "Eje de transmisión"], simuladores: ["SIM-04", "SIM-13", "SIM-14"], modelo3d: null, url: "eq-15-ventilador-centrifugo.html" },
+        { id: "EQ-16", slug: "soplador-lobulos", nombre: "Soplador de Desplazamiento Positivo (Tipo Roots)", categoria: "Servicios Auxiliares y Potencia", criticidad: "B", potencia: "15 – 150 kW", componentes: ["Engranajes de sincronización", "Lóbulos trilobulares", "Transmisión por fajas en V", "Sellos laberinto"], simuladores: ["SIM-03", "SIM-08", "SIM-10"], modelo3d: null, url: "eq-16-soplador-lobulos.html" },
+        { id: "EQ-17", slug: "puente-grua", nombre: "Puente Grúa Birraíl de Mantenimiento de Nave", categoria: "Servicios Auxiliares y Potencia", criticidad: "A", potencia: "22 – 90 kW", componentes: ["Tambor de izaje y cable", "Freno electromecánico de seguridad", "Ruedas de traslación y ejes", "Reductor de izaje"], simuladores: ["SIM-02", "SIM-05", "SIM-12"], modelo3d: null, url: "eq-17-puente-grua.html" },
+        { id: "EQ-18", slug: "agitador-reactivos", nombre: "Agitador Vertical de Tanque de Reactivos", categoria: "Servicios Auxiliares y Potencia", criticidad: "C", potencia: "3 – 18.5 kW", componentes: ["Eje largo AISI 316L", "Brida rígida de acople", "Motorreductor helicoidal", "Pernos de montaje en viga"], simuladores: ["SIM-04", "SIM-06"], modelo3d: null, url: "eq-18-agitador-reactivos.html" },
+        { id: "EQ-19", slug: "bomba-multietapa", nombre: "Bomba Centrífuga Multietapa de Agua de Proceso", categoria: "Servicios Auxiliares y Potencia", criticidad: "A", potencia: "75 – 650 kW", componentes: ["Eje largo con camisas", "Acoplamiento de rejilla/espaciador", "Cojinetes de empuje axial", "Pernos de base (Soft Foot)"], simuladores: ["SIM-07", "SIM-13", "SIM-14"], modelo3d: "bomba-centrifuga", url: "eq-19-bomba-multietapa.html" }
+      ];
+
+      const rawEquipos = (window.MECHPLANT_DB && Array.isArray(window.MECHPLANT_DB.equipos) && window.MECHPLANT_DB.equipos.length)
+        ? window.MECHPLANT_DB.equipos
+        : FALLBACK_EQUIPOS;
+
+      const grid = document.getElementById("equipos-grid");
+      const catFilterBar = document.getElementById("eq-cat-filters");
+      const critSelect = document.getElementById("eq-crit-filter");
+      const searchInput = document.getElementById("eq-search-input");
+      const countKpi = document.getElementById("equipos-count-kpi");
+
+      let activeCategory = "ALL";
+
+      function getCritBadgeStyle(crit) {
+        if (crit === "A") return "background:#FEE2E2; color:#991B1B; border:1px solid #FCA5A5;";
+        if (crit === "B") return "background:#FEF3C7; color:#92400E; border:1px solid #FCD34D;";
+        return "background:#E0F2FE; color:#075985; border:1px solid #7DD3FC;";
+      }
+
+      function renderEquipos() {
+        const critVal = critSelect.value;
+        const query = searchInput.value.toLowerCase().trim();
+
+        const filtered = rawEquipos.filter(eq => {
+          const matchCat = activeCategory === "ALL" || (eq.categoria || "").toLowerCase().includes(activeCategory.toLowerCase());
+          const matchCrit = critVal === "ALL" || (eq.criticidad || "").toUpperCase() === critVal;
+          const haystack = `${eq.id} ${eq.nombre} ${eq.categoria} ${(eq.componentes || []).join(" ")}`.toLowerCase();
+          const matchQuery = !query || haystack.includes(query);
+          return matchCat && matchCrit && matchQuery;
+        });
+
+        countKpi.textContent = `${filtered.length} ${filtered.length === 1 ? "Equipo" : "Equipos"}`;
+
+        if (!filtered.length) {
+          grid.innerHTML = `
+            <div class="mp-callout mp-callout--norma" style="grid-column: 1 / -1;">
+              <div class="mp-callout__title">Sin coincidencias en el catálogo</div>
+              <p>Ajusta el filtro de categoría, criticidad o término de búsqueda para visualizar los equipos disponibles.</p>
+            </div>
+          `;
+          return;
+        }
+
+        grid.innerHTML = filtered.map(eq => {
+          const comps = (eq.componentes || []).map(c => `<li style="margin-bottom:3px;">${c}</li>`).join("");
+          const sims = (eq.simuladores || []).map(s => `<span class="tech-badge tech-badge--cyan">${s}</span>`).join(" ");
+          const modelBtn = eq.modelo3d
+            ? `<a href="../lab-3d/visor-3d.html?modelo=${encodeURIComponent(eq.modelo3d)}" class="btn btn--outline-dark" style="font-size:0.8rem;">🧊 Visor 3D</a>`
+            : "";
+
+          return `
+            <article class="mp-card" style="display:flex; flex-direction:column; justify-content:space-between; border-top:4px solid var(--color-navy-800);">
+              <div>
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px;">
+                  <span class="tech-badge">${eq.id}</span>
+                  <span style="font-size:0.74rem; font-weight:700; padding:3px 9px; border-radius:999px; ${getCritBadgeStyle(eq.criticidad)}">
+                    Criticidad ${eq.criticidad || "A"}
+                  </span>
+                </div>
+
+                <h2 style="font-size:1.12rem; color:var(--color-navy-800); margin-bottom:4px;">${eq.nombre}</h2>
+                <div style="font-size:0.79rem; color:var(--text-muted); margin-bottom:10px;">
+                  ${eq.categoria} · <strong>Potencia típica:</strong> <span style="font-family:var(--font-mono);">${eq.potencia || "Variable"}</span>
+                </div>
+
+                <div style="font-size:0.8rem; font-weight:700; color:var(--color-navy-700); margin-bottom:5px;">Elementos mecánicos críticos:</div>
+                <ul style="font-size:0.82rem; color:var(--text-secondary); padding-left:18px; margin-bottom:14px;">
+                  ${comps}
+                </ul>
+
+                <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px;">
+                  ${sims}
+                </div>
+              </div>
+
+              <div style="display:flex; gap:8px; flex-wrap:wrap; border-top:1px solid var(--border-subtle); padding-top:12px;">
+                <a href="${eq.url || "#"}" class="btn btn--primary" style="flex:1; text-align:center; font-size:0.82rem;">
+                  📋 Ficha (13 Bloques)
+                </a>
+                ${modelBtn}
+              </div>
+            </article>
+          `;
+        }).join("");
+      }
+
+      catFilterBar.addEventListener("click", (e) => {
+        const btn = e.target.closest("button[data-cat]");
+        if (!btn) return;
+        catFilterBar.querySelectorAll("button").forEach(b => {
+          b.className = "btn btn--outline-dark";
+        });
+        btn.className = "btn btn--primary";
+        activeCategory = btn.dataset.cat;
+        renderEquipos();
+      });
+
+      critSelect.addEventListener("change", renderEquipos);
+      searchInput.addEventListener("input", renderEquipos);
+
+      renderEquipos();
+    })();
+  </script>
+</body>
+</html>
