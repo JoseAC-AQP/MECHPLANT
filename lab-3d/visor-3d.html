@@ -1,1 +1,373 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Visor Interactivo 3D | MECHPLANT</title>
+  <link rel="manifest" href="../manifest.json" />
+  <meta name="theme-color" content="#0B192C" />
 
+  <link rel="stylesheet" href="../assets/css/tokens.css" />
+  <link rel="stylesheet" href="../assets/css/reset.css" />
+  <link rel="stylesheet" href="../assets/css/layout.css" />
+  <link rel="stylesheet" href="../assets/css/navbar.css" />
+  <link rel="stylesheet" href="../assets/css/components.css" />
+  <link rel="stylesheet" href="../assets/css/math-diagrams.css" />
+  <link rel="stylesheet" href="../assets/css/print.css" media="print" />
+
+  <style>
+    .visor-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 980px) {
+      .visor-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .canvas-stage {
+      position: relative;
+      width: 100%;
+      height: 540px;
+      background: #0B192C;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1px solid #1E3A5F;
+      box-shadow: 0 12px 28px rgba(11, 25, 44, 0.18);
+    }
+
+    .canvas-hud-top {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      right: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .canvas-hud-top > * {
+      pointer-events: auto;
+    }
+
+    .hud-pill {
+      background: rgba(11, 25, 44, 0.82);
+      backdrop-filter: blur(6px);
+      color: #E2E8F0;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-family: var(--font-mono);
+    }
+
+    .visor-toolbar {
+      background: #0F233C;
+      color: #F8FAFC;
+      padding: 14px 18px;
+      border-radius: var(--radius-md);
+      margin-top: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      border: 1px solid #1E3A5F;
+    }
+
+    .toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-cad {
+      background: #163254;
+      color: #E2E8F0;
+      border: 1px solid #2B5282;
+      padding: 6px 11px;
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .btn-cad:hover {
+      background: #0095D9;
+      border-color: #38BDF8;
+      color: #fff;
+    }
+
+    .btn-cad.is-active {
+      background: #0095D9;
+      border-color: #38BDF8;
+      color: #fff;
+    }
+
+    .part-tree-btn {
+      width: 100%;
+      text-align: left;
+      background: var(--surface-subtle, #F8FAFC);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      font-size: 0.83rem;
+      color: var(--color-navy-800);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .part-tree-btn:hover {
+      border-color: var(--color-cyan-500);
+      background: #F0F9FF;
+    }
+  </style>
+</head>
+<body data-root="../">
+  <header id="mp-navbar"></header>
+
+  <main class="mp-container" style="padding-top: 22px; padding-bottom: 48px;">
+    <!-- Barra superior de navegación y selector de equipo -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 18px;">
+      <div>
+        <nav aria-label="Ruta de navegación" style="font-size: 0.83rem; color: var(--text-muted); margin-bottom: 4px;">
+          <a href="../index.html">Inicio</a> &rsaquo;
+          <a href="index.html">Laboratorio 3D</a> &rsaquo;
+          <strong id="breadcrumb-eq">Visor Interactivo</strong>
+        </nav>
+        <h1 id="visor-title" style="font-size: 1.5rem; color: var(--color-navy-800);">Visor Interactivo de Ensamble Mecánico</h1>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <label for="eq-selector" style="font-size: 0.84rem; font-weight: 700; color: var(--color-navy-800);">Equipo Activo:</label>
+        <select id="eq-selector" style="padding: 8px 12px; border: 1px solid var(--border-strong); border-radius: var(--radius-md); font-size: 0.88rem; background: #fff; min-width: 250px;"></select>
+        <a id="btn-ficha-tecnica" href="../equipos/index.html" class="btn btn--outline-dark" style="font-size: 0.83rem;">
+          📄 Ver Ficha Técnica
+        </a>
+      </div>
+    </div>
+
+    <!-- Layout Principal: Escena 3D + Panel Inspector -->
+    <div class="visor-layout">
+      <!-- Columna Izquierda: Viewport WebGL y Controles CAD -->
+      <div>
+        <div class="canvas-stage">
+          <div class="canvas-hud-top">
+            <span class="hud-pill" id="hud-render-mode">Motor: Three.js WebGL · Cargando...</span>
+            <span class="hud-pill">🖱 Izq: Rotar · Rueda: Zoom · Der: Mover</span>
+          </div>
+          <div id="threejs-container" style="width: 100%; height: 100%;"></div>
+        </div>
+
+        <!-- Barra de Herramientas CAD -->
+        <div class="visor-toolbar">
+          <!-- Vistas de cámara -->
+          <div class="toolbar-group" role="group" aria-label="Vistas de cámara">
+            <span style="font-size: 0.78rem; color: #94A3B8; font-weight: 700; margin-right: 4px;">VISTA:</span>
+            <button type="button" class="btn-cad" data-cam="isometric">Isométrica</button>
+            <button type="button" class="btn-cad" data-cam="front">Frontal</button>
+            <button type="button" class="btn-cad" data-cam="side">Lateral</button>
+            <button type="button" class="btn-cad" data-cam="top">Superior</button>
+          </div>
+
+          <!-- Control de despiece explosivo -->
+          <div class="toolbar-group" style="flex: 1; min-width: 220px; justify-content: center;">
+            <label for="explode-slider" style="font-size: 0.78rem; color: #38BDF8; font-weight: 700; white-space: nowrap;">
+              DESPIECE: <span id="explode-val">0%</span>
+            </label>
+            <input type="range" id="explode-slider" min="0" max="100" value="0"
+              style="width: 150px; accent-color: #0095D9; cursor: pointer;" />
+          </div>
+
+          <!-- Rayos X y Giro automático -->
+          <div class="toolbar-group">
+            <button type="button" class="btn-cad" id="btn-xray">🩻 Modo Rayos X</button>
+            <button type="button" class="btn-cad" id="btn-autorotate">🔄 Auto-Rotar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna Derecha: Inspector de Pieza Seleccionada + Árbol de Componentes -->
+      <aside style="display: grid; gap: 16px;">
+        <section class="mp-card" id="inspector-panel">
+          <div class="mp-callout mp-callout--norma">
+            <div class="mp-callout__title">🖱 Haz clic en cualquier componente 3D</div>
+            <p style="font-size: 0.84rem;">
+              Selecciona un eje, engranaje, rodamiento o carcasa en el visor para inspeccionar su material, norma internacional, modo de falla y simulador.
+            </p>
+          </div>
+        </section>
+
+        <section class="mp-card">
+          <h2 style="font-size: 0.98rem; color: var(--color-navy-800); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+            <span>🧩 Subcomponentes del Ensamble</span>
+            <span id="parts-count-badge" class="tech-badge">0</span>
+          </h2>
+          <div id="parts-tree-list" style="display: grid; gap: 6px;"></div>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <!-- Dependencias de Datos y Núcleo MECHPLANT -->
+  <script src="../assets/js/data/db-curriculum.js"></script>
+  <script src="../assets/js/data/db-equipos.js"></script>
+  <script src="../assets/js/data/db-componentes.js"></script>
+  <script src="../assets/js/data/db-normas.js"></script>
+  <script src="../assets/js/core/navbar.js"></script>
+  <script src="../assets/js/core/search-engine.js"></script>
+  <script src="../assets/js/core/unit-converter.js"></script>
+  <script src="../assets/js/core/progress-tracker.js"></script>
+  <script src="../assets/js/core/app-init.js"></script>
+
+  <!-- Three.js + Addons (OrbitControls & GLTFLoader) -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
+  <!-- Módulos del Laboratorio 3D de MECHPLANT -->
+  <script src="../assets/js/lab-3d/model-registry.js"></script>
+  <script src="../assets/js/lab-3d/scene-manager.js"></script>
+  <script src="../assets/js/lab-3d/model-loader.js"></script>
+  <script src="../assets/js/lab-3d/exploded-view.js"></script>
+  <script src="../assets/js/lab-3d/hotspot-inspector.js"></script>
+
+  <script>
+    (function () {
+      const registry = window.MECHPLANT_3D_REGISTRY || {};
+      const models = Object.values(registry);
+      const selector = document.getElementById("eq-selector");
+      const explodeSlider = document.getElementById("explode-slider");
+      const explodeVal = document.getElementById("explode-val");
+      const btnXray = document.getElementById("btn-xray");
+      const btnAutoRotate = document.getElementById("btn-autorotate");
+      const partsTreeList = document.getElementById("parts-tree-list");
+      const partsCountBadge = document.getElementById("parts-count-badge");
+      const hudMode = document.getElementById("hud-render-mode");
+
+      // 1. Poblar selector de equipos
+      models.forEach(m => {
+        const opt = document.createElement("option");
+        opt.value = m.id;
+        opt.textContent = `${m.code} — ${m.nombre}`;
+        selector.appendChild(opt);
+      });
+
+      // Leer parámetro ?modelo= de la URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const initialKey = registry[urlParams.get("modelo")] ? urlParams.get("modelo") : "reductor-engranajes";
+      selector.value = initialKey;
+
+      // 2. Inicializar escena Three.js e inspector
+      const ctx = window.MECHPLANT_3D_SCENE.init("threejs-container");
+      window.MECHPLANT_3D_INSPECTOR.init("inspector-panel");
+
+      // Registrar actualización de despiece explosivo en el bucle de renderizado
+      window.MECHPLANT_3D_SCENE.onTick(() => {
+        if (window.MECHPLANT_3D_EXPLODE) {
+          window.MECHPLANT_3D_EXPLODE.update();
+        }
+      });
+
+      // 3. Función para cargar un equipo del registro
+      function activateEquipment(eqKey) {
+        const metaEq = registry[eqKey];
+        if (!metaEq || !ctx || !ctx.scene) return;
+
+        document.getElementById("visor-title").textContent = metaEq.nombre;
+        document.getElementById("breadcrumb-eq").textContent = metaEq.nombre;
+        document.getElementById("btn-ficha-tecnica").href = metaEq.fichaUrl || "../equipos/index.html";
+
+        // Resetear controles de despiece y Rayos X
+        explodeSlider.value = 0;
+        explodeVal.textContent = "0%";
+        window.MECHPLANT_3D_EXPLODE.setExplodePercentage(0);
+        window.MECHPLANT_3D_EXPLODE.toggleXRay(false);
+        btnXray.classList.remove("is-active");
+
+        // Posicionar cámara óptima del modelo
+        if (metaEq.cameraPreset && ctx.camera && ctx.controls) {
+          ctx.camera.position.set(...metaEq.cameraPreset.pos);
+          ctx.controls.target.set(...metaEq.cameraPreset.target);
+          ctx.controls.update();
+        }
+
+        // Cargar modelo GLB o ensamble paramétrico
+        window.MECHPLANT_3D_LOADER.loadEquipment(eqKey, ctx.scene, "../");
+        window.MECHPLANT_3D_INSPECTOR.renderPartDetails(null);
+
+        // Actualizar URL sin recargar página
+        const newUrl = `${window.location.pathname}?modelo=${encodeURIComponent(eqKey)}`;
+        window.history.replaceState({}, "", newUrl);
+      }
+
+      // 4. Escuchar evento de carga completada para poblar árbol de piezas
+      window.addEventListener("mechplant:3dLoaded", (e) => {
+        const { parts, mode } = e.detail || {};
+        const list = parts || [];
+        hudMode.textContent = mode === "GLB"
+          ? "Modelo CAD: Archivo GLB Cargado"
+          : "Modelo CAD: Ensamble Paramétrico 3D Activo";
+
+        partsCountBadge.textContent = list.length;
+        partsTreeList.innerHTML = "";
+
+        list.forEach((mesh, idx) => {
+          const nombre = mesh.userData?.meta?.nombre || mesh.name || `Componente #${idx + 1}`;
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "part-tree-btn";
+          btn.innerHTML = `<span>${idx + 1}. ${nombre}</span><span style="color:var(--color-cyan-600); font-weight:700;">&rsaquo;</span>`;
+          btn.addEventListener("click", () => {
+            window.MECHPLANT_3D_INSPECTOR.selectPart(mesh);
+          });
+          partsTreeList.appendChild(btn);
+        });
+      });
+
+      // 5. Eventos de controles de usuario
+      selector.addEventListener("change", (e) => activateEquipment(e.target.value));
+
+      explodeSlider.addEventListener("input", (e) => {
+        const val = e.target.value;
+        explodeVal.textContent = `${val}%`;
+        window.MECHPLANT_3D_EXPLODE.setExplodePercentage(val);
+      });
+
+      btnXray.addEventListener("click", () => {
+        const active = window.MECHPLANT_3D_EXPLODE.toggleXRay();
+        btnXray.classList.toggle("is-active", active);
+      });
+
+      btnAutoRotate.addEventListener("click", () => {
+        if (!ctx || !ctx.controls) return;
+        ctx.controls.autoRotate = !ctx.controls.autoRotate;
+        ctx.controls.autoRotateSpeed = 1.8;
+        btnAutoRotate.classList.toggle("is-active", ctx.controls.autoRotate);
+      });
+
+      document.querySelectorAll("[data-cam]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          window.MECHPLANT_3D_SCENE.setCameraPreset(btn.dataset.cam);
+        });
+      });
+
+      // Iniciar con el equipo seleccionado
+      activateEquipment(initialKey);
+    })();
+  </script>
+</body>
+</html>
