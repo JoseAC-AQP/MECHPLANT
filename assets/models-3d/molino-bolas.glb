@@ -1,1 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Generador GLB — Molino de Bolas</title>
+</head>
+<body style="font-family: sans-serif; padding: 24px; background: #0B192C; color: #fff;">
+  <h2>Exportador CAD a Binario (.glb) — Molino de Bolas de Descarga por Rebosadero</h2>
+  <button id="btn-export" style="padding: 12px 20px; font-size: 16px; cursor: pointer;">
+    ⬇ Descargar molino-bolas.glb
+  </button>
 
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/GLTFExporter.js"></script>
+  <script>
+    function buildMolinoBolas() {
+      const root = new THREE.Group();
+      root.name = "Ensamble_Molino_Bolas";
+
+      const matCasco = new THREE.MeshStandardMaterial({ color: 0x1E3A5F, metalness: 0.65, roughness: 0.35 });
+      const matLiner = new THREE.MeshStandardMaterial({ color: 0x0095D9, metalness: 0.72, roughness: 0.28 });
+      const matAcero = new THREE.MeshStandardMaterial({ color: 0xCBD5E1, metalness: 0.85, roughness: 0.2 });
+      const matBronce = new THREE.MeshStandardMaterial({ color: 0xD97706, metalness: 0.8, roughness: 0.3 });
+      const matBase = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.55, roughness: 0.45 });
+
+      // 1. Casco cilíndrico principal (Shell ASTM A36)
+      const casco = new THREE.Mesh(new THREE.CylinderGeometry(1.35, 1.35, 3.1, 36), matCasco);
+      casco.name = "Casco_Cilindrico_ASTM_A36";
+      casco.rotation.z = Math.PI / 2;
+      casco.position.set(0, 0.35, 0);
+      root.add(casco);
+
+      // 2. Tapas cónicas (Feed & Discharge Heads)
+      const tapaAlim = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 1.35, 0.45, 36), matCasco);
+      tapaAlim.name = "Tapa_Conica_Alimentacion";
+      tapaAlim.rotation.z = Math.PI / 2;
+      tapaAlim.position.set(-1.77, 0.35, 0);
+      root.add(tapaAlim);
+
+      const tapaDesc = new THREE.Mesh(new THREE.CylinderGeometry(1.35, 0.62, 0.45, 36), matCasco);
+      tapaDesc.name = "Tapa_Conica_Descarga";
+      tapaDesc.rotation.z = Math.PI / 2;
+      tapaDesc.position.set(1.77, 0.35, 0);
+      root.add(tapaDesc);
+
+      // 3. Muñones huecos (Trunnions)
+      const munonAlim = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.55, 0.65, 32), matAcero);
+      munonAlim.name = "Munon_Hueco_Alimentacion_Trunnion";
+      munonAlim.rotation.z = Math.PI / 2;
+      munonAlim.position.set(-2.25, 0.35, 0);
+      root.add(munonAlim);
+
+      const munonDesc = munonAlim.clone();
+      munonDesc.name = "Munon_Hueco_Descarga_Trunnion";
+      munonDesc.position.set(2.25, 0.35, 0);
+      root.add(munonDesc);
+
+      // 4. Chumaceras hidrodinámicas de muñón (Main Trunnion Bearings)
+      const chumaceraAlim = new THREE.Mesh(new THREE.BoxGeometry(0.68, 1.35, 1.45), matBronce);
+      chumaceraAlim.name = "Chumacera_Hidrodinamica_Alimentacion";
+      chumaceraAlim.position.set(-2.25, -0.35, 0);
+      root.add(chumaceraAlim);
+
+      const chumaceraDesc = chumaceraAlim.clone();
+      chumaceraDesc.name = "Chumacera_Hidrodinamica_Descarga";
+      chumaceraDesc.position.set(2.25, -0.35, 0);
+      root.add(chumaceraDesc);
+
+      // 5. Corona dentada perimetral AGMA (Girth Gear)
+      const corona = new THREE.Mesh(new THREE.CylinderGeometry(1.62, 1.62, 0.34, 48), matAcero);
+      corona.name = "Corona_Perimetral_AGMA_2001";
+      corona.rotation.z = Math.PI / 2;
+      corona.position.set(1.32, 0.35, 0);
+      root.add(corona);
+
+      // 6. Piñón de ataque + Eje piñón + Chumaceras
+      const pinon = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 0.38, 28), matLiner);
+      pinon.name = "Pinon_Ataque_Acero_Cementado";
+      pinon.rotation.z = Math.PI / 2;
+      pinon.position.set(1.32, -0.68, 1.62);
+      root.add(pinon);
+
+      const ejePinon = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 1.45, 24), matAcero);
+      ejePinon.name = "Eje_Pinon_SAE_4340";
+      ejePinon.rotation.z = Math.PI / 2;
+      ejePinon.position.set(1.32, -0.68, 1.62);
+      root.add(ejePinon);
+
+      const pedPinon1 = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.72, 0.56), matBase);
+      pedPinon1.name = "Chumacera_Pinon_Lado_Libre";
+      pedPinon1.position.set(0.75, -0.92, 1.62);
+      root.add(pedPinon1);
+
+      const pedPinon2 = pedPinon1.clone();
+      pedPinon2.name = "Chumacera_Pinon_Lado_Acople";
+      pedPinon2.position.set(1.88, -0.92, 1.62);
+      root.add(pedPinon2);
+
+      // 7. Trommel de descarga (Discharge Trommel Screen)
+      const trommel = new THREE.Mesh(new THREE.CylinderGeometry(0.66, 0.66, 0.75, 28, 1, true), matLiner);
+      trommel.name = "Trommel_Clasificacion_Descarga";
+      trommel.rotation.z = Math.PI / 2;
+      trommel.position.set(2.92, 0.35, 0);
+      root.add(trommel);
+
+      // 8. Pedestales de cimentación
+      const baseAlim = new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.55, 1.85), matBase);
+      baseAlim.name = "Pedestal_Concreto_Alimentacion";
+      baseAlim.position.set(-2.25, -1.25, 0);
+      root.add(baseAlim);
+
+      const baseDesc = baseAlim.clone();
+      baseDesc.name = "Pedestal_Concreto_Descarga";
+      baseDesc.position.set(2.25, -1.25, 0);
+      root.add(baseDesc);
+
+      return root;
+    }
+
+    document.getElementById("btn-export").addEventListener("click", () => {
+      const scene = new THREE.Scene();
+      scene.add(buildMolinoBolas());
+
+      const exporter = new THREE.GLTFExporter();
+      exporter.parse(
+        scene,
+        (glbBuffer) => {
+          const blob = new Blob([glbBuffer], { type: "model/gltf-binary" });
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = "molino-bolas.glb";
+          link.click();
+        },
+        { binary: true }
+      );
+    });
+  </script>
+</body>
+</html>
