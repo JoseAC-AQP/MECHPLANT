@@ -1,1 +1,154 @@
+/* ==========================================================================
+   MECHPLANT - SISTEMA DE DISEÑO Y VARIABLES GLOBALES (tokens.css)
+   Identidad: Industrial Blueprint & Precision
+   ========================================================================== */
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Paleta Principal */
+  --bg-canvas: #F4F7FA;           /* Fondo técnico claro */
+  --bg-surface: #FFFFFF;          /* Tarjetas y paneles */
+  --bg-surface-alt: #EDF2F7;      /* Fondos secundarios / tablas */
+  
+  /* Azul Industrial y Cian Ingeniería */
+  --color-navy-900: #091929;      /* Hover profundo / footer */
+  --color-navy-800: #0F2942;      /* Barra de navegación y encabezados */
+  --color-navy-700: #1B4F72;      /* Acento secundario */
+  --color-cyan-500: #0095D9;      /* Acento interactivo principal */
+  --color-cyan-600: #0077B6;      /* Hover botones primarios */
+  --color-cyan-100: #E0F2FE;      /* Fondos suaves de selección */
+
+  /* Tipografía */
+  --text-primary: #1E293B;        /* Grafito oscuro legible */
+  --text-secondary: #475569;      /* Gris pizarra */
+  --text-muted: #64748B;          /* Metadatos y pies de foto */
+  --text-inverse: #F8FAFC;        /* Texto sobre fondos oscuros */
+
+  /* Bordes y Retícula CAD */
+  --border-light: #CBD5E1;
+  --border-subtle: #E2E8F0;
+  --grid-line: rgba(15, 41, 66, 0.045);
+
+  /* Semáforo de Ingeniería y Confiabilidad */
+  --status-ok: #10B981;
+  --status-ok-bg: #D1FAE5;
+  --status-warn: #F59E0B;
+  --status-warn-bg: #FEF3C7;
+  --status-danger: #EF4444;
+  --status-danger-bg: #FEE2E2;
+
+  /* Fuentes */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Dimensiones y Sombras */
+  --navbar-height: 64px;
+  --breadcrumb-height: 36px;
+  --container-max: 1360px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --shadow-sm: 0 1px 3px rgba(15, 41, 66, 0.08);
+  --shadow-md: 0 4px 12px rgba(15, 41, 66, 0.10);
+  --shadow-lg: 0 12px 28px rgba(15, 41, 66, 0.16);
+}
+
+/* Reset técnico */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  line-height: 1.6;
+  /* Retícula sutil tipo plano de ingeniería */
+  background-image: 
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: 28px 28px;
+  padding-top: calc(var(--navbar-height) + var(--breadcrumb-height));
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Utilidades de insignias técnicas */
+.tech-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface-alt);
+  color: var(--color-navy-800);
+  border: 1px solid var(--border-light);
+}
+
+.tech-badge--cyan {
+  background: var(--color-cyan-100);
+  color: var(--color-cyan-600);
+  border-color: rgba(0, 149, 217, 0.3);
+}
+
+/* Botones estandarizados */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 20px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  transition: all 0.18s ease;
+}
+
+.btn--primary {
+  background: var(--color-cyan-500);
+  color: #FFFFFF;
+  box-shadow: 0 2px 6px rgba(0, 149, 217, 0.3);
+}
+
+.btn--primary:hover {
+  background: var(--color-cyan-600);
+  transform: translateY(-1px);
+}
+
+.btn--outline {
+  background: var(--bg-surface);
+  color: var(--color-navy-800);
+  border-color: var(--color-navy-800);
+}
+
+.btn--outline:hover {
+  background: var(--color-navy-800);
+  color: #FFFFFF;
+}
