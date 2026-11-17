@@ -1,1 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Generador GLB — Chancadora Cónica</title>
+</head>
+<body style="font-family: sans-serif; padding: 24px; background: #0B192C; color: #fff;">
+  <h2>Exportador CAD a Binario (.glb) — Chancadora Cónica Secundaria/Terciaria</h2>
+  <button id="btn-export" style="padding: 12px 20px; font-size: 16px; cursor: pointer;">
+    ⬇ Descargar chancadora-conica.glb
+  </button>
 
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/GLTFExporter.js"></script>
+  <script>
+    function buildChancadoraConica() {
+      const root = new THREE.Group();
+      root.name = "Ensamble_Chancadora_Conica";
+
+      const matBastidor = new THREE.MeshStandardMaterial({ color: 0x1E3A5F, metalness: 0.65, roughness: 0.35 });
+      const matManganeso = new THREE.MeshStandardMaterial({ color: 0x0095D9, metalness: 0.72, roughness: 0.28 });
+      const matAcero = new THREE.MeshStandardMaterial({ color: 0xCBD5E1, metalness: 0.85, roughness: 0.2 });
+      const matBronce = new THREE.MeshStandardMaterial({ color: 0xD97706, metalness: 0.8, roughness: 0.3 });
+      const matCilindro = new THREE.MeshStandardMaterial({ color: 0xDC2626, metalness: 0.55, roughness: 0.35 });
+
+      // 1. Bastidor principal inferior (Main Frame)
+      const bastidor = new THREE.Mesh(new THREE.CylinderGeometry(1.45, 1.65, 1.35, 32), matBastidor);
+      bastidor.name = "Bastidor_Principal_Acero_Fundido";
+      bastidor.position.set(0, -0.55, 0);
+      root.add(bastidor);
+
+      // 2. Tazón superior y Cóncavo (Bowl & Mantle Liner)
+      const tazon = new THREE.Mesh(new THREE.CylinderGeometry(1.75, 1.35, 0.95, 32, 1, true), matBastidor);
+      tazon.name = "Tazon_Superior_Ajuste_CSS";
+      tazon.position.set(0, 0.6, 0);
+      root.add(tazon);
+
+      const concavo = new THREE.Mesh(new THREE.CylinderGeometry(1.52, 1.15, 0.82, 32, 1, true), matManganeso);
+      concavo.name = "Concavo_Acero_Manganeso_ASTM_A128";
+      concavo.position.set(0, 0.58, 0);
+      root.add(concavo);
+
+      // 3. Manto móvil triturador (Mantle)
+      const manto = new THREE.Mesh(new THREE.ConeGeometry(1.12, 1.25, 32), matManganeso);
+      manto.name = "Manto_Movil_Trituracion";
+      manto.position.set(0.05, 0.45, 0);
+      root.add(manto);
+
+      // 4. Eje principal central (Main Shaft SAE 4340)
+      const ejePrincipal = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.32, 2.25, 24), matAcero);
+      ejePrincipal.name = "Eje_Principal_SAE_4340";
+      ejePrincipal.position.set(0.04, 0.15, 0);
+      root.add(ejePrincipal);
+
+      // 5. Buje excéntrico de bronce (Eccentric Bushing)
+      const excentrica = new THREE.Mesh(new THREE.CylinderGeometry(0.46, 0.48, 0.95, 28), matBronce);
+      excentrica.name = "Buje_Excentrico_Bronce_ASTM_B148";
+      excentrica.position.set(0, -0.52, 0);
+      root.add(excentrica);
+
+      // 6. Corona cónica y Piñón de ataque
+      const corona = new THREE.Mesh(new THREE.CylinderGeometry(0.75, 0.85, 0.18, 32), matAcero);
+      corona.name = "Corona_Conica_Espiral_AGMA";
+      corona.position.set(0, -1.05, 0);
+      root.add(corona);
+
+      const contraeje = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 1.85, 20), matAcero);
+      contraeje.name = "Contraeje_Alta_Velocidad";
+      contraeje.rotation.z = Math.PI / 2;
+      contraeje.position.set(1.45, -1.05, 0);
+      root.add(contraeje);
+
+      const polea = new THREE.Mesh(new THREE.CylinderGeometry(0.58, 0.58, 0.28, 32), matAcero);
+      polea.name = "Polea_Motriz_Fajas_8V";
+      polea.rotation.z = Math.PI / 2;
+      polea.position.set(2.35, -1.05, 0);
+      root.add(polea);
+
+      // 7. Cilindros hidroneumáticos de alivio (Tramp Release)
+      for (let i = 0; i < 6; i++) {
+        const ang = (i * Math.PI * 2) / 6;
+        const cil = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.78, 16), matCilindro);
+        cil.name = `Cilindro_Alivio_Hidroneumatico_${i + 1}`;
+        cil.position.set(Math.cos(ang) * 1.62, -0.15, Math.sin(ang) * 1.62);
+        root.add(cil);
+      }
+
+      return root;
+    }
+
+    document.getElementById("btn-export").addEventListener("click", () => {
+      const scene = new THREE.Scene();
+      scene.add(buildChancadoraConica());
+
+      const exporter = new THREE.GLTFExporter();
+      exporter.parse(
+        scene,
+        (glbBuffer) => {
+          const blob = new Blob([glbBuffer], { type: "model/gltf-binary" });
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = "chancadora-conica.glb";
+          link.click();
+        },
+        { binary: true }
+      );
+    });
+  </script>
+</body>
+</html>
