@@ -1,0 +1,6 @@
+{
+  "name": "STRESSLAB 3D",
+  "description": "Simulador educativo interactivo de análisis de esfuerzos mecánicos básicos en 3D con cálculo analítico, solucionador FEM simplificado, casos industriales de planta y generación de informes técnicos.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
