@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SIM-01: Esfuerzos Básicos y Círculo de Mohr 2D | MECHPLANT</title>
+  <link rel="manifest" href="../manifest.json" />
+  <meta name="theme-color" content="#0B192C" />
+
+  <link rel="stylesheet" href="../assets/css/tokens.css" />
+  <link rel="stylesheet" href="../assets/css/reset.css" />
+  <link rel="stylesheet" href="../assets/css/layout.css" />
+  <link rel="stylesheet" href="../assets/css/navbar.css" />
+  <link rel="stylesheet" href="../assets/css/components.css" />
+  <link rel="stylesheet" href="../assets/css/math-diagrams.css" />
+  <link rel="stylesheet" href="../assets/css/print.css" media="print" />
+
+  <style>
+    .sim-workspace {
+      display: grid;
+      grid-template-columns: 390px minmax(0, 1fr);
+      gap: 22px;
+      align-items: start;
+    }
+
+    @media (max-width: 960px) {
+      .sim-workspace {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 12px;
+    }
+
+    .field-group label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--color-navy-800);
+    }
+
+    .field-group input,
+    .field-group select {
+      padding: 8px 11px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
+      font-family: var(--font-mono);
+      background: #fff;
+    }
+
+    .field-hint {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+    }
+
+    .mohr-diagram-box {
+      background: #0B192C;
+      border: 1px solid #1E3A5F;
+      border-radius: var(--radius-md);
+      padding: 14px;
+      color: #E2E8F0;
+      margin-bottom: 18px;
+    }
+  </style>
+</head>
+<body data-root="../">
+  <header id="mp-navbar"></header>
+
+  <main class="mp-container" style="padding-top: 24px; padding-bottom: 52px;">
+    <nav aria-label="Ruta de navegación" style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 12px;">
+      <a href="../index.html">Inicio</a> &rsaquo;
+      <a href="index.html">Simuladores</a> &rsaquo;
+      <strong>SIM-01: Esfuerzos Básicos y Círculo de Mohr</strong>
+    </nav>
+
+    <!-- Cabecera del Simulador -->
+    <section class="mp-hero-banner" style="background: linear-gradient(135deg, #0B192C 0%, #163254 100%); color: #fff; padding: 22px 28px; border-radius: var(--radius-lg); margin-bottom: 24px; border-left: 5px solid var(--color-cyan-500);">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+        <div>
+          <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+            <span class="tech-badge tech-badge--cyan">SIM-01 · MÓDULO 01</span>
+            <span class="tech-badge">SHIGLEY CAP. 3 · ASME</span>
+          </div>
+          <h1 style="font-size: 1.6rem; margin-bottom: 4px;">Análisis de Esfuerzos Básicos y Círculo de Mohr 2D</h1>
+          <p style="color: #CBD5E1; font-size: 0.9rem; max-width: 76ch;">
+            Calcula esfuerzos normales, cortantes por torsión/flexión y determina los esfuerzos principales ($\sigma_1, \sigma_2$), cortante máximo absoluto ($\tau_{\text{máx}}$) y ángulo de plano principal ($\theta_p$).
+          </p>
+        </div>
+
+        <a href="../modulos/m1-esfuerzos-falla-tolerancias/index.html" class="btn btn--outline-light" style="font-size: 0.82rem;">
+          📘 Ver Teoría M01
+        </a>
+      </div>
+    </section>
+
+    <!-- Área de Trabajo: Parámetros + Resultados -->
+    <div class="sim-workspace">
+      <!-- Panel Izquierdo: Formulario de Entrada -->
+      <aside class="mp-card">
+        <h2 style="font-size: 1.05rem; color: var(--color-navy-800); margin-bottom: 14px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px;">
+          ⚙️ Datos de Carga y Geometría
+        </h2>
+
+        <form id="sim01-form">
+          <div class="field-group">
+            <label for="calc-mode">Modo de Análisis Estructural</label>
+            <select id="calc-mode">
+              <option value="combinado">Estado Plano Combinado (σx, σy, τxy → Mohr)</option>
+              <option value="eje_circular">Eje Circular Sólido (Axial + Flexión + Torsión)</option>
+              <option value="aplastamiento">Aplastamiento en Pasador / Placa (F / d·t)</option>
+            </select>
+          </div>
+
+          <!-- Presets rápidos de planta -->
+          <div class="field-group">
+            <label for="preset-case">Cargar Caso Tipo de Planta</label>
+            <select id="preset-case">
+              <option value="custom">-- Personalizado --</option>
+              <option value="eje_bomba">Eje Bomba Centrífuga SAE 4140 (Flexo-torsión)</option>
+              <option value="tirante_filtro">Tirante Filtro Prensa SAE 1045 (Tracción pura)</option>
+              <option value="pasador_grillete">Pasador de Izaje Puente Grúa (Aplastamiento)</option>
+            </select>
+          </div>
+
+          <!-- Bloque 1: Estado Plano Directo -->
+          <div id="inputs-combinado">
+            <div class="form-grid-2">
+              <div class="field-group">
+                <label for="inp-sx">Esfuerzo Normal σx (MPa)</label>
+                <input type="number" id="inp-sx" step="any" value="120" required />
+                <span class="field-hint">+ Tracción / - Compresión</span>
+              </div>
+              <div class="field-group">
+                <label for="inp-sy">Esfuerzo Normal σy (MPa)</label>
+                <input type="number" id="inp-sy" step="any" value="-35" required />
+                <span class="field-hint">+ Tracción / - Compresión</span>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="inp-txy">Esfuerzo Cortante τxy (MPa)</label>
+              <input type="number" id="inp-txy" step="any" value="65" required />
+              <span class="field-hint">Cortante en el plano X-Y</span>
+            </div>
+          </div>
+
+          <!-- Bloque 2: Eje Circular Sólido -->
+          <div id="inputs-eje" style="display: none;">
+            <div class="form-grid-2">
+              <div class="field-group">
+                <label for="inp-diam">Diámetro Eje d (mm)</label>
+                <input type="number" id="inp-diam" step="any" min="1" value="60" />
+              </div>
+              <div class="field-group">
+                <label for="inp-axial">Fuerza Axial F (kN)</label>
+                <input type="number" id="inp-axial" step="any" value="18" />
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="field-group">
+                <label for="inp-moment">Momento Flector M (N·m)</label>
+                <input type="number" id="inp-moment" step="any" value="1450" />
+              </div>
+              <div class="field-group">
+                <label for="inp-torque">Par Torsor T (N·m)</label>
+                <input type="number" id="inp-torque" step="any" value="980" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Bloque 3: Aplastamiento en Pasador -->
+          <div id="inputs-aplastamiento" style="display: none;">
+            <div class="field-group">
+              <label for="inp-f-bear">Fuerza Transmitida F (kN)</label>
+              <input type="number" id="inp-f-bear" step="any" min="0.1" value="45" />
+            </div>
+            <div class="form-grid-2">
+              <div class="field-group">
+                <label for="inp-d-pin">Diámetro Pasador d (mm)</label>
+                <input type="number" id="inp-d-pin" step="any" min="1" value="30" />
+              </div>
+              <div class="field-group">
+                <label for="inp-t-plate">Espesor Placa t (mm)</label>
+                <input type="number" id="inp-t-plate" step="any" min="1" value="16" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Material de referencia para verificación de fluencia -->
+          <div class="field-group" style="border-top: 1px solid var(--border-subtle); padding-top: 12px;">
+            <label for="inp-sy-mat">Límite de Fluencia del Material Sy (MPa)</label>
+            <input type="number" id="inp-sy-mat" step="any" min="10" value="530" required />
+            <span class="field-hint">Ej.: SAE 1020 = 390 MPa · SAE 1045 = 530 MPa · SAE 4140 = 900 MPa</span>
+          </div>
+
+          <div style="display: flex; gap: 10px; margin-top: 16px;">
+            <button type="submit" class="btn btn--primary" style="flex: 1;">
+              ⚡ Calcular Esfuerzos
+            </button>
+            <button type="button" id="btn-reset-sim" class="btn btn--outline-dark">
+              Reiniciar
+            </button>
+          </div>
+        </form>
+      </aside>
+
+      <!-- Panel Derecho: Visualización SVG de Mohr + Memoria de Cálculo -->
+      <section>
+        <!-- Diagrama Vectorial Dinámico del Círculo de Mohr -->
+        <div class="mohr-diagram-box">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+            <span style="font-size: 0.82rem; font-weight: 700; color: #38BDF8; letter-spacing: 0.04em;">
+              REPRESENTACIÓN GRÁFICA: CÍRCULO DE MOHR 2D (σ vs τ)
+            </span>
+            <span id="mohr-coords-label" style="font-family: var(--font-mono); font-size: 0.78rem; color: #CBD5E1;">
+              Centro C = 42.5 MPa · Radio R = 101.1 MPa
+            </span>
+          </div>
+
+          <svg id="mohr-svg" viewBox="0 0 640 280" width="100%" height="260" style="background: #081220; border-radius: 6px; border: 1px solid #1E3A5F;">
+            <!-- Ejes coordenados -->
+            <line x1="40" y1="140" x2="600" y2="140" stroke="#334155" stroke-width="1.5" />
+            <line x1="320" y1="20" x2="320" y2="260" stroke="#334155" stroke-width="1.5" />
+            <text x="582" y="132" fill="#94A3B8" font-size="11" font-family="monospace">+σ</text>
+            <text x="46" y="132" fill="#94A3B8" font-size="11" font-family="monospace">-σ</text>
+            <text x="326" y="32" fill="#94A3B8" font-size="11" font-family="monospace">+τ (CW)</text>
+            <text x="326" y="254" fill="#94A3B8" font-size="11" font-family="monospace">-τ (CCW)</text>
+
+            <!-- Elementos dinámicos -->
+            <circle id="mohr-circle" cx="360" cy="140" r="85" fill="rgba(0, 149, 217, 0.14)" stroke="#0095D9" stroke-width="2.5" />
+            <line id="mohr-diam-line" x1="295" y1="85" x2="425" y2="195" stroke="#38BDF8" stroke-width="1.8" stroke-dasharray="4 3" />
+
+            <!-- Puntos clave -->
+            <circle id="pt-center" cx="360" cy="140" r="4" fill="#F8FAFC" />
+            <circle id="pt-s1" cx="445" cy="140" r="5" fill="#22C55E" />
+            <circle id="pt-s2" cx="275" cy="140" r="5" fill="#F59E0B" />
+            <circle id="pt-x" cx="425" cy="195" r="4.5" fill="#38BDF8" />
+            <circle id="pt-y" cx="295" cy="85" r="4.5" fill="#38BDF8" />
+
+            <!-- Etiquetas -->
+            <text id="lbl-s1" x="452" y="132" fill="#4ADE80" font-size="11" font-family="monospace">σ1</text>
+            <text id="lbl-s2" x="235" y="132" fill="#FBBF24" font-size="11" font-family="monospace">σ2</text>
+            <text id="lbl-tmax" x="352" y="48" fill="#38BDF8" font-size="11" font-family="monospace">τmáx</text>
+          </svg>
+        </div>
+
+        <!-- Contenedor estándar de resultados MECHPLANT_SIM_UI -->
+        <div id="sim01-output"></div>
+      </section>
+    </div>
+  </main>
+
+  <script src="../assets/js/data/db-curriculum.js"></script>
+  <script src="../assets/js/data/db-equipos.js"></script>
+  <script src="../assets/js/data/db-componentes.js"></script>
+  <script src="../assets/js/data/db-normas.js"></script>
+  <script src="../assets/js/core/navbar.js"></script>
+  <script src="../assets/js/core/search-engine.js"></script>
+  <script src="../assets/js/core/unit-converter.js"></script>
+  <script src="../assets/js/core/progress-tracker.js"></script>
+  <script src="../assets/js/core/app-init.js"></script>
+
+  <!-- Solver Matemático y Renderizador de Reportes -->
+  <script src="../assets/js/solvers/solver-esfuerzos.js"></script>
+  <script src="../assets/js/ui-simulator/sim-renderer.js"></script>
+
+  <script>
+    (function () {
+      const form = document.getElementById("sim01-form");
+      const modeSelect = document.getElementById("calc-mode");
+      const presetSelect = document.getElementById("preset-case");
+
+      const blockComb = document.getElementById("inputs-combinado");
+      const blockEje = document.getElementById("inputs-eje");
+      const blockAplast = document.getElementById("inputs-aplastamiento");
+
+      function updateVisibleInputs() {
+        const mode = modeSelect.value;
+        blockComb.style.display = mode === "combinado" ? "block" : "none";
+        blockEje.style.display = mode === "eje_circular" ? "block" : "none";
+        blockAplast.style.display = mode === "aplastamiento" ? "block" : "none";
+      }
+
+      modeSelect.addEventListener("change", () => {
+        updateVisibleInputs();
+        runCalculation();
+      });
+
+      presetSelect.addEventListener("change", () => {
+        const p = presetSelect.value;
+        if (p === "eje_bomba") {
+          modeSelect.value = "eje_circular";
+          document.getElementById("inp-diam").value = 65;
+          document.getElementById("inp-axial").value = 12;
+          document.getElementById("inp-moment").value = 1850;
+          document.getElementById("inp-torque").value = 1320;
+          document.getElementById("inp-sy-mat").value = 900;
+        } else if (p === "tirante_filtro") {
+          modeSelect.value = "combinado";
+          document.getElementById("inp-sx").value = 185;
+          document.getElementById("inp-sy").value = 0;
+          document.getElementById("inp-txy").value = 0;
+          document.getElementById("inp-sy-mat").value = 530;
+        } else if (p === "pasador_grillete") {
+          modeSelect.value = "aplastamiento";
+          document.getElementById("inp-f-bear").value = 85;
+          document.getElementById("inp-d-pin").value = 35;
+          document.getElementById("inp-t-plate").value = 20;
+          document.getElementById("inp-sy-mat").value = 530;
+        }
+        updateVisibleInputs();
+        runCalculation();
+      });
+
+      function updateMohrSVG(sx, sy, txy, mohr) {
+        const { centro, radio, sigma1, sigma2, tauMax } = mohr;
+        const maxAbs = Math.max(Math.abs(sigma1), Math.abs(sigma2), Math.abs(tauMax), 10);
+        const scale = 95 / maxAbs;
+
+        const cx = 320 + centro * scale;
+        const cy = 140;
+        const rPx = Math.max(radio * scale, 4);
+
+        const x1 = 320 + sigma1 * scale;
+        const x2 = 320 + sigma2 * scale;
+        const px = 320 + sx * scale;
+        const py = 140 + txy * scale;
+        const qx = 320 + sy * scale;
+        const qy = 140 - txy * scale;
+
+        document.getElementById("mohr-circle").setAttribute("cx", cx.toFixed(1));
+        document.getElementById("mohr-circle").setAttribute("r", rPx.toFixed(1));
+        document.getElementById("pt-center").setAttribute("cx", cx.toFixed(1));
+        document.getElementById("pt-s1").setAttribute("cx", x1.toFixed(1));
+        document.getElementById("pt-s2").setAttribute("cx", x2.toFixed(1));
+
+        document.getElementById("mohr-diam-line").setAttribute("x1", px.toFixed(1));
+        document.getElementById("mohr-diam-line").setAttribute("y1", py.toFixed(1));
+        document.getElementById("mohr-diam-line").setAttribute("x2", qx.toFixed(1));
+        document.getElementById("mohr-diam-line").setAttribute("y2", qy.toFixed(1));
+
+        document.getElementById("pt-x").setAttribute("cx", px.toFixed(1));
+        document.getElementById("pt-x").setAttribute("cy", py.toFixed(1));
+        document.getElementById("pt-y").setAttribute("cx", qx.toFixed(1));
+        document.getElementById("pt-y").setAttribute("cy", qy.toFixed(1));
+
+        document.getElementById("lbl-s1").setAttribute("x", Math.min(x1 + 6, 560).toFixed(1));
+        document.getElementById("lbl-s1").textContent = `σ1=${sigma1.toFixed(1)}`;
+        document.getElementById("lbl-s2").setAttribute("x", Math.max(x2 - 58, 45).toFixed(1));
+        document.getElementById("lbl-s2").textContent = `σ2=${sigma2.toFixed(1)}`;
+        document.getElementById("lbl-tmax").setAttribute("x", (cx - 24).toFixed(1));
+        document.getElementById("lbl-tmax").setAttribute("y", Math.max(cy - rPx - 8, 22).toFixed(1));
+        document.getElementById("lbl-tmax").textContent = `τmáx=${tauMax.toFixed(1)}`;
+
+        document.getElementById("mohr-coords-label").textContent =
+          `Centro C = ${centro.toFixed(2)} MPa · Radio R = ${radio.toFixed(2)} MPa`;
+      }
+
+      function runCalculation() {
+        const solver = window.MECHPLANT_SOLVERS && window.MECHPLANT_SOLVERS.esfuerzos;
+        const ui = window.MECHPLANT_SIM_UI;
+        if (!solver || !ui) return;
+
+        const mode = modeSelect.value;
+        const Sy = parseFloat(document.getElementById("inp-sy-mat").value) || 530;
+
+        let sx = 0;
+        let sy = 0;
+        let txy = 0;
+        const steps = [];
+
+        if (mode === "combinado") {
+          sx = parseFloat(document.getElementById("inp-sx").value) || 0;
+          sy = parseFloat(document.getElementById("inp-sy").value) || 0;
+          txy = parseFloat(document.getElementById("inp-txy").value) || 0;
+
+          steps.push({
+            title: "Paso 1: Definición del tensor de esfuerzos planos",
+            formula: `σx = ${sx.toFixed(2)} MPa,  σy = ${sy.toFixed(2)} MPa,  τxy = ${txy.toFixed(2)} MPa`,
+            result: "Estado tensional 2D ingresado"
+          });
+        } else if (mode === "eje_circular") {
+          const d = Math.max(parseFloat(document.getElementById("inp-diam").value) || 60, 1);
+          const F_N = (parseFloat(document.getElementById("inp-axial").value) || 0) * 1000;
+          const M_Nmm = (parseFloat(document.getElementById("inp-moment").value) || 0) * 1000;
+          const T_Nmm = (parseFloat(document.getElementById("inp-torque").value) || 0) * 1000;
+
+          const sAxial = solver.axial(F_N, d);
+          const sFlex = solver.flexionCircular(M_Nmm, d);
+          const tTors = solver.torsionCircular(T_Nmm, d);
+
+          sx = sAxial + (F_N >= 0 ? sFlex : -sFlex);
+          sy = 0;
+          txy = tTors;
+
+          steps.push({
+            title: "Paso 1: Esfuerzos nominales en fibra crítica del eje (d = " + d + " mm)",
+            formula: `σ_axial = 4F/(πd²) = ${sAxial.toFixed(2)} MPa | σ_flex = 32M/(πd³) = ${sFlex.toFixed(2)} MPa | τ_tors = 16T/(πd³) = ${tTors.toFixed(2)} MPa`,
+            result: `σx = ${sx.toFixed(2)} MPa, τxy = ${txy.toFixed(2)} MPa`
+          });
+        } else if (mode === "aplastamiento") {
+          const F_N = (parseFloat(document.getElementById("inp-f-bear").value) || 0) * 1000;
+          const dPin = Math.max(parseFloat(document.getElementById("inp-d-pin").value) || 30, 1);
+          const tPlate = Math.max(parseFloat(document.getElementById("inp-t-plate").value) || 16, 1);
+
+          const sBear = solver.aplastamiento(F_N, dPin, tPlate);
+          sx = -sBear;
+          sy = 0;
+          txy = 0;
+
+          steps.push({
+            title: "Paso 1: Esfuerzo proyectado de aplastamiento (Bearing Stress)",
+            formula: `σ_b = F / (d · t) = ${F_N.toFixed(0)} N / (${dPin} mm · ${tPlate} mm)`,
+            result: `σ_b = ${sBear.toFixed(2)} MPa (Compresión)`
+          });
+        }
+
+        const mohr = solver.circuloMohr2D(sx, sy, txy);
+        updateMohrSVG(sx, sy, txy, mohr);
+
+        steps.push({
+          title: "Paso 2: Centro y Radio del Círculo de Mohr",
+          formula: `C = (σx + σy)/2 = ${mohr.centro.toFixed(2)} MPa  |  R = √[((σx - σy)/2)² + τxy²] = ${mohr.radio.toFixed(2)} MPa`,
+          result: `τmáx en el plano = ${mohr.tauMax.toFixed(2)} MPa`
+        });
+
+        steps.push({
+          title: "Paso 3: Esfuerzos Principales y Orientación del Plano Principal",
+          formula: `σ1 = C + R = ${mohr.sigma1.toFixed(2)} MPa  |  σ2 = C - R = ${mohr.sigma2.toFixed(2)} MPa  |  θp = ½·atan2(2τxy, σx - σy)`,
+          result: `θp = ${mohr.anguloPrincipalDeg.toFixed(2)}°`
+        });
+
+        const sVonMises = Math.sqrt(
+          mohr.sigma1 * mohr.sigma1 - mohr.sigma1 * mohr.sigma2 + mohr.sigma2 * mohr.sigma2
+        );
+        const fs = sVonMises > 0 ? Sy / sVonMises : 99.9;
+
+        steps.push({
+          title: "Paso 4: Verificación preliminar de fluencia (Von Mises vs Sy)",
+          formula: `σ' = √(σ1² - σ1·σ2 + σ2²) = ${sVonMises.toFixed(2)} MPa  |  FS = Sy / σ' = ${Sy} / ${sVonMises.toFixed(2)}`,
+          result: `Factor de Seguridad FS = ${fs.toFixed(2)}`
+        });
+
+        let status = "ok";
+        let statusTitle = "ESTADO TENSIONAL SEGURO (FS ≥ 1.50)";
+        let statusMsg = `El esfuerzo equivalente de Von Mises (${sVonMises.toFixed(1)} MPa) se mantiene dentro del rango elástico seguro del material (Sy = ${Sy} MPa).`;
+
+        if (fs < 1.0) {
+          status = "danger";
+          statusTitle = "FLUENCIA INMINENTE / FALLA ESTÁTICA (FS < 1.0)";
+          statusMsg = `El esfuerzo equivalente (${sVonMises.toFixed(1)} MPa) supera el límite de fluencia Sy (${Sy} MPa). Incrementa la sección o selecciona un acero aleado de mayor resistencia.`;
+        } else if (fs < 1.5) {
+          status = "warn";
+          statusTitle = "MARGEN DE SEGURIDAD REDUCIDO (1.0 ≤ FS < 1.5)";
+          statusMsg = `El componente no fluye bajo carga estática, pero el margen es bajo frente a picos operacionales o concentradores de esfuerzo.`;
+        }
+
+        ui.renderReport("sim01-output", {
+          simCode: "SIM-01",
+          title: "Memoria de Cálculo: Esfuerzos Básicos y Círculo de Mohr 2D",
+          kpis: [
+            { label: "Esfuerzo Principal σ1", value: `${mohr.sigma1.toFixed(2)} MPa`, highlight: true },
+            { label: "Esfuerzo Principal σ2", value: `${mohr.sigma2.toFixed(2)} MPa` },
+            { label: "Cortante Máximo τmáx", value: `${mohr.tauMax.toFixed(2)} MPa` },
+            { label: "Ángulo Principal θp", value: `${mohr.anguloPrincipalDeg.toFixed(1)}°` },
+            { label: "Factor Seguridad (Sy)", value: fs.toFixed(2), highlight: true }
+          ],
+          steps,
+          verdict: {
+            status,
+            title: statusTitle,
+            message: statusMsg
+          }
+        });
+
+        if (window.MECHPLANT_PROGRESS && typeof window.MECHPLANT_PROGRESS.markSimulatorUsed === "function") {
+          window.MECHPLANT_PROGRESS.markSimulatorUsed("SIM-01");
+        }
+      }
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        runCalculation();
+      });
+
+      document.getElementById("btn-reset-sim").addEventListener("click", () => {
+        form.reset();
+        presetSelect.value = "custom";
+        modeSelect.value = "combinado";
+        updateVisibleInputs();
+        runCalculation();
+      });
+
+      updateVisibleInputs();
+      runCalculation();
+    })();
+  </script>
+</body>
+</html>
