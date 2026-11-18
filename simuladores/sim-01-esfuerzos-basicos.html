@@ -3,2336 +3,1301 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SIM-01: STRESSLAB 3D — Simulador de Esfuerzos Básicos | MECHPLANT</title>
-  <meta name="description" content="Laboratorio virtual interactivo 3D de análisis de esfuerzos básicos: tracción, compresión, cortante, flexión, torsión, esfuerzos combinados y factor de seguridad." />
-
-  <!-- Estilos globales MECHPLANT -->
-  <link rel="stylesheet" href="../assets/css/tokens.css" />
-  <link rel="stylesheet" href="../assets/css/layout.css" />
-  <link rel="stylesheet" href="../assets/css/components.css" />
-
-  <!-- KaTeX (Local + CDN Fallback) -->
-  <link rel="stylesheet" href="../assets/vendor/katex/katex.min.css" onerror="this.onerror=null;this.href='https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css';" />
-  <script defer src="../assets/vendor/katex/katex.min.js" onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js';"></script>
-  <script defer src="../assets/vendor/katex/contrib/auto-render.min.js" onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js';"></script>
-
-  <!-- Three.js & OrbitControls (Local + CDN Fallback) -->
-  <script src="../assets/vendor/three/three.min.js" onerror="this.onerror=null;this.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';"></script>
-  <script src="../assets/vendor/three/OrbitControls.js" onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js';"></script>
-
-  <!-- Chart.js (Local + CDN Fallback) -->
-  <script src="../assets/vendor/chartjs/chart.umd.min.js" onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js';"></script>
-
-  <!-- Base de datos y navegación MECHPLANT -->
-  <script src="../assets/js/db.js"></script>
-  <script defer src="../assets/js/navbar.js"></script>
-
+  <title>Simulador 01 — Esfuerzos Básicos en Resistencia de Materiales</title>
   <style>
-    /* ========================================================================
-       ESTILOS ESPECÍFICOS STRESSLAB 3D (Alineados con tokens.css de MECHPLANT)
-       ======================================================================== */
-    .slab-workbench {
+    :root {
+      --bg: #0f172a;
+      --panel: #1e293b;
+      --panel-alt: #263349;
+      --border: #334155;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-hover: #0ea5e9;
+      --tension: #ef4444;
+      --compression: #3b82f6;
+      --shear: #f59e0b;
+      --safe: #10b981;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      gap: 16px;
     }
 
-    /* Barra superior tipo CAD/CAE */
-    .slab-toolbar {
-      background: var(--color-navy-800);
-      color: var(--text-inverse);
-      border-radius: var(--radius-lg);
-      padding: 12px 18px;
+    header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.75rem;
       display: flex;
       flex-wrap: wrap;
-      align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      box-shadow: var(--shadow-md);
-      border-bottom: 3px solid var(--color-cyan-500);
+      align-items: center;
+      gap: 1rem;
     }
 
-    .slab-brand {
+    .brand {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 0.75rem;
     }
 
-    .slab-brand__badge {
-      background: var(--color-cyan-500);
-      color: #fff;
-      font-family: var(--font-mono);
-      font-weight: 800;
-      font-size: 0.78rem;
-      padding: 4px 10px;
-      border-radius: var(--radius-sm);
-      letter-spacing: 0.04em;
+    .badge {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      font-weight: 700;
+      font-size: 0.75rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      letter-spacing: 0.05em;
     }
 
-    .slab-brand__title {
-      font-size: 1.12rem;
-      font-weight: 800;
+    h1 {
+      font-size: 1.2rem;
+      font-weight: 700;
       letter-spacing: -0.01em;
     }
 
-    .slab-brand__sub {
+    .subtitle {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .mode-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+    }
+
+    .tab-btn {
+      background: var(--panel);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 0.5rem 0.9rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+      border-color: var(--accent);
+    }
+
+    .tab-btn.active {
+      background: var(--accent);
+      color: #0f172a;
+      border-color: var(--accent);
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.3);
+    }
+
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 1.25rem;
+      padding: 1.25rem 1.75rem;
+      max-width: 1480px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 980px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.15rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .card-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--accent);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .control-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+    }
+
+    .control-label {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .control-val {
+      color: var(--accent);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-weight: 700;
+    }
+
+    select, input[type="range"] {
+      width: 100%;
+    }
+
+    select {
+      background: var(--panel-alt);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.5rem 0.65rem;
+      font-size: 0.85rem;
+      outline: none;
+      cursor: pointer;
+    }
+
+    select:focus {
+      border-color: var(--accent);
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      height: 6px;
+      background: var(--panel-alt);
+      border-radius: 4px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      border: 2px solid #0f172a;
+      transition: transform 0.1s ease;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+    }
+
+    .mat-props {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      background: var(--panel-alt);
+      padding: 0.65rem;
+      border-radius: 8px;
       font-size: 0.78rem;
-      color: #93C5FD;
+    }
+
+    .mat-props div span {
+      color: var(--muted);
       display: block;
     }
 
-    .slab-actions {
+    .mat-props div strong {
+      font-family: ui-monospace, monospace;
+      font-size: 0.85rem;
+    }
+
+    .viz-column {
       display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 8px;
+      flex-direction: column;
+      gap: 1.25rem;
     }
 
-    .slab-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 7px 12px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      border-radius: var(--radius-sm);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      background: rgba(255, 255, 255, 0.08);
-      color: #F8FAFC;
-      transition: all 0.15s ease;
-    }
-
-    .slab-btn:hover {
-      background: rgba(255, 255, 255, 0.18);
-      border-color: var(--color-cyan-500);
-    }
-
-    .slab-btn--accent {
-      background: var(--color-cyan-500);
-      border-color: var(--color-cyan-500);
-      color: #fff;
-    }
-
-    .slab-btn--accent:hover {
-      background: var(--color-cyan-600);
-    }
-
-    .slab-unit-toggle {
-      display: inline-flex;
-      background: var(--color-navy-900);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: var(--radius-sm);
+    .canvas-wrapper {
+      position: relative;
+      background: radial-gradient(circle at center, #162236 0%, #0b1120 100%);
+      border: 1px solid var(--border);
+      border-radius: 12px;
       overflow: hidden;
+      height: 360px;
     }
 
-    .slab-unit-toggle button {
-      padding: 6px 11px;
-      font-family: var(--font-mono);
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .legend-overlay {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(15, 23, 42, 0.82);
+      backdrop-filter: blur(4px);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
       font-size: 0.76rem;
-      font-weight: 700;
-      border: none;
-      background: transparent;
-      color: #94A3B8;
-    }
-
-    .slab-unit-toggle button.is-active {
-      background: var(--color-cyan-500);
-      color: #fff;
-    }
-
-    /* Pestañas principales de Módulos y Entornos */
-    .slab-module-bar {
       display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      background: var(--bg-surface);
-      padding: 10px;
-      border-radius: var(--radius-md);
-      border: 1px solid var(--border-light);
-      box-shadow: var(--shadow-sm);
+      flex-direction: column;
+      gap: 0.3rem;
     }
 
-    .slab-mod-tab {
-      padding: 8px 13px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--border-subtle);
-      background: var(--bg-canvas);
-      color: var(--text-secondary);
-      transition: all 0.15s ease;
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
     }
 
-    .slab-mod-tab:hover {
-      border-color: var(--color-cyan-500);
-      color: var(--color-navy-800);
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
     }
 
-    .slab-mod-tab.is-active {
-      background: var(--color-navy-800);
-      color: #fff;
-      border-color: var(--color-navy-800);
-    }
-
-    .slab-mod-tab--special {
-      border-color: rgba(0, 149, 217, 0.4);
-      background: var(--color-cyan-100);
-      color: var(--color-navy-800);
-    }
-
-    .slab-mod-tab--special.is-active {
-      background: var(--color-cyan-600);
-      color: #fff;
-    }
-
-    /* Rejilla CAE de 3 columnas: Biblioteca Izq | Viewport 3D | Parámetros Der */
-    .slab-cae-grid {
-      display: grid;
-      grid-template-columns: 265px minmax(0, 1fr) 330px;
-      gap: 16px;
-      align-items: start;
-    }
-
-    .slab-panel {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-sm);
-      overflow: hidden;
-    }
-
-    .slab-panel__header {
-      background: var(--bg-surface-alt);
-      border-bottom: 1px solid var(--border-light);
-      padding: 10px 14px;
+    .toggle-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      font-size: 0.82rem;
+      color: var(--muted);
+      padding-top: 0.25rem;
     }
 
-    .slab-panel__title {
-      font-size: 0.84rem;
-      font-weight: 700;
-      color: var(--color-navy-800);
+    .btn-secondary {
+      background: var(--panel-alt);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 0.45rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.15s;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 0.9rem;
+    }
+
+    .metric-box {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.9rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .metric-title {
+      font-size: 0.76rem;
+      color: var(--muted);
       text-transform: uppercase;
       letter-spacing: 0.03em;
     }
 
-    .slab-panel__body {
-      padding: 12px;
-      max-height: 670px;
-      overflow-y: auto;
-    }
-
-    /* Árbol de Biblioteca de Componentes */
-    .comp-cat {
-      margin-bottom: 12px;
-    }
-
-    .comp-cat__label {
-      font-family: var(--font-mono);
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: var(--color-navy-700);
-      text-transform: uppercase;
-      margin-bottom: 6px;
-      padding-bottom: 3px;
-      border-bottom: 1px solid var(--border-subtle);
-    }
-
-    .comp-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      text-align: left;
-      padding: 7px 10px;
-      margin-bottom: 4px;
-      font-size: 0.81rem;
-      font-weight: 500;
-      color: var(--text-primary);
-      background: var(--bg-canvas);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-sm);
-      cursor: grab;
-      transition: all 0.14s ease;
-    }
-
-    .comp-item:hover {
-      border-color: var(--color-cyan-500);
-      background: var(--color-cyan-100);
-    }
-
-    .comp-item.is-selected {
-      background: var(--color-navy-800);
-      color: #fff;
-      border-color: var(--color-navy-800);
-      font-weight: 600;
-    }
-
-    .comp-item__tag {
-      font-family: var(--font-mono);
-      font-size: 0.68rem;
-      opacity: 0.8;
-    }
-
-    /* Visor 3D Central */
-    .slab-viewport-card {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-sm);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .slab-view-controls {
-      background: var(--bg-surface-alt);
-      border-bottom: 1px solid var(--border-light);
-      padding: 8px 12px;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-    }
-
-    .slab-view-group {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .view-chip {
-      padding: 4px 8px;
-      font-family: var(--font-mono);
-      font-size: 0.72rem;
-      font-weight: 600;
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--border-light);
-      background: var(--bg-surface);
-      color: var(--text-secondary);
-    }
-
-    .view-chip:hover {
-      border-color: var(--color-cyan-500);
-      color: var(--color-navy-800);
-    }
-
-    .view-chip.is-active {
-      background: var(--color-cyan-500);
-      color: #fff;
-      border-color: var(--color-cyan-500);
-    }
-
-    .slab-canvas-wrap {
-      position: relative;
-      width: 100%;
-      height: 440px;
-      background: radial-gradient(circle at center, #14324f 0%, #091929 100%);
-      overflow: hidden;
-    }
-
-    .slab-canvas-wrap.is-dragover {
-      outline: 3px dashed var(--color-cyan-500);
-      outline-offset: -6px;
-    }
-
-    #threeCanvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-
-    /* HUD superpuesto en el visor 3D */
-    .hud-top-left {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      background: rgba(9, 25, 41, 0.84);
-      backdrop-filter: blur(4px);
-      color: #F8FAFC;
-      padding: 8px 12px;
-      border-radius: var(--radius-sm);
-      border-left: 3px solid var(--color-cyan-500);
-      font-size: 0.76rem;
-      pointer-events: none;
-    }
-
-    .hud-colorbar {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      background: rgba(9, 25, 41, 0.88);
-      color: #F8FAFC;
-      padding: 10px;
-      border-radius: var(--radius-sm);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      font-family: var(--font-mono);
-      font-size: 0.7rem;
-      width: 118px;
-      pointer-events: none;
-    }
-
-    .colorbar-gradient {
-      height: 120px;
-      width: 14px;
-      border-radius: 2px;
-      background: linear-gradient(to bottom, #EF4444 0%, #F97316 25%, #EAB308 50%, #10B981 75%, #2563EB 100%);
-      margin-right: 8px;
-    }
-
-    .colorbar-scale {
-      display: flex;
-      align-items: stretch;
-      margin-top: 6px;
-    }
-
-    .colorbar-ticks {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      font-size: 0.66rem;
-      color: #CBD5E1;
-    }
-
-    .hud-bottom-bar {
-      position: absolute;
-      bottom: 10px;
-      left: 12px;
-      right: 12px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      background: rgba(9, 25, 41, 0.84);
-      color: #CBD5E1;
-      padding: 6px 12px;
-      border-radius: var(--radius-sm);
-      font-family: var(--font-mono);
-      font-size: 0.71rem;
-    }
-
-    /* Controles de capas 3D debajo del canvas */
-    .slab-layer-toggles {
-      padding: 10px 14px;
-      background: var(--bg-canvas);
-      border-top: 1px solid var(--border-subtle);
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 12px;
-      font-size: 0.78rem;
-    }
-
-    .slab-layer-toggles label {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      cursor: pointer;
-      font-weight: 500;
-      color: var(--text-primary);
-    }
-
-    /* Formulario de Parámetros Derecha */
-    .param-group {
-      margin-bottom: 12px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid var(--border-subtle);
-    }
-
-    .param-group:last-child {
-      border-bottom: none;
-      margin-bottom: 0;
-    }
-
-    .param-group__title {
-      font-size: 0.76rem;
-      font-weight: 700;
-      color: var(--color-navy-700);
-      text-transform: uppercase;
-      margin-bottom: 8px;
-    }
-
-    .param-row {
-      margin-bottom: 8px;
-    }
-
-    .param-row label {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: 3px;
-    }
-
-    .param-row label span.unit-lbl {
-      font-family: var(--font-mono);
-      color: var(--text-muted);
-      font-weight: 500;
-    }
-
-    .param-input, .param-select {
-      width: 100%;
-      padding: 6px 9px;
-      font-family: var(--font-mono);
-      font-size: 0.81rem;
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius-sm);
-      background: var(--bg-surface);
-      color: var(--text-primary);
-    }
-
-    .param-select {
-      font-family: var(--font-sans);
-    }
-
-    .param-input:focus, .param-select:focus {
-      outline: none;
-      border-color: var(--color-cyan-500);
-      box-shadow: 0 0 0 2px rgba(0, 149, 217, 0.18);
-    }
-
-    .param-readonly-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-      background: var(--bg-canvas);
-      padding: 8px;
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--border-subtle);
-      font-family: var(--font-mono);
-      font-size: 0.73rem;
-    }
-
-    /* Panel de Resultados Analíticos, Gráficos y Estado */
-    .slab-results-section {
-      display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
-      gap: 16px;
-    }
-
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-
-    .kpi-card {
-      background: var(--bg-canvas);
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius-sm);
-      padding: 10px 12px;
-    }
-
-    .kpi-card__label {
-      font-size: 0.72rem;
-      font-weight: 600;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-    }
-
-    .kpi-card__value {
-      font-family: var(--font-mono);
-      font-size: 1.15rem;
+    .metric-value {
+      font-size: 1.35rem;
       font-weight: 800;
-      color: var(--color-navy-800);
-      margin-top: 2px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
 
-    .kpi-card__sub {
-      font-size: 0.71rem;
-      color: var(--text-muted);
-      margin-top: 2px;
+    .metric-formula {
+      font-size: 0.76rem;
+      color: var(--muted);
+      font-family: ui-monospace, monospace;
+      margin-top: 0.15rem;
     }
 
-    /* Semáforo de Factor de Seguridad */
-    .safety-banner {
-      padding: 12px 14px;
-      border-radius: var(--radius-md);
-      border-left: 5px solid var(--status-ok);
-      background: var(--status-ok-bg);
-      color: #065F46;
-      margin-bottom: 14px;
+    .status-banner {
+      border-radius: 10px;
+      padding: 0.8rem 1rem;
+      font-size: 0.86rem;
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      gap: 12px;
-    }
-
-    .safety-banner.is-warn {
-      border-left-color: var(--status-warn);
-      background: var(--status-warn-bg);
-      color: #92400E;
-    }
-
-    .safety-banner.is-danger {
-      border-left-color: var(--status-danger);
-      background: var(--status-danger-bg);
-      color: #991B1B;
-    }
-
-    .formula-box {
-      background: var(--bg-surface-alt);
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius-sm);
-      padding: 10px 14px;
-      font-size: 0.85rem;
-      margin-bottom: 12px;
-    }
-
-    .chart-box {
-      position: relative;
-      height: 250px;
-      width: 100%;
-    }
-
-    /* Secciones inferiores: Casos de Planta, Entorno de Aprendizaje y Reporte */
-    .slab-subview {
-      display: none;
-    }
-
-    .slab-subview.is-visible {
-      display: block;
-    }
-
-    .case-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-      gap: 14px;
-    }
-
-    .case-card {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius-md);
-      padding: 16px;
-      box-shadow: var(--shadow-sm);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    .case-card__title {
-      font-size: 0.98rem;
-      font-weight: 700;
-      color: var(--color-navy-800);
-    }
-
-    .learning-levels {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-      margin-bottom: 16px;
-    }
-
-    .level-card {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-light);
-      border-top: 4px solid var(--color-cyan-500);
-      border-radius: var(--radius-md);
-      padding: 16px;
-    }
-
-    .quiz-option {
-      display: block;
-      width: 100%;
-      text-align: left;
-      padding: 9px 12px;
-      margin-top: 6px;
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius-sm);
-      background: var(--bg-canvas);
-      font-size: 0.84rem;
-    }
-
-    .quiz-option:hover {
-      border-color: var(--color-cyan-500);
-      background: var(--color-cyan-100);
-    }
-
-    /* Modal de Guía / Materiales */
-    .slab-modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(9, 25, 41, 0.72);
-      z-index: 2000;
       align-items: center;
-      justify-content: center;
-      padding: 20px;
+      gap: 1rem;
+      border: 1px solid;
     }
 
-    .slab-modal.is-open {
-      display: flex;
+    .status-safe {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.4);
+      color: #6ee7b7;
     }
 
-    .slab-modal__card {
-      background: var(--bg-surface);
-      max-width: 780px;
+    .status-warn {
+      background: rgba(245, 158, 11, 0.12);
+      border-color: rgba(245, 158, 11, 0.45);
+      color: #fcd34d;
+    }
+
+    .status-danger {
+      background: rgba(239, 68, 68, 0.14);
+      border-color: rgba(239, 68, 68, 0.5);
+      color: #fca5a5;
+    }
+
+    .theory-box {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.2rem;
+      font-size: 0.88rem;
+      color: #cbd5e1;
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 1.2rem;
+      align-items: center;
+    }
+
+    @media (max-width: 760px) {
+      .theory-box {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .mini-chart {
+      background: #0b1120;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      height: 130px;
       width: 100%;
-      max-height: 86vh;
-      overflow-y: auto;
-      border-radius: var(--radius-lg);
-      padding: 24px;
-      box-shadow: var(--shadow-lg);
-      border-top: 4px solid var(--color-cyan-500);
     }
 
-    @media (max-width: 1180px) {
-      .slab-cae-grid {
-        grid-template-columns: 1fr;
-      }
-      .slab-results-section {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .kpi-grid, .learning-levels {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media print {
-      body * { visibility: hidden; }
-      #printableReport, #printableReport * { visibility: visible; }
-      #printableReport {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        background: #fff;
-        padding: 20px;
-      }
+    footer {
+      text-align: center;
+      padding: 0.85rem;
+      font-size: 0.76rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
     }
   </style>
 </head>
 <body>
-
-  <!-- Barra de navegación global MECHPLANT -->
-  <div id="mechplant-navbar"></div>
-
-  <main class="mp-container slab-workbench">
-
-    <!-- A. BARRA SUPERIOR DE APLICACIÓN STRESSLAB 3D -->
-    <header class="slab-toolbar">
-      <div class="slab-brand">
-        <span class="slab-brand__badge">SIM-01 · CAE</span>
-        <div>
-          <div class="slab-brand__title">STRESSLAB 3D — Simulador de Análisis de Esfuerzos Básicos</div>
-          <span class="slab-brand__sub">Laboratorio Virtual de Resistencia de Materiales y Mantenimiento Industrial · Normas ISO 80000 / ASME / ASTM</span>
-        </div>
+  <header>
+    <div class="brand">
+      <span class="badge">SIM-01</span>
+      <div>
+        <h1>Esfuerzos Básicos en Elementos Estructurales</h1>
+        <div class="subtitle">Laboratorio interactivo de mecánica de materiales: tracción, compresión, corte, flexión y torsión</div>
       </div>
+    </div>
 
-      <div class="slab-actions">
-        <div class="slab-unit-toggle" role="group" aria-label="Sistema de unidades">
-          <button type="button" id="btnUnitSI" class="is-active" onclick="StressLab.setUnits('SI')">SI (mm, N, MPa)</button>
-          <button type="button" id="btnUnitIMP" onclick="StressLab.setUnits('IMP')">IMP (in, lbf, psi)</button>
-        </div>
-        <button type="button" class="slab-btn" onclick="StressLab.openModal('materialsModal')">Biblioteca Materiales</button>
-        <button type="button" class="slab-btn" onclick="StressLab.saveConfig()">Guardar</button>
-        <button type="button" class="slab-btn" onclick="StressLab.resetSimulation()">Restablecer</button>
-        <button type="button" class="slab-btn slab-btn--accent" onclick="StressLab.switchTab('report')">Exportar Informe</button>
-        <button type="button" class="slab-btn" onclick="StressLab.openModal('helpModal')">Ayuda</button>
-      </div>
-    </header>
-
-    <!-- MENÚ DE MÓDULOS DE ANÁLISIS Y ENTORNOS -->
-    <nav class="slab-module-bar" aria-label="Módulos de análisis mecánico">
-      <button type="button" class="slab-mod-tab is-active" data-tab="mod1" onclick="StressLab.selectModule(1)">M01 · Normal (σ = F/A)</button>
-      <button type="button" class="slab-mod-tab" data-tab="mod2" onclick="StressLab.selectModule(2)">M02 · Cortante (τ = F/A)</button>
-      <button type="button" class="slab-mod-tab" data-tab="mod3" onclick="StressLab.selectModule(3)">M03 · Flexión (σ = My/I)</button>
-      <button type="button" class="slab-mod-tab" data-tab="mod4" onclick="StressLab.selectModule(4)">M04 · Torsión (τ = Tr/J)</button>
-      <button type="button" class="slab-mod-tab" data-tab="mod5" onclick="StressLab.selectModule(5)">M05 · Combinados & Mohr</button>
-      <button type="button" class="slab-mod-tab" data-tab="mod6" onclick="StressLab.selectModule(6)">M06 · Factor Seguridad & Falla</button>
-      <button type="button" class="slab-mod-tab slab-mod-tab--special" data-tab="cases" onclick="StressLab.switchTab('cases')">Casos Reales de Planta (8)</button>
-      <button type="button" class="slab-mod-tab slab-mod-tab--special" data-tab="learning" onclick="StressLab.switchTab('learning')">Entorno de Aprendizaje</button>
-      <button type="button" class="slab-mod-tab slab-mod-tab--special" data-tab="report" onclick="StressLab.switchTab('report')">Reporte Técnico PDF/CSV</button>
+    <nav class="mode-tabs" id="modeTabs">
+      <button class="tab-btn active" data-mode="traccion">1. Tracción</button>
+      <button class="tab-btn" data-mode="compresion">2. Compresión</button>
+      <button class="tab-btn" data-mode="corte">3. Corte (Cizalla)</button>
+      <button class="tab-btn" data-mode="flexion">4. Flexión</button>
+      <button class="tab-btn" data-mode="torsion">5. Torsión</button>
     </nav>
+  </header>
 
-    <!-- VISTA PRINCIPAL DE SIMULACIÓN CAE (MÓDULOS 01 A 06) -->
-    <section id="viewSimulator" class="slab-subview is-visible">
-      <div class="slab-cae-grid">
-
-        <!-- B. PANEL LATERAL IZQUIERDO: BIBLIOTECA DE COMPONENTES -->
-        <aside class="slab-panel">
-          <div class="slab-panel__header">
-            <span class="slab-panel__title">Biblioteca CAD / Planta</span>
-            <span class="tech-badge">18 Piezas</span>
-          </div>
-          <div class="slab-panel__body" id="componentLibrary">
-            <!-- Renderizado dinámicamente por JS -->
-          </div>
-        </aside>
-
-        <!-- C. ÁREA CENTRAL: VISUALIZADOR 3D WEBGL -->
-        <div class="slab-viewport-card">
-          <div class="slab-view-controls">
-            <div class="slab-view-group">
-              <span style="font-size:0.74rem;font-weight:700;color:var(--color-navy-800);margin-right:4px;">Vistas:</span>
-              <button type="button" class="view-chip is-active" onclick="StressLab.setCameraView('iso', this)">Isométrica</button>
-              <button type="button" class="view-chip" onclick="StressLab.setCameraView('front', this)">Frontal (XY)</button>
-              <button type="button" class="view-chip" onclick="StressLab.setCameraView('side', this)">Lateral (YZ)</button>
-              <button type="button" class="view-chip" onclick="StressLab.setCameraView('top', this)">Superior (XZ)</button>
-            </div>
-            <div class="slab-view-group">
-              <span style="font-size:0.74rem;font-weight:700;color:var(--color-navy-800);">Mapa:</span>
-              <button type="button" class="view-chip is-active" id="mapVonMises" onclick="StressLab.setColorMode('vonMises', this)">Von Mises</button>
-              <button type="button" class="view-chip" id="mapNormal" onclick="StressLab.setColorMode('normal', this)">Normal σ</button>
-              <button type="button" class="view-chip" id="mapShear" onclick="StressLab.setColorMode('shear', this)">Cortante τ</button>
-              <button type="button" class="view-chip" id="mapDisp" onclick="StressLab.setColorMode('disp', this)">Desplaz. δ</button>
-            </div>
-          </div>
-
-          <div class="slab-canvas-wrap" id="dropZone3D">
-            <div id="threeCanvas"></div>
-
-            <!-- HUD Superior Izquierdo -->
-            <div class="hud-top-left">
-              <div style="font-weight:700;color:#38BDF8;" id="hudComponentName">Barra cilíndrica — Tracción Axial</div>
-              <div id="hudSolverType" style="font-family:var(--font-mono);font-size:0.7rem;color:#CBD5E1;">Motor: Solución Analítica Exacta + Discretización 3D</div>
-            </div>
-
-            <!-- Escala de Colores de Esfuerzos -->
-            <div class="hud-colorbar">
-              <div style="font-weight:700;color:#7DD3FC;" id="colorbarTitle">σ_vm (MPa)</div>
-              <div class="colorbar-scale">
-                <div class="colorbar-gradient"></div>
-                <div class="colorbar-ticks">
-                  <span id="cbMax">127.3</span>
-                  <span id="cb75">95.5</span>
-                  <span id="cb50">63.7</span>
-                  <span id="cb25">31.8</span>
-                  <span id="cbMin">0.0</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Barra Inferior del Visor -->
-            <div class="hud-bottom-bar">
-              <span id="hudMaxLoc">Punto crítico: Sección media / empotramiento</span>
-              <span>Mouse: Rotar (Izq) · Zoom (Rueda) · Pan (Der) · Arrastrar pieza aquí</span>
-            </div>
-          </div>
-
-          <!-- Capas de Visualización y Factor de Amplificación -->
-          <div class="slab-layer-toggles">
-            <label><input type="checkbox" id="chkDeformed" checked onchange="StressLab.updateVisualLayers()" /> Modelo deformado</label>
-            <label><input type="checkbox" id="chkOriginal" onchange="StressLab.updateVisualLayers()" /> Fantasma original</label>
-            <label><input type="checkbox" id="chkLoads" checked onchange="StressLab.updateVisualLayers()" /> Vectores de carga</label>
-            <label><input type="checkbox" id="chkSupports" checked onchange="StressLab.updateVisualLayers()" /> Apoyos</label>
-            <label><input type="checkbox" id="chkMesh" checked onchange="StressLab.updateVisualLayers()" /> Malla FEM</label>
-            <label><input type="checkbox" id="chkAxes" checked onchange="StressLab.updateVisualLayers()" /> Ejes XYZ</label>
-            <label><input type="checkbox" id="chkAnimate" checked onchange="StressLab.updateVisualLayers()" /> Animar carga</label>
-            <div style="margin-left:auto;display:flex;align-items:center;gap:6px;">
-              <span style="font-weight:600;">Amplif. visual:</span>
-              <input type="range" id="rngDeformScale" min="1" max="100" value="35" style="width:85px;" oninput="StressLab.updateVisualLayers()" />
-              <span id="lblDeformScale" style="font-family:var(--font-mono);font-size:0.74rem;">35x</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- D. PANEL LATERAL DERECHO: PROPIEDADES Y PARÁMETROS -->
-        <aside class="slab-panel">
-          <div class="slab-panel__header">
-            <span class="slab-panel__title">Propiedades y Cargas</span>
-            <span class="tech-badge tech-badge--cyan" id="badgeModuleCode">MÓDULO 01</span>
-          </div>
-          <div class="slab-panel__body">
-            <!-- Selección de Material -->
-            <div class="param-group">
-              <div class="param-group__title">1. Material (ASTM / SAE / ISO)</div>
-              <div class="param-row">
-                <label for="selMaterial">Aleación / Polímero</label>
-                <select id="selMaterial" class="param-select" onchange="StressLab.onMaterialChange()"></select>
-              </div>
-              <div class="param-readonly-grid" id="materialPropsSummary"></div>
-            </div>
-
-            <!-- Controles Geométricos Dinámicos -->
-            <div class="param-group">
-              <div class="param-group__title">2. Geometría y Sección</div>
-              <div id="dynamicGeometryInputs"></div>
-              <div class="param-readonly-grid" id="sectionPropsSummary" style="margin-top:8px;"></div>
-            </div>
-
-            <!-- Cargas, Restricciones y Criterio de Falla -->
-            <div class="param-group">
-              <div class="param-group__title">3. Cargas, Apoyos y Criterio</div>
-              <div id="dynamicLoadInputs"></div>
-            </div>
-          </div>
-        </aside>
-
+  <main>
+    <!-- Panel de Parámetros -->
+    <aside class="card">
+      <div class="card-title">
+        <span>Parámetros del Ensayo</span>
+        <button class="btn-secondary" id="btnReset" title="Restaurar valores iniciales">Reiniciar</button>
       </div>
 
-      <!-- PANEL INFERIOR DE RESULTADOS ANALÍTICOS, ECUACIONES Y GRÁFICOS -->
-      <div class="slab-results-section" style="margin-top:16px;">
-        <div class="slab-panel">
-          <div class="slab-panel__header">
-            <span class="slab-panel__title">Resultados Analíticos y Verificación de Seguridad</span>
-            <span class="tech-badge" id="badgeMethodTag">Analítico Exacto · ISO 80000</span>
-          </div>
-          <div class="slab-panel__body" style="max-height:none;">
-            <!-- Banner de Factor de Seguridad -->
-            <div class="safety-banner" id="safetyBanner">
-              <div>
-                <div style="font-weight:800;font-size:0.95rem;" id="safetyStatusTitle">ESTADO: SEGURO SEGÚN EL CRITERIO SELECCIONADO</div>
-                <div style="font-size:0.8rem;" id="safetyStatusDesc">El esfuerzo equivalente está por debajo del límite de fluencia del material.</div>
-              </div>
-              <div style="text-align:right;font-family:var(--font-mono);">
-                <div style="font-size:0.72rem;text-transform:uppercase;">Factor Seguridad</div>
-                <div style="font-size:1.45rem;font-weight:800;" id="kpiFS">2.94</div>
-              </div>
-            </div>
-
-            <!-- KPIs Numéricos -->
-            <div class="kpi-grid" id="resultsKpiGrid"></div>
-
-            <!-- Ecuaciones y Memoria de Cálculo -->
-            <div class="formula-box" id="equationsBox"></div>
-
-            <!-- Interpretación de Mantenimiento Industrial -->
-            <div style="background:var(--bg-canvas);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:10px 12px;font-size:0.82rem;color:var(--text-secondary);" id="industrialInterpretation"></div>
-          </div>
+      <div class="control-group">
+        <div class="control-header">
+          <label class="control-label" for="materialSelect">Material del elemento</label>
         </div>
-
-        <!-- Gráfico Complementario Chart.js (Distribución / Mohr / Diagrama V-M) -->
-        <div class="slab-panel">
-          <div class="slab-panel__header">
-            <span class="slab-panel__title" id="chartPanelTitle">Distribución de Esfuerzos y Comparativa</span>
-            <span class="tech-badge tech-badge--cyan">Chart.js</span>
-          </div>
-          <div class="slab-panel__body" style="max-height:none;">
-            <div class="chart-box">
-              <canvas id="stressChart"></canvas>
-            </div>
-            <p style="font-size:0.75rem;color:var(--text-muted);margin-top:10px;" id="chartCaption">
-              Nota metodológica: Los valores mostrados provienen de las ecuaciones analíticas de Resistencia de Materiales (Beer & Johnston / Shigley). No constituyen certificación estructural oficial.
-            </p>
-          </div>
+        <select id="materialSelect">
+          <option value="steel">Acero Estructural ASTM A36</option>
+          <option value="aluminum">Aleación de Aluminio 6061-T6</option>
+          <option value="titanium">Titanio Ti-6Al-4V</option>
+          <option value="wood">Madera Estructural (Pino)</option>
+          <option value="concrete">Hormigón / Concreto (f'c 28)</option>
+        </select>
+        <div class="mat-props">
+          <div><span>Módulo Young (E)</span><strong id="propE">200 GPa</strong></div>
+          <div><span>Módulo Corte (G)</span><strong id="propG">77.2 GPa</strong></div>
+          <div><span>Límite Fluencia (σy)</span><strong id="propSy">250 MPa</strong></div>
+          <div><span>Corte Adm. (τy)</span><strong id="propTy">145 MPa</strong></div>
         </div>
       </div>
-    </section>
 
-    <!-- SECCIÓN 8: CASOS REALES DE PLANTA -->
-    <section id="viewCases" class="slab-subview">
-      <div class="slab-panel">
-        <div class="slab-panel__header">
-          <span class="slab-panel__title">Casos Reales de Mantenimiento Industrial en Planta</span>
-          <button type="button" class="btn btn--primary" style="padding:6px 14px;font-size:0.8rem;" onclick="StressLab.switchTab('sim')">Volver al Simulador 3D</button>
+      <div class="control-group">
+        <div class="control-header">
+          <span class="control-label" id="loadLabel">Fuerza Axial (F)</span>
+          <span class="control-val" id="loadVal">45.0 kN</span>
         </div>
-        <div class="slab-panel__body" style="max-height:none;">
-          <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:16px;">
-            Selecciona un escenario real de planta para cargar automáticamente su geometría, material, cargas y condiciones de apoyo en el entorno 3D de <strong>STRESSLAB 3D</strong> y resolver el problema de mantenimiento.
+        <input type="range" id="loadSlider" min="0" max="150" step="0.5" value="45" />
+      </div>
+
+      <div class="control-group">
+        <div class="control-header">
+          <span class="control-label">Longitud del elemento (L)</span>
+          <span class="control-val" id="lengthVal">1.50 m</span>
+        </div>
+        <input type="range" id="lengthSlider" min="0.5" max="4.0" step="0.05" value="1.5" />
+      </div>
+
+      <div class="control-group">
+        <div class="control-header">
+          <span class="control-label" id="dimLabel">Diámetro de sección (d)</span>
+          <span class="control-val" id="dimVal">24 mm</span>
+        </div>
+        <input type="range" id="dimSlider" min="10" max="60" step="1" value="24" />
+      </div>
+
+      <div class="control-group">
+        <div class="control-header">
+          <span class="control-label">Amplificación visual deformación</span>
+          <span class="control-val" id="scaleVal">150×</span>
+        </div>
+        <input type="range" id="scaleSlider" min="1" max="500" step="5" value="150" />
+      </div>
+
+      <div class="toggle-row">
+        <label style="display:flex;align-items:center;gap:0.45rem;cursor:pointer;">
+          <input type="checkbox" id="showGrid" checked />
+          Mostrar malla de deformación
+        </label>
+        <label style="display:flex;align-items:center;gap:0.45rem;cursor:pointer;">
+          <input type="checkbox" id="animateLoad" />
+          Carga cíclica
+        </label>
+      </div>
+    </aside>
+
+    <!-- Columna de Visualización y Resultados -->
+    <section class="viz-column">
+      <div class="canvas-wrapper">
+        <canvas id="simCanvas"></canvas>
+        <div class="legend-overlay">
+          <div class="legend-item"><span class="dot" style="background:#ef4444"></span>Tracción / Esfuerzo máximo</div>
+          <div class="legend-item"><span class="dot" style="background:#3b82f6"></span>Compresión / Fibra comprimida</div>
+          <div class="legend-item"><span class="dot" style="background:#f59e0b"></span>Corte / Distorsión angular</div>
+          <div class="legend-item"><span class="dot" style="background:#64748b;border:1px dashed #cbd5e1"></span>Geometría indeformada</div>
+        </div>
+      </div>
+
+      <div id="statusBanner" class="status-banner status-safe">
+        <strong id="statusTitle">ESTADO ELÁSTICO SEGURO</strong>
+        <span id="statusDesc">El esfuerzo actuante se encuentra dentro del rango elástico lineal (Ley de Hooke).</span>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric-box">
+          <span class="metric-title" id="m1Title">Esfuerzo Normal (σ)</span>
+          <span class="metric-value" id="m1Val" style="color:var(--accent)">99.47 MPa</span>
+          <span class="metric-formula" id="m1Formula">σ = F / A</span>
+        </div>
+
+        <div class="metric-box">
+          <span class="metric-title" id="m2Title">Deformación Unitaria (ε)</span>
+          <span class="metric-value" id="m2Val">0.497 ×10⁻³</span>
+          <span class="metric-formula" id="m2Formula">ε = σ / E</span>
+        </div>
+
+        <div class="metric-box">
+          <span class="metric-title" id="m3Title">Desplazamiento (ΔL)</span>
+          <span class="metric-value" id="m3Val">0.746 mm</span>
+          <span class="metric-formula" id="m3Formula">ΔL = (F · L) / (E · A)</span>
+        </div>
+
+        <div class="metric-box">
+          <span class="metric-title">Factor de Seguridad (FS)</span>
+          <span class="metric-value" id="m4Val" style="color:var(--safe)">2.51</span>
+          <span class="metric-formula" id="m4Formula">FS = σ_adm / σ_act</span>
+        </div>
+      </div>
+
+      <div class="theory-box">
+        <div>
+          <h3 id="theoryTitle" style="color:var(--text);font-size:1rem;margin-bottom:0.35rem;">Esfuerzo de Tracción Axial</h3>
+          <p id="theoryText" style="font-size:0.84rem;line-height:1.55;">
+            Ocurre cuando dos fuerzas colineales de igual magnitud y sentidos opuestos tienden a <strong>alargar</strong> el elemento en la dirección de su eje longitudinal. La sección transversal sufre una ligera reducción lateral gobernada por el coeficiente de Poisson (ν).
           </p>
-          <div class="case-grid" id="industrialCasesGrid"></div>
+        </div>
+        <div>
+          <div style="font-size:0.74rem;color:var(--muted);margin-bottom:0.3rem;text-align:center;">Diagrama Esfuerzo – Deformación (Punto Operativo)</div>
+          <canvas id="curveCanvas" class="mini-chart"></canvas>
         </div>
       </div>
     </section>
-
-    <!-- SECCIÓN 9: ENTORNO DE APRENDIZAJE (3 NIVELES + EVALUACIÓN) -->
-    <section id="viewLearning" class="slab-subview">
-      <div class="slab-panel">
-        <div class="slab-panel__header">
-          <span class="slab-panel__title">Entorno de Aprendizaje Progresivo y Evaluación</span>
-          <span class="tech-badge tech-badge--cyan" id="studentScoreBadge">Puntuación: 0 / 100 pts</span>
-        </div>
-        <div class="slab-panel__body" style="max-height:none;">
-          <div class="learning-levels">
-            <div class="level-card">
-              <span class="tech-badge">NIVEL 1</span>
-              <h3 style="font-size:1rem;margin:8px 0 6px;color:var(--color-navy-800);">Aprendizaje Guiado</h3>
-              <p style="font-size:0.83rem;color:var(--text-secondary);margin-bottom:10px;">
-                Sigue la secuencia paso a paso: identifica el tipo de carga, verifica el área resistente y observa cómo el esfuerzo cambia respecto al límite de fluencia.
-              </p>
-              <button type="button" class="btn btn--outline" style="padding:7px 12px;font-size:0.8rem;" onclick="StressLab.startGuidedExercise()">Iniciar Guía Paso a Paso</button>
-            </div>
-            <div class="level-card">
-              <span class="tech-badge tech-badge--cyan">NIVEL 2</span>
-              <h3 style="font-size:1rem;margin:8px 0 6px;color:var(--color-navy-800);">Práctica Autónoma</h3>
-              <p style="font-size:0.83rem;color:var(--text-secondary);margin-bottom:10px;">
-                Diseña un eje de acero SAE 1045 que transmita 450 N·m con un Factor de Seguridad mínimo de 2.5 usando el criterio de Von Mises.
-              </p>
-              <button type="button" class="btn btn--outline" style="padding:7px 12px;font-size:0.8rem;" onclick="StressLab.loadChallengePreset('autonomous')">Cargar Banco de Prueba</button>
-            </div>
-            <div class="level-card">
-              <span class="tech-badge" style="background:var(--status-warn-bg);color:#92400E;">NIVEL 3</span>
-              <h3 style="font-size:1rem;margin:8px 0 6px;color:var(--color-navy-800);">Retos Industriales</h3>
-              <p style="font-size:0.83rem;color:var(--text-secondary);margin-bottom:10px;">
-                Diagnóstico de falla: Un perno de anclaje M12 en un motor vibratorio presenta cizallamiento. Rediseña el diámetro o grado del material.
-              </p>
-              <button type="button" class="btn btn--primary" style="padding:7px 12px;font-size:0.8rem;" onclick="StressLab.loadChallengePreset('industrial')">Resolver Reto en 3D</button>
-            </div>
-          </div>
-
-          <!-- Cuestionario Interactivo con Retroalimentación -->
-          <div style="background:var(--bg-canvas);border:1px solid var(--border-light);border-radius:var(--radius-md);padding:16px;" id="quizContainer"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SECCIÓN 10: INFORMES TÉCNICOS (PDF / IMPRESIÓN / CSV) -->
-    <section id="viewReport" class="slab-subview">
-      <div class="slab-panel">
-        <div class="slab-panel__header">
-          <span class="slab-panel__title">Generador de Informe Técnico de Ingeniería</span>
-          <div style="display:flex;gap:8px;">
-            <button type="button" class="btn btn--outline" style="padding:6px 12px;font-size:0.8rem;" onclick="StressLab.exportCSV()">Descargar CSV</button>
-            <button type="button" class="btn btn--primary" style="padding:6px 12px;font-size:0.8rem;" onclick="StressLab.exportPDF()">Imprimir / Guardar PDF</button>
-          </div>
-        </div>
-        <div class="slab-panel__body" style="max-height:none;">
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;">
-            <div>
-              <label style="font-size:0.78rem;font-weight:700;">Nombre del Estudiante / Ingeniero</label>
-              <input type="text" id="repStudentName" class="param-input" value="Estudiante de Ingeniería Mecánica" oninput="StressLab.renderReportPreview()" />
-            </div>
-            <div>
-              <label style="font-size:0.78rem;font-weight:700;">Código / Asignatura</label>
-              <input type="text" id="repCourse" class="param-input" value="Diseño de Elementos de Máquinas — MECHPLANT" oninput="StressLab.renderReportPreview()" />
-            </div>
-            <div>
-              <label style="font-size:0.78rem;font-weight:700;">Observaciones de Planta</label>
-              <input type="text" id="repNotes" class="param-input" value="Verificación preliminar según criterios ASME / Shigley." oninput="StressLab.renderReportPreview()" />
-            </div>
-          </div>
-
-          <div id="printableReport" style="border:1px solid var(--border-light);border-radius:var(--radius-md);padding:24px;background:#fff;"></div>
-        </div>
-      </div>
-    </section>
-
   </main>
 
-  <!-- MODAL BIBLIOTECA EDITABLE DE MATERIALES -->
-  <div class="slab-modal" id="materialsModal">
-    <div class="slab-modal__card">
-      <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid var(--border-subtle);padding-bottom:10px;margin-bottom:14px;">
-        <h2 style="font-size:1.15rem;color:var(--color-navy-800);">Biblioteca de Materiales de Ingeniería (Valores Referenciales Editables)</h2>
-        <button type="button" class="btn btn--outline" style="padding:4px 10px;" onclick="StressLab.closeModal('materialsModal')">Cerrar</button>
-      </div>
-      <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:12px;">
-        Propiedades mecánicas referenciales con trazabilidad a normas ASTM / SAE / ISO. Puedes editar el Límite de Fluencia (S<sub>y</sub>) o Módulo E del material activo para evaluar sensibilidad.
-      </p>
-      <div style="overflow-x:auto;">
-        <table style="width:100%;border-collapse:collapse;font-size:0.8rem;" id="materialsTable"></table>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL AYUDA Y NORMATIVA -->
-  <div class="slab-modal" id="helpModal">
-    <div class="slab-modal__card">
-      <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid var(--border-subtle);padding-bottom:10px;margin-bottom:14px;">
-        <h2 style="font-size:1.15rem;color:var(--color-navy-800);">Guía de Uso y Marco Normativo — STRESSLAB 3D</h2>
-        <button type="button" class="btn btn--outline" style="padding:4px 10px;" onclick="StressLab.closeModal('helpModal')">Cerrar</button>
-      </div>
-      <div style="font-size:0.86rem;color:var(--text-primary);display:flex;flex-direction:column;gap:10px;">
-        <p><strong>1. Flujo de trabajo CAE:</strong> Selecciona un módulo de análisis (M01–M06) en la barra superior, elige o arrastra un componente desde la biblioteca izquierda hacia el visor 3D, ajusta dimensiones, material y cargas en el panel derecho e interpreta los resultados.</p>
-        <p><strong>2. Transparencia Metodológica:</strong> Los esfuerzos mostrados se calculan mediante ecuaciones analíticas clásicas de Resistencia de Materiales (Beer & Johnston, Shigley, Norton). La deformación 3D se amplifica visualmente para facilitar la interpretación física sin alterar los valores numéricos reales.</p>
-        <p><strong>3. Referencias Normativas Aplicadas:</strong> ISO 80000 (magnitudes y unidades), ISO 898-1 (pernos y elementos de fijación), ASTM A36 / A29 / B221 (especificaciones de materiales), ASME y bibliografía académica estándar.</p>
-      </div>
-    </div>
-  </div>
+  <footer>
+    Simulador autocontenido de Mecánica de Materiales (SIM-01) • Ley de Hooke y Teoría Elemental de Vigas y Ejes
+  </footer>
 
   <script>
-    /* ==========================================================================
-       STRESSLAB 3D — MOTOR DE CÁLCULO, BIBLIOTECAS Y VISUALIZACIÓN 3D (MECHPLANT)
-       ========================================================================== */
-    const StressLab = (() => {
-      // 1. BIBLIOTECA DE MATERIALES (SI: E en GPa, G en GPa, Sy en MPa, Su en MPa, rho en kg/m3)
-      const MATERIALS = [
-        { id: 'a36', name: 'Acero ASTM A36', spec: 'ASTM A36 (Laminado en caliente)', E: 200, G: 77.2, nu: 0.29, Sy: 250, Su: 400, rho: 7850 },
-        { id: '1020', name: 'Acero SAE/AISI 1020', spec: 'ASTM A29 / SAE 1020 (Estirado frío)', E: 205, G: 79.0, nu: 0.29, Sy: 350, Su: 420, rho: 7870 },
-        { id: '1045', name: 'Acero SAE/AISI 1045', spec: 'ASTM A29 / SAE 1045 (Templado y revenido)', E: 206, G: 80.0, nu: 0.29, Sy: 530, Su: 625, rho: 7850 },
-        { id: '4140', name: 'Acero Aleado AISI 4140', spec: 'ASTM A29 / AISI 4140 (Bonificado)', E: 210, G: 80.8, nu: 0.29, Sy: 655, Su: 850, rho: 7850 },
-        { id: '304', name: 'Acero Inoxidable AISI 304', spec: 'ASTM A240 / AISI 304 (Recocido)', E: 193, G: 74.0, nu: 0.29, Sy: 215, Su: 505, rho: 8000 },
-        { id: '6061', name: 'Aluminio 6061-T6', spec: 'ASTM B221 / AA 6061-T6', E: 68.9, G: 26.0, nu: 0.33, Sy: 276, Su: 310, rho: 2700 },
-        { id: 'castiron', name: 'Hierro Fundido Gris ASTM A48 Cl.30', spec: 'ASTM A48 Clase 30 (Frágil)', E: 100, G: 41.0, nu: 0.26, Sy: 207, Su: 214, rho: 7150 },
-        { id: 'bronze', name: 'Bronce al Estaño SAE 660', spec: 'ASTM B505 / C93200', E: 100, G: 38.0, nu: 0.34, Sy: 140, Su: 240, rho: 8800 },
-        { id: 'polymer', name: 'Polímero de Ingeniería (PA66 / Nylon)', spec: 'ISO 1874-1 Poliamida 66', E: 2.8, G: 1.02, nu: 0.38, Sy: 70, Su: 82, rho: 1140 }
-      ];
+    // Base de datos de materiales (E en GPa, G en GPa, sy en MPa, ty en MPa, nu adimensional)
+    const MATERIALS = {
+      steel:    { name: "Acero A36",       E: 200, G: 77.2, sy: 250, ty: 145, nu: 0.30 },
+      aluminum: { name: "Aluminio 6061",   E: 69,  G: 26.0, sy: 276, ty: 160, nu: 0.33 },
+      titanium: { name: "Titanio Ti6Al4V", E: 114, G: 44.0, sy: 880, ty: 510, nu: 0.34 },
+      wood:     { name: "Madera Pino",     E: 11,  G: 0.75, sy: 40,  ty: 7.5, nu: 0.35 },
+      concrete: { name: "Hormigón f'c 28", E: 30,  G: 12.5, sy: 28,  ty: 4.5, nu: 0.20 }
+    };
 
-      // 2. BIBLIOTECA DE COMPONENTES (18 elementos en 3 categorías)
-      const COMPONENTS = [
-        // Estructurales
-        { id: 'bar_cyl', cat: '1. Elementos estructurales', name: 'Barra cilíndrica', defaultMod: 1, shape: 'cylinder' },
-        { id: 'bar_rect', cat: '1. Elementos estructurales', name: 'Barra rectangular', defaultMod: 1, shape: 'box' },
-        { id: 'beam_std', cat: '1. Elementos estructurales', name: 'Viga estructural', defaultMod: 3, shape: 'ibeam' },
-        { id: 'plate_std', cat: '1. Elementos estructurales', name: 'Placa sometida a carga', defaultMod: 1, shape: 'plate' },
-        { id: 'profile_i', cat: '1. Elementos estructurales', name: 'Perfil estructural I / H', defaultMod: 3, shape: 'ibeam' },
-        // Elementos de máquinas
-        { id: 'shaft_trans', cat: '2. Elementos de máquinas', name: 'Eje de transmisión', defaultMod: 4, shape: 'cylinder' },
-        { id: 'shaft_step', cat: '2. Elementos de máquinas', name: 'Árbol escalonado', defaultMod: 5, shape: 'stepped' },
-        { id: 'key_parallel', cat: '2. Elementos de máquinas', name: 'Chaveta paralela', defaultMod: 2, shape: 'key' },
-        { id: 'bolt_joint', cat: '2. Elementos de máquinas', name: 'Perno y unión atornillada', defaultMod: 2, shape: 'bolt' },
-        { id: 'bearing_sup', cat: '2. Elementos de máquinas', name: 'Soporte de rodamiento', defaultMod: 3, shape: 'bracket' },
-        { id: 'lever_arm', cat: '2. Elementos de máquinas', name: 'Brazo de palanca', defaultMod: 5, shape: 'box' },
-        { id: 'bracket_cant', cat: '2. Elementos de máquinas', name: 'Ménsula en voladizo', defaultMod: 3, shape: 'bracket' },
-        // Equipos industriales
-        { id: 'conv_shaft', cat: '3. Elementos de equipos industriales', name: 'Eje de transportador', defaultMod: 5, shape: 'cylinder' },
-        { id: 'motor_mount', cat: '3. Elementos de equipos industriales', name: 'Soporte de motor', defaultMod: 2, shape: 'bolt' },
-        { id: 'hopper_frame', cat: '3. Elementos de equipos industriales', name: 'Estructura de tolva', defaultMod: 3, shape: 'ibeam' },
-        { id: 'pulley_sup', cat: '3. Elementos de equipos industriales', name: 'Soporte de polea', defaultMod: 5, shape: 'stepped' },
-        { id: 'crusher_arm', cat: '3. Elementos de equipos industriales', name: 'Brazo de chancadora', defaultMod: 3, shape: 'box' },
-        { id: 'machine_frame', cat: '3. Elementos de equipos industriales', name: 'Bastidor de máquina', defaultMod: 6, shape: 'ibeam' }
-      ];
-
-      // 3. CASOS REALES DE PLANTA (Sección 8)
-      const INDUSTRIAL_CASES = [
-        {
-          id: 'c1', title: '1. Eje de faja transportadora', equip: 'Transportador de mineral de 45 kW',
-          problem: 'Fatiga y fluencia por combinación de torque motriz y tensión radial de banda.',
-          module: 5, compId: 'conv_shaft', matId: '1045',
-          params: { L: 950, d: 65, F: 8500, T: 1450, M: 1800, support: 'simple', loadType: 'combined_bt' },
-          rec: 'Incrementar diámetro a 75 mm o migrar a acero bonificado AISI 4140.'
-        },
-        {
-          id: 'c2', title: '2. Perno de fijación soporte de motor', equip: 'Motor eléctrico 30 HP en bomba centrífuga',
-          problem: 'Cizallamiento en pernos M12 por desalineación y vibración radial.',
-          module: 2, compId: 'bolt_joint', matId: 'a36',
-          params: { d: 12, shearPlanes: 1, F: 19500, b: 14, h: 14, L: 60 },
-          rec: 'Usar perno grado 8.8 (ISO 898-1) o diseñar unión a doble cortante.'
-        },
-        {
-          id: 'c3', title: '3. Soporte de rodamiento en voladizo', equip: 'Ventilador industrial tiro inducido',
-          problem: 'Deflexión excesiva que provoca desgaste prematuro en rodamientos.',
-          module: 3, compId: 'bearing_sup', matId: 'a36',
-          params: { L: 420, b: 60, h: 80, d: 70, section: 'rect', support: 'cantilever', loadMode: 'point', F: 14000, loadPos: 1.0 },
-          rec: 'Agregar cartela de refuerzo o aumentar el peralte h de la sección.'
-        },
-        {
-          id: 'c4', title: '4. Chaveta de acoplamiento motriz', equip: 'Reductor de velocidad helicoidal',
-          problem: 'Deformación plástica por esfuerzo cortante durante arranques bajo carga.',
-          module: 2, compId: 'key_parallel', matId: '1020',
-          params: { b: 16, h: 10, L: 75, d: 55, shearPlanes: 1, F: 68000 },
-          rec: 'Verificar longitud efectiva de chaveta según norma DIN 6885 / ANSI B17.1.'
-        },
-        {
-          id: 'c5', title: '5. Viga principal estructura de tolva', equip: 'Tolva de almacenamiento de agregados',
-          problem: 'Pandeo local y flexión en ala inferior por sobrecarga de material húmedo.',
-          module: 3, compId: 'hopper_frame', matId: 'a36',
-          params: { L: 2400, b: 110, h: 180, d: 140, section: 'ibeam', support: 'simple', loadMode: 'dist', F: 48000, loadPos: 0.5 },
-          rec: 'Sustituir por perfil IPE de mayor módulo de sección Wx.'
-        },
-        {
-          id: 'c6', title: '6. Brazo de soporte de chancadora', equip: 'Chancadora de mandíbulas primaria',
-          problem: 'Picos de impacto por roca no triturables generan altos momentos flectores.',
-          module: 3, compId: 'crusher_arm', matId: '4140',
-          params: { L: 1100, b: 95, h: 150, d: 120, section: 'rect', support: 'cantilever', loadMode: 'point', F: 62000, loadPos: 1.0 },
-          rec: 'Implementar fusible mecánico y acero AISI 4140 revenido.'
-        },
-        {
-          id: 'c7', title: '7. Eje de polea tensora', equip: 'Sistema de tensado por contrapeso',
-          problem: 'Flexión alternante + carga axial por desalineamiento del carro tensor.',
-          module: 5, compId: 'pulley_sup', matId: '1045',
-          params: { L: 600, d: 50, F: 12000, T: 650, M: 1400, support: 'simple', loadType: 'combined_all' },
-          rec: 'Redondear radios de acuerdo en escalones para reducir Kt.'
-        },
-        {
-          id: 'c8', title: '8. Bastidor de equipo vibratorio', equip: 'Zaranda vibratoria de doble deck',
-          problem: 'Falla por criterio de Von Mises en nodos sometidos a esfuerzos multiaxiales.',
-          module: 6, compId: 'machine_frame', matId: 'a36',
-          params: { L: 1500, b: 80, h: 120, d: 90, F: 35000, T: 900, M: 2100, criterion: 'vonMises' },
-          rec: 'Reforzar uniones soldadas y mantener Factor de Seguridad FS ≥ 3.0.'
-        }
-      ];
-
-      // 4. ESTADO CENTRAL DE LA APLICACIÓN
-      const state = {
-        units: 'SI', // 'SI' o 'IMP'
-        module: 1,   // 1..6
-        compId: 'bar_cyl',
-        matId: 'a36',
-        colorMode: 'vonMises',
-        cameraView: 'iso',
-        score: 0,
-        params: {
-          L: 500,        // mm
-          d: 40,         // mm
-          dInner: 24,    // mm (tubular)
-          b: 40,         // mm
-          h: 60,         // mm
-          section: 'circ', // 'circ', 'rect', 'tube', 'ibeam'
-          axialType: 'tension', // 'tension', 'compression'
-          shearPlanes: 1, // 1 o 2
-          support: 'simple', // 'simple', 'cantilever'
-          loadMode: 'point', // 'point', 'dist'
-          loadPos: 0.5,  // 0.1 a 1.0
-          F: 35000,      // N
-          T: 650,        // N·m
-          M: 1200,       // N·m
-          criterion: 'vonMises', // 'vonMises', 'tresca'
-          combType: 'combined_bt' // 'axial_bend', 'combined_bt', 'shear_bend', 'combined_all'
-        },
-        lastResults: {}
-      };
-
-      // Factores de conversión SI -> Imperial
-      const CONV = {
-        len: 1 / 25.4,         // mm -> in
-        force: 0.224808943,    // N -> lbf
-        torque: 8.85074579,    // N·m -> lbf·in
-        stress: 145.037738,    // MPa -> psi
-        area: 1 / 645.16,      // mm² -> in²
-        inertia: 1 / 416231.4  // mm⁴ -> in⁴
-      };
-
-      function fmtLen(mm) {
-        return state.units === 'SI' ? `${mm.toFixed(1)} mm` : `${(mm * CONV.len).toFixed(3)} in`;
+    const MODES = {
+      traccion: {
+        loadLabel: "Fuerza Axial de Tracción (F)",
+        loadUnit: "kN",
+        loadMin: 0, loadMax: 150, loadStep: 0.5, loadDefault: 45,
+        dimLabel: "Diámetro barra circular (d)",
+        m1Title: "Esfuerzo Normal (σ)", m1Formula: "σ = F / A",
+        m2Title: "Deformación Unitaria (ε)", m2Formula: "ε = ΔL / L = σ / E",
+        m3Title: "Alargamiento Total (ΔL)", m3Formula: "ΔL = (F · L) / (E · A)",
+        theoryTitle: "1. Esfuerzo de Tracción Axial",
+        theoryText: "Se produce cuando cargas axiales opuestas tienden a estirar el cuerpo. En el régimen elástico, el alargamiento ΔL es directamente proporcional a la fuerza F y longitud L, e inversamente proporcional a la rigidez axial (E·A). Por efecto Poisson, el diámetro se contrae levemente."
+      },
+      compresion: {
+        loadLabel: "Fuerza Axial de Compresión (F)",
+        loadUnit: "kN",
+        loadMin: 0, loadMax: 150, loadStep: 0.5, loadDefault: 50,
+        dimLabel: "Diámetro columna corta (d)",
+        m1Title: "Esfuerzo Compresión (σ)", m1Formula: "σ = -F / A",
+        m2Title: "Deformación Unitaria (ε)", m2Formula: "ε = -ΔL / L",
+        m3Title: "Acortamiento Total (ΔL)", m3Formula: "ΔL = (F · L) / (E · A)",
+        theoryTitle: "2. Esfuerzo de Compresión Axial",
+        theoryText: "Las fuerzas empujan hacia el interior del elemento provocando su acortamiento longitudinal (ΔL < 0) y un ensanchamiento transversal por efecto Poisson. En elementos esbeltos (L/d alto), cargas elevadas pueden desencadenar inestabilidad lateral o pandeo de Euler."
+      },
+      corte: {
+        loadLabel: "Fuerza Cortante Transversal (V)",
+        loadUnit: "kN",
+        loadMin: 0, loadMax: 100, loadStep: 0.5, loadDefault: 28,
+        dimLabel: "Diámetro pasador / sección (d)",
+        m1Title: "Esfuerzo Cortante (τ)", m1Formula: "τ = V / A",
+        m2Title: "Distorsión Angular (γ)", m2Formula: "γ = τ / G (rad)",
+        m3Title: "Desplazamiento Corte (δs)", m3Formula: "δs = γ · h",
+        theoryTitle: "3. Esfuerzo Cortante o Cizalladura",
+        theoryText: "Actúa tangencialmente al plano de la sección transversal (como ocurre en pernos, remaches o chavetas). En lugar de alargar o acortar el material, provoca una distorsión angular γ entre planos paralelos gobernada por el módulo de rigidez transversal G."
+      },
+      flexion: {
+        loadLabel: "Carga Puntual Central (P)",
+        loadUnit: "kN",
+        loadMin: 0, loadMax: 40, loadStep: 0.2, loadDefault: 8,
+        dimLabel: "Canto / Altura viga cuadrada (h)",
+        m1Title: "Esfuerzo Flexión Máx (σ)", m1Formula: "σ = (M_max · c) / I",
+        m2Title: "Momento Flector Máx (M)", m2Formula: "M_max = (P · L) / 4",
+        m3Title: "Flecha Máxima Centro (δ)", m3Formula: "δ = (P · L³) / (48 · E · I)",
+        theoryTitle: "4. Esfuerzo de Flexión Pura / Simple",
+        theoryText: "En una viga simplemente apoyada con carga central, el momento flector curva el eje: las fibras superiores sufren compresión (azul) y las inferiores tracción (rojo), separadas por un Eje Neutro donde σ = 0. La flecha crece con el cubo de la longitud (L³)."
+      },
+      torsion: {
+        loadLabel: "Momento Torsor Aplicado (T)",
+        loadUnit: "kN·m",
+        loadMin: 0, loadMax: 15, loadStep: 0.1, loadDefault: 2.5,
+        dimLabel: "Diámetro eje macizo (d)",
+        m1Title: "Cortante Máx Exterior (τ)", m1Formula: "τ_max = (T · r) / J",
+        m2Title: "Ángulo de Giro (θ)", m2Formula: "θ = (T · L) / (G · J)",
+        m3Title: "Distorsión Periférica (γ)", m3Formula: "γ_max = (r · θ) / L",
+        theoryTitle: "5. Esfuerzo de Torsión en Ejes",
+        theoryText: "Un par torsor T alrededor del eje longitudinal retuerce las secciones transversales. El esfuerzo cortante varía linealmente desde cero en el centro hasta un valor máximo τ_max en la superficie exterior, dependiendo del momento polar de inercia J = π·d⁴/32."
       }
-      function fmtForce(N) {
-        return state.units === 'SI' ? `${N.toFixed(0)} N` : `${(N * CONV.force).toFixed(1)} lbf`;
+    };
+
+    // Estado de la aplicación
+    const state = {
+      mode: "traccion",
+      material: "steel",
+      load: 45,
+      length: 1.5,
+      dim: 24, // mm
+      scale: 150,
+      showGrid: true,
+      animate: false,
+      animPhase: 0
+    };
+
+    // Referencias DOM
+    const elTabs = document.querySelectorAll(".tab-btn");
+    const elMat = document.getElementById("materialSelect");
+    const elLoadSlider = document.getElementById("loadSlider");
+    const elLengthSlider = document.getElementById("lengthSlider");
+    const elDimSlider = document.getElementById("dimSlider");
+    const elScaleSlider = document.getElementById("scaleSlider");
+    const elShowGrid = document.getElementById("showGrid");
+    const elAnimate = document.getElementById("animateLoad");
+    const elBtnReset = document.getElementById("btnReset");
+
+    const simCanvas = document.getElementById("simCanvas");
+    const ctx = simCanvas.getContext("2d");
+    const curveCanvas = document.getElementById("curveCanvas");
+    const cctx = curveCanvas.getContext("2d");
+
+    function setMode(newMode) {
+      state.mode = newMode;
+      const cfg = MODES[newMode];
+      elTabs.forEach(b => b.classList.toggle("active", b.dataset.mode === newMode));
+
+      document.getElementById("loadLabel").textContent = cfg.loadLabel;
+      elLoadSlider.min = cfg.loadMin;
+      elLoadSlider.max = cfg.loadMax;
+      elLoadSlider.step = cfg.loadStep;
+      elLoadSlider.value = cfg.loadDefault;
+      state.load = cfg.loadDefault;
+
+      document.getElementById("dimLabel").textContent = cfg.dimLabel;
+      document.getElementById("m1Title").textContent = cfg.m1Title;
+      document.getElementById("m1Formula").textContent = cfg.m1Formula;
+      document.getElementById("m2Title").textContent = cfg.m2Title;
+      document.getElementById("m2Formula").textContent = cfg.m2Formula;
+      document.getElementById("m3Title").textContent = cfg.m3Title;
+      document.getElementById("m3Formula").textContent = cfg.m3Formula;
+      document.getElementById("theoryTitle").textContent = cfg.theoryTitle;
+      document.getElementById("theoryText").textContent = cfg.theoryText;
+
+      update();
+    }
+
+    function updateMaterialProps() {
+      const m = MATERIALS[state.material];
+      document.getElementById("propE").textContent = m.E + " GPa";
+      document.getElementById("propG").textContent = m.G + " GPa";
+      document.getElementById("propSy").textContent = m.sy + " MPa";
+      document.getElementById("propTy").textContent = m.ty + " MPa";
+    }
+
+    function computePhysics(effectiveLoad) {
+      const m = MATERIALS[state.material];
+      const E_Pa = m.E * 1e9;
+      const G_Pa = m.G * 1e9;
+      const L = state.length; // m
+      const d = state.dim / 1000; // m
+      const r = d / 2;
+      const A_circ = Math.PI * r * r; // m^2
+
+      let stressMPa = 0;
+      let limitMPa = m.sy;
+      let m1Text = "", m2Text = "", m3Text = "";
+      let normDef = 0; // factor visual normalizado
+
+      if (state.mode === "traccion" || state.mode === "compresion") {
+        const F = effectiveLoad * 1000; // N
+        const sigma = F / A_circ; // Pa
+        stressMPa = sigma / 1e6;
+        const eps = sigma / E_Pa;
+        const dL_mm = eps * L * 1000;
+        const sign = state.mode === "compresion" ? "-" : "+";
+
+        m1Text = (effectiveLoad === 0 ? "0.00" : sign + stressMPa.toFixed(2)) + " MPa";
+        m2Text = (eps * 1000).toFixed(3) + " ×10⁻³";
+        m3Text = (effectiveLoad === 0 ? "0.000" : sign + dL_mm.toFixed(3)) + " mm";
+        normDef = eps * state.scale;
+      } else if (state.mode === "corte") {
+        const V = effectiveLoad * 1000; // N
+        const tau = V / A_circ; // Pa
+        stressMPa = tau / 1e6;
+        limitMPa = m.ty;
+        const gamma = tau / G_Pa; // rad
+        const ds_mm = gamma * d * 1000;
+
+        m1Text = stressMPa.toFixed(2) + " MPa";
+        m2Text = (gamma * 1000).toFixed(3) + " mrad";
+        m3Text = ds_mm.toFixed(3) + " mm";
+        normDef = gamma * state.scale;
+      } else if (state.mode === "flexion") {
+        const P = effectiveLoad * 1000; // N
+        // Sección cuadrada h x h para claridad visual
+        const h = d;
+        const I = Math.pow(h, 4) / 12;
+        const c = h / 2;
+        const Mmax = (P * L) / 4; // N·m
+        const sigmaMax = (Mmax * c) / I; // Pa
+        stressMPa = sigmaMax / 1e6;
+        const delta_mm = ((P * Math.pow(L, 3)) / (48 * E_Pa * I)) * 1000;
+
+        m1Text = stressMPa.toFixed(2) + " MPa";
+        m2Text = (Mmax / 1000).toFixed(2) + " kN·m";
+        m3Text = delta_mm.toFixed(2) + " mm";
+        normDef = (delta_mm / (L * 1000)) * state.scale;
+      } else if (state.mode === "torsion") {
+        const T = effectiveLoad * 1000; // N·m
+        const J = (Math.PI * Math.pow(d, 4)) / 32;
+        const tauMax = (T * r) / J; // Pa
+        stressMPa = tauMax / 1e6;
+        limitMPa = m.ty;
+        const thetaRad = (T * L) / (G_Pa * J);
+        const thetaDeg = (thetaRad * 180) / Math.PI;
+        const gammaMax = (r * thetaRad) / L;
+
+        m1Text = stressMPa.toFixed(2) + " MPa";
+        m2Text = thetaDeg.toFixed(2) + "°";
+        m3Text = (gammaMax * 1000).toFixed(3) + " mrad";
+        normDef = thetaRad * (state.scale / 25);
       }
-      function fmtTorque(Nm) {
-        return state.units === 'SI' ? `${Nm.toFixed(1)} N·m` : `${(Nm * CONV.torque).toFixed(1)} lbf·in`;
-      }
-      function fmtStress(MPa) {
-        return state.units === 'SI' ? `${MPa.toFixed(2)} MPa` : `${(MPa * CONV.stress).toFixed(0)} psi`;
-      }
-      function fmtArea(mm2) {
-        return state.units === 'SI' ? `${mm2.toFixed(1)} mm²` : `${(mm2 * CONV.area).toFixed(3)} in²`;
-      }
-      function fmtInertia(mm4) {
-        return state.units === 'SI' ? `${mm4.toExponential(2)} mm⁴` : `${(mm4 * CONV.inertia).toExponential(2)} in⁴`;
-      }
 
-      function getMaterial() {
-        return MATERIALS.find(m => m.id === state.matId) || MATERIALS[0];
-      }
+      const fs = stressMPa > 0.001 ? limitMPa / stressMPa : Infinity;
+      return { stressMPa, limitMPa, fs, m1Text, m2Text, m3Text, normDef, nu: m.nu };
+    }
 
-      // 5. MOTOR DE CÁLCULO ANALÍTICO INDEPENDIENTE DE LA INTERFAZ
-      function computeSectionProperties() {
-        const p = state.params;
-        let A = 0, I = 0, J = 0, yMax = 0;
+    function updateUI(phys, effectiveLoad) {
+      const cfg = MODES[state.mode];
+      document.getElementById("loadVal").textContent = effectiveLoad.toFixed(1) + " " + cfg.loadUnit;
+      document.getElementById("lengthVal").textContent = state.length.toFixed(2) + " m";
+      document.getElementById("dimVal").textContent = state.dim + " mm";
+      document.getElementById("scaleVal").textContent = state.scale + "×";
 
-        if (p.section === 'circ') {
-          A = Math.PI * Math.pow(p.d, 2) / 4;
-          I = Math.PI * Math.pow(p.d, 4) / 64;
-          J = Math.PI * Math.pow(p.d, 4) / 32;
-          yMax = p.d / 2;
-        } else if (p.section === 'tube') {
-          const di = Math.min(p.dInner, p.d * 0.9);
-          A = Math.PI * (Math.pow(p.d, 2) - Math.pow(di, 2)) / 4;
-          I = Math.PI * (Math.pow(p.d, 4) - Math.pow(di, 4)) / 64;
-          J = Math.PI * (Math.pow(p.d, 4) - Math.pow(di, 4)) / 32;
-          yMax = p.d / 2;
-        } else if (p.section === 'rect') {
-          A = p.b * p.h;
-          I = (p.b * Math.pow(p.h, 3)) / 12;
-          J = (p.b * p.h * (p.b * p.b + p.h * p.h)) / 12;
-          yMax = p.h / 2;
-        } else if (p.section === 'ibeam') {
-          // Perfil I simplificado: espesor ala/alma = 0.15 * ancho
-          const tf = Math.max(4, p.h * 0.14);
-          const tw = Math.max(4, p.b * 0.14);
-          const hw = Math.max(10, p.h - 2 * tf);
-          A = 2 * (p.b * tf) + (hw * tw);
-          I = (p.b * Math.pow(p.h, 3) - (p.b - tw) * Math.pow(hw, 3)) / 12;
-          J = I * 0.18;
-          yMax = p.h / 2;
-        }
-        return { A, I, J, yMax };
-      }
+      document.getElementById("m1Val").textContent = phys.m1Text;
+      document.getElementById("m2Val").textContent = phys.m2Text;
+      document.getElementById("m3Val").textContent = phys.m3Text;
 
-      function runPhysicsSolver() {
-        const mat = getMaterial();
-        const p = state.params;
-        const sec = computeSectionProperties();
-        const E_MPa = mat.E * 1000; // GPa -> MPa (N/mm²)
-        const G_MPa = mat.G * 1000;
+      const elFS = document.getElementById("m4Val");
+      const banner = document.getElementById("statusBanner");
+      const sTitle = document.getElementById("statusTitle");
+      const sDesc = document.getElementById("statusDesc");
 
-        let sigmaNormal = 0; // MPa
-        let tauShear = 0;    // MPa
-        let deltaMax = 0;    // mm
-        let strain = 0;      // mm/mm
-        let thetaDeg = 0;    // grados
-        let Mmax = 0;        // N·mm
-        let Vmax = 0;        // N
-        let formulaLatex = '';
-        let formulaSteps = '';
-        let maxLocText = '';
-        let interpText = '';
-        let chartData = { labels: [], datasets: [], title: '' };
-
-        if (state.module === 1) {
-          // MÓDULO 01: ESFUERZO NORMAL AXIAL
-          const sign = p.axialType === 'compression' ? -1 : 1;
-          sigmaNormal = sign * (p.F / sec.A);
-          strain = sigmaNormal / E_MPa;
-          deltaMax = strain * p.L;
-          maxLocText = 'Distribución uniforme en toda la sección transversal';
-          formulaLatex = `$$\\sigma = \\frac{F}{A} = \\frac{${p.F.toFixed(0)}\\,\\text{N}}{${sec.A.toFixed(1)}\\,\\text{mm}^2} = ${sigmaNormal.toFixed(2)}\\,\\text{MPa} \\quad | \\quad \\delta = \\frac{F \\cdot L}{A \\cdot E} = ${deltaMax.toFixed(4)}\\,\\text{mm}$$`;
-          formulaSteps = `Deformación unitaria ε = ${strain.toExponential(3)} mm/mm. ${p.axialType === 'compression' ? 'Compresión axial (verificar esbeltez si L/r > 60).' : 'Tracción axial pura.'}`;
-          interpText = `En planta, barras tirantes y tensores bajo carga axial deben vigilarse por corrosión o reducción de sección neta, ya que el esfuerzo crece inversamente al área.`;
-
-          const pts = [0, 0.25, 0.5, 0.75, 1.0];
-          chartData = {
-            title: 'Perfil Axial de Esfuerzo Normal σ(x) y Límite de Fluencia Sy',
-            labels: pts.map(x => `${(x * p.L).toFixed(0)} mm`),
-            datasets: [
-              { label: 'Esfuerzo Normal |σ| (MPa)', data: pts.map(() => Math.abs(sigmaNormal)), borderColor: '#0095D9', backgroundColor: 'rgba(0,149,217,0.18)', fill: true },
-              { label: 'Límite de Fluencia Sy (MPa)', data: pts.map(() => mat.Sy), borderColor: '#EF4444', borderDash: [6, 4], fill: false }
-            ]
-          };
-
-        } else if (state.module === 2) {
-          // MÓDULO 02: ESFUERZO CORTANTE (Pernos / Pasadores / Chavetas)
-          let A_shear = sec.A * p.shearPlanes;
-          if (state.compId === 'key_parallel') {
-            A_shear = p.b * p.L; // Área de corte de chaveta = ancho * longitud
-          }
-          tauShear = p.F / A_shear;
-          deltaMax = (tauShear / G_MPa) * (p.d * 0.25);
-          maxLocText = `Plano(s) de interfaz de corte (${p.shearPlanes} plano${p.shearPlanes > 1 ? 's' : ''})`;
-          formulaLatex = `$$\\tau = \\frac{F}{n \\cdot A_s} = \\frac{${p.F.toFixed(0)}\\,\\text{N}}{${A_shear.toFixed(1)}\\,\\text{mm}^2} = ${tauShear.toFixed(2)}\\,\\text{MPa}$$`;
-          formulaSteps = `Área resistente total A_s = ${A_shear.toFixed(1)} mm² (${state.compId === 'key_parallel' ? 'chaveta b × L' : p.shearPlanes + ' plano(s) de corte'}).`;
-          interpText = `Mantenimiento industrial: Si un perno falla por cortante, verifica si trabaja a cortante simple o doble y confirma el grado de resistencia ISO 898-1 (ej. 8.8 o 10.9).`;
-
-          chartData = {
-            title: 'Comparativa Cortante Simple vs Doble Cortante',
-            labels: ['Cortante Simple (1 plano)', 'Doble Cortante (2 planos)', 'Límite Cortante (0.577 Sy)'],
-            datasets: [{
-              label: 'Esfuerzo Cortante τ (MPa)',
-              data: [p.F / sec.A, p.F / (2 * sec.A), 0.577 * mat.Sy],
-              backgroundColor: ['#F59E0B', '#10B981', '#EF4444']
-            }]
-          };
-
-        } else if (state.module === 3) {
-          // MÓDULO 03: ESFUERZO DE FLEXIÓN EN VIGAS
-          const a = p.loadPos * p.L;
-          const b_dist = p.L - a;
-          if (p.support === 'simple') {
-            if (p.loadMode === 'point') {
-              Mmax = (p.F * a * b_dist) / p.L;
-              Vmax = Math.max((p.F * b_dist) / p.L, (p.F * a) / p.L);
-              deltaMax = (p.F * a * b_dist * (p.L * p.L - a * a - b_dist * b_dist)) / (6 * E_MPa * sec.I * p.L);
-              maxLocText = `Fibra externa en x = ${a.toFixed(0)} mm (bajo carga puntual)`;
-            } else {
-              // Carga distribuida total F equivalente a q*L
-              Mmax = (p.F * p.L) / 8;
-              Vmax = p.F / 2;
-              deltaMax = (5 * p.F * Math.pow(p.L, 3)) / (384 * E_MPa * sec.I);
-              maxLocText = `Centro del claro x = ${(p.L / 2).toFixed(0)} mm (fibra sup. compresión / inf. tracción)`;
-            }
-          } else {
-            // Voladizo (cantilever)
-            if (p.loadMode === 'point') {
-              Mmax = p.F * a;
-              Vmax = p.F;
-              deltaMax = (p.F * Math.pow(a, 2) * (3 * p.L - a)) / (6 * E_MPa * sec.I);
-              maxLocText = `Empotramiento x = 0 mm (fibra sup. tracción / inf. compresión)`;
-            } else {
-              Mmax = (p.F * p.L) / 2;
-              Vmax = p.F;
-              deltaMax = (p.F * Math.pow(p.L, 3)) / (8 * E_MPa * sec.I);
-              maxLocText = `Empotramiento x = 0 mm (momento flector máximo)`;
-            }
-          }
-          sigmaNormal = (Mmax * sec.yMax) / sec.I;
-          tauShear = (1.5 * Vmax) / sec.A;
-          formulaLatex = `$$\\sigma_{\\max} = \\frac{M_{\\max} \\cdot y}{I} = \\frac{${(Mmax / 1000).toFixed(1)}\\,\\text{N}\\cdot\\text{m} \\cdot ${sec.yMax.toFixed(1)}\\,\\text{mm}}{${sec.I.toExponential(2)}\\,\\text{mm}^4} = ${sigmaNormal.toFixed(2)}\\,\\text{MPa}$$`;
-          formulaSteps = `M_máx = ${(Mmax / 1000).toFixed(2)} N·m | Cortante V_máx = ${Vmax.toFixed(0)} N | Deflexión δ_máx = ${deltaMax.toFixed(3)} mm | Línea neutra en y = 0.`;
-          interpText = `En vigas y soportes de planta, aumentar el peralte (h) reduce el esfuerzo cuadráticamente (I ∝ h³), siendo mucho más efectivo que cambiar a un acero más costoso.`;
-
-          // Diagrama de Momento Flector M(x) a lo largo de 11 estaciones
-          const stations = Array.from({ length: 11 }, (_, i) => (i / 10) * p.L);
-          const mCurve = stations.map(x => {
-            if (p.support === 'simple') {
-              if (p.loadMode === 'point') {
-                const R1 = (p.F * b_dist) / p.L;
-                return (x <= a ? R1 * x : R1 * x - p.F * (x - a)) / 1000;
-              }
-              const q = p.F / p.L;
-              return ((q * p.L * x) / 2 - (q * x * x) / 2) / 1000;
-            } else {
-              if (p.loadMode === 'point') {
-                return (x <= a ? -p.F * (a - x) : 0) / 1000;
-              }
-              const q = p.F / p.L;
-              return (-0.5 * q * Math.pow(p.L - x, 2)) / 1000;
-            }
-          });
-          chartData = {
-            title: 'Diagrama de Momento Flector M(x) [N·m]',
-            labels: stations.map(x => `${x.toFixed(0)} mm`),
-            datasets: [{
-              label: 'Momento Flector M(x) (N·m)',
-              data: mCurve,
-              borderColor: '#0F2942',
-              backgroundColor: 'rgba(0, 149, 217, 0.22)',
-              fill: true,
-              tension: 0.25
-            }]
-          };
-
-        } else if (state.module === 4) {
-          // MÓDULO 04: ESFUERZO DE TORSIÓN
-          const T_Nmm = p.T * 1000;
-          const r = p.d / 2;
-          const J_eff = (p.section === 'tube' || p.section === 'circ') ? sec.J : (Math.PI * Math.pow(p.d, 4) / 32);
-          tauShear = (T_Nmm * r) / J_eff;
-          const thetaRad = (T_Nmm * p.L) / (G_MPa * J_eff);
-          thetaDeg = thetaRad * (180 / Math.PI);
-          deltaMax = r * thetaRad;
-          maxLocText = `Superficie cilíndrica exterior (r = ${r.toFixed(1)} mm)`;
-          formulaLatex = `$$\\tau_{\\max} = \\frac{T \\cdot r}{J} = \\frac{${p.T.toFixed(1)}\\,\\text{N}\\cdot\\text{m} \\cdot ${r.toFixed(1)}\\,\\text{mm}}{${J_eff.toExponential(2)}\\,\\text{mm}^4} = ${tauShear.toFixed(2)}\\,\\text{MPa} \\quad | \\quad \\theta = \\frac{T \\cdot L}{G \\cdot J} = ${thetaDeg.toFixed(2)}^\\circ$$`;
-          formulaSteps = `Rigidez torsional GJ = ${((G_MPa * J_eff) / 1e6).toFixed(2)} N·m²/rad | Esfuerzo nulo en el eje neutro central (r = 0).`;
-          interpText = `En ejes de transmisión, un ángulo de torsión excesivo (> 0.25°/m) causa vibraciones torsionales y desajuste de sincronización en transmisiones por engranajes o cadenas.`;
-
-          const radii = [0, 0.25, 0.5, 0.75, 1.0];
-          chartData = {
-            title: 'Distribución Radial del Esfuerzo Cortante τ(r)',
-            labels: radii.map(rf => `r = ${(rf * r).toFixed(1)} mm`),
-            datasets: [{
-              label: 'Esfuerzo Cortante τ(r) (MPa)',
-              data: radii.map(rf => rf * tauShear),
-              borderColor: '#0095D9',
-              backgroundColor: 'rgba(16, 185, 129, 0.2)',
-              fill: true
-            }]
-          };
-
+      if (!isFinite(phys.fs)) {
+        elFS.textContent = "∞";
+        elFS.style.color = "var(--safe)";
+        banner.className = "status-banner status-safe";
+        sTitle.textContent = "SIN CARGA EXTERNA";
+        sDesc.textContent = "El elemento se encuentra en reposo sin tensiones internas.";
+      } else {
+        elFS.textContent = phys.fs.toFixed(2);
+        if (phys.fs >= 1.5) {
+          elFS.style.color = "var(--safe)";
+          banner.className = "status-banner status-safe";
+          sTitle.textContent = "ESTADO ELÁSTICO SEGURO (FS ≥ 1.5)";
+          sDesc.textContent = `Tensión al ${((phys.stressMPa / phys.limitMPa) * 100).toFixed(1)}% del límite elástico. Recuperación completa al descargar.`;
+        } else if (phys.fs >= 1.0) {
+          elFS.style.color = "var(--warn)";
+          banner.className = "status-banner status-warn";
+          sTitle.textContent = "ZONA DE PRECAUCIÓN (1.0 ≤ FS < 1.5)";
+          sDesc.textContent = `Cerca del límite de fluencia (${phys.limitMPa} MPa). Margen de seguridad reducido.`;
         } else {
-          // MÓDULO 05 Y 06: ESFUERZOS COMBINADOS, CÍRCULO DE MOHR Y CRITERIOS DE FALLA
-          const sigAxial = (state.module === 5 && (p.combType === 'axial_bend' || p.combType === 'combined_all')) ? (p.F / sec.A) : (p.F / sec.A) * 0.35;
-          const sigBend = ((p.M * 1000) * sec.yMax) / sec.I;
-          sigmaNormal = sigAxial + sigBend;
-          const T_Nmm = p.T * 1000;
-          tauShear = (T_Nmm * (p.d / 2)) / (Math.PI * Math.pow(p.d, 4) / 32) + (p.F / sec.A) * 0.25;
-          deltaMax = ((p.M * 1000) * Math.pow(p.L, 2)) / (8 * E_MPa * sec.I);
+          elFS.style.color = "var(--danger)";
+          banner.className = "status-banner status-danger";
+          sTitle.textContent = "FALLA POR FLUENCIA / ROTURA (FS < 1.0)";
+          sDesc.textContent = `El esfuerzo (${phys.stressMPa.toFixed(1)} MPa) supera la resistencia admisible (${phys.limitMPa} MPa). Deformación permanente.`;
+        }
+      }
+    }
 
-          // Círculo de Mohr 2D (sigma_x = sigmaNormal, sigma_y = 0, tau_xy = tauShear)
-          const sigAvg = sigmaNormal / 2;
-          const R_mohr = Math.sqrt(Math.pow(sigAvg, 2) + Math.pow(tauShear, 2));
-          const sig1 = sigAvg + R_mohr;
-          const sig2 = sigAvg - R_mohr;
+    // Dibujo de flecha de fuerza
+    function drawArrow(ctx, x1, y1, x2, y2, color, label) {
+      const headlen = 11;
+      const angle = Math.atan2(y2 - y1, x2 - x1);
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.fillStyle = color;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
 
-          maxLocText = `Fibra crítica externa bajo solicitación multiaxial (σ_x + τ_xy)`;
-          formulaLatex = `$$\\sigma_{1,2} = \\frac{\\sigma_x}{2} \\pm \\sqrt{\\left(\\frac{\\sigma_x}{2}\\right)^2 + \\tau_{xy}^2} = ${sig1.toFixed(1)},\\; ${sig2.toFixed(1)}\\,\\text{MPa} \\quad | \\quad \\tau_{\\max} = ${R_mohr.toFixed(1)}\\,\\text{MPa}$$`;
-          formulaSteps = `σ_normal total = ${sigmaNormal.toFixed(2)} MPa | τ_cortante total = ${tauShear.toFixed(2)} MPa | Centro Mohr C = (${sigAvg.toFixed(1)}, 0) MPa.`;
-          interpText = `Los ejes reales de planta (transportadores, poleas, reductores) nunca trabajan a torsión pura: siempre combinan flexión radial y torsión, requiriendo el criterio de Von Mises.`;
+      ctx.beginPath();
+      ctx.moveTo(x2, y2);
+      ctx.lineTo(x2 - headlen * Math.cos(angle - Math.PI / 6), y2 - headlen * Math.sin(angle - Math.PI / 6));
+      ctx.lineTo(x2 - headlen * Math.cos(angle + Math.PI / 6), y2 - headlen * Math.sin(angle + Math.PI / 6));
+      ctx.closePath();
+      ctx.fill();
 
-          // Puntos del Círculo de Mohr
-          const mohrPts = [];
-          for (let deg = 0; deg <= 360; deg += 15) {
-            const rad = (deg * Math.PI) / 180;
-            mohrPts.push({ x: sigAvg + R_mohr * Math.cos(rad), y: R_mohr * Math.sin(rad) });
+      if (label) {
+        ctx.font = "bold 13px sans-serif";
+        ctx.fillText(label, x2 + (Math.cos(angle) >= 0 ? 8 : -26), y2 + (Math.sin(angle) > 0 ? 16 : -8));
+      }
+      ctx.restore();
+    }
+
+    // Dibujo de empotramiento
+    function drawSupportWall(ctx, x, yCenter, height) {
+      ctx.save();
+      ctx.fillStyle = "#334155";
+      ctx.fillRect(x - 16, yCenter - height / 2, 16, height);
+      ctx.strokeStyle = "#94a3b8";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(x, yCenter - height / 2);
+      ctx.lineTo(x, yCenter + height / 2);
+      ctx.stroke();
+      for (let y = yCenter - height / 2 + 8; y < yCenter + height / 2; y += 12) {
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x - 12, y + 8);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    function renderSimulation(phys, effectiveLoad) {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = simCanvas.getBoundingClientRect();
+      simCanvas.width = rect.width * dpr;
+      simCanvas.height = rect.height * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      const W = rect.width;
+      const H = rect.height;
+      ctx.clearRect(0, 0, W, H);
+
+      const cx = W / 2;
+      const cy = H / 2 + 12;
+
+      // Escala visual base de longitud y grosor
+      const baseLen = Math.min(W * 0.56, 180 + state.length * 85);
+      const baseThick = 24 + (state.dim - 10) * 1.1;
+
+      const ratioStress = Math.min(1, phys.stressMPa / phys.limitMPa);
+
+      if (state.mode === "traccion" || state.mode === "compresion") {
+        const isComp = state.mode === "compresion";
+        const deltaPx = Math.min(baseLen * 0.35, Math.abs(phys.normDef) * baseLen * 0.35);
+        const signedDelta = isComp ? -deltaPx : deltaPx;
+        const lateralDelta = (isComp ? 1 : -1) * deltaPx * phys.nu * 0.45;
+
+        const newLen = Math.max(60, baseLen + signedDelta);
+        const newThick = Math.max(12, baseThick + lateralDelta);
+
+        const x0 = cx - baseLen / 2;
+        drawSupportWall(ctx, x0, cy, baseThick + 56);
+
+        // Fantasma indeformado
+        ctx.save();
+        ctx.setLineDash([5, 5]);
+        ctx.strokeStyle = "#64748b";
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(x0, cy - baseThick / 2, baseLen, baseThick);
+        ctx.restore();
+
+        // Cuerpo deformado con gradiente de esfuerzo
+        const colorMain = isComp ? `rgba(59, 130, 246, ${0.35 + ratioStress * 0.55})` : `rgba(239, 68, 68, ${0.35 + ratioStress * 0.55})`;
+        const strokeMain = isComp ? "#60a5fa" : "#f87171";
+
+        ctx.fillStyle = colorMain;
+        ctx.strokeStyle = strokeMain;
+        ctx.lineWidth = 2.5;
+        ctx.fillRect(x0, cy - newThick / 2, newLen, newThick);
+        ctx.strokeRect(x0, cy - newThick / 2, newLen, newThick);
+
+        // Malla interior
+        if (state.showGrid) {
+          ctx.strokeStyle = "rgba(255,255,255,0.22)";
+          ctx.lineWidth = 1;
+          const cols = 10;
+          for (let i = 1; i < cols; i++) {
+            const gx = x0 + (newLen / cols) * i;
+            ctx.beginPath();
+            ctx.moveTo(gx, cy - newThick / 2);
+            ctx.lineTo(gx, cy + newThick / 2);
+            ctx.stroke();
           }
-          chartData = {
-            title: 'Círculo de Mohr — Estado Plano de Esfuerzos (σ vs τ)',
-            type: 'scatter',
-            datasets: [
-              {
-                label: 'Círculo de Mohr (MPa)',
-                data: mohrPts,
-                showLine: true,
-                borderColor: '#0095D9',
-                backgroundColor: 'rgba(0,149,217,0.12)',
-                pointRadius: 2
-              },
-              {
-                label: 'Esfuerzos Principales (σ1, σ2)',
-                data: [{ x: sig1, y: 0 }, { x: sig2, y: 0 }],
-                borderColor: '#EF4444',
-                backgroundColor: '#EF4444',
-                pointRadius: 6
-              }
-            ]
-          };
+          ctx.beginPath();
+          ctx.moveTo(x0, cy);
+          ctx.lineTo(x0 + newLen, cy);
+          ctx.stroke();
         }
 
-        // Esfuerzo Equivalente: Von Mises vs Tresca
-        const sigmaVM = Math.sqrt(Math.pow(sigmaNormal, 2) + 3 * Math.pow(tauShear, 2));
-        const sigmaTresca = Math.sqrt(Math.pow(sigmaNormal, 2) + 4 * Math.pow(tauShear, 2));
-        const sigmaEq = p.criterion === 'tresca' ? sigmaTresca : sigmaVM;
-        const FS = sigmaEq > 0.001 ? mat.Sy / sigmaEq : 99.9;
-
-        state.lastResults = {
-          mat, sec, sigmaNormal, tauShear, sigmaVM, sigmaTresca, sigmaEq, FS,
-          deltaMax, strain, thetaDeg, Mmax, Vmax,
-          formulaLatex, formulaSteps, maxLocText, interpText, chartData
-        };
-      }
-
-      // 6. RENDERIZADO DE UI, KPIs, FÓRMULAS Y CHART.JS
-      let chartInstance = null;
-
-      function updateResultsUI() {
-        const r = state.lastResults;
-        const p = state.params;
-
-        // Semáforo Factor de Seguridad
-        const banner = document.getElementById('safetyBanner');
-        const title = document.getElementById('safetyStatusTitle');
-        const desc = document.getElementById('safetyStatusDesc');
-        const kpiFS = document.getElementById('kpiFS');
-
-        banner.classList.remove('is-warn', 'is-danger');
-        kpiFS.textContent = r.FS > 50 ? '> 50' : r.FS.toFixed(2);
-
-        if (r.FS >= 2.0) {
-          title.textContent = `SEGURO SEGÚN CRITERIO ${p.criterion === 'tresca' ? 'TRESCA' : 'VON MISES'}`;
-          desc.textContent = `El esfuerzo equivalente (${fmtStress(r.sigmaEq)}) es inferior al límite elástico (${fmtStress(r.mat.Sy)}) con margen adecuado.`;
-        } else if (r.FS >= 1.2) {
-          banner.classList.add('is-warn');
-          title.textContent = 'REQUIERE REVISIÓN DE DISEÑO (1.2 ≤ FS < 2.0)';
-          desc.textContent = 'Margen estrecho ante cargas dinámicas, vibración o concentradores de esfuerzos en planta.';
-        } else {
-          banner.classList.add('is-danger');
-          title.textContent = 'SUPERA EL LÍMITE ADMISIBLE (FS < 1.2 — RIESGO DE FLUENCIA)';
-          desc.textContent = 'El componente presentará deformación plástica permanente o falla mecánica.';
-        }
-
-        // KPIs
-        const kpis = [
-          { label: 'Esfuerzo Normal σ', val: fmtStress(Math.abs(r.sigmaNormal)), sub: p.axialType === 'compression' && state.module === 1 ? 'Compresión' : 'Tracción / Flexión' },
-          { label: 'Esfuerzo Cortante τ', val: fmtStress(r.tauShear), sub: 'Cortante directo / torsión' },
-          { label: 'Equivalente Von Mises', val: fmtStress(r.sigmaVM), sub: `Tresca: ${fmtStress(r.sigmaTresca)}` },
-          { label: 'Límite Fluencia Sy', val: fmtStress(r.mat.Sy), sub: r.mat.name },
-          { label: 'Deformación Máx. δ', val: fmtLen(Math.abs(r.deltaMax)), sub: state.module === 4 ? `Giro θ: ${r.thetaDeg.toFixed(2)}°` : 'Desplazamiento elástico' },
-          { label: 'Área / Inercia', val: fmtArea(r.sec.A), sub: `I = ${fmtInertia(r.sec.I)}` }
-        ];
-
-        document.getElementById('resultsKpiGrid').innerHTML = kpis.map(k => `
-          <div class="kpi-card">
-            <div class="kpi-card__label">${k.label}</div>
-            <div class="kpi-card__value">${k.val}</div>
-            <div class="kpi-card__sub">${k.sub}</div>
-          </div>
-        `).join('');
-
-        // Ecuaciones y memoria
-        document.getElementById('equationsBox').innerHTML = `
-          <div style="font-weight:700;color:var(--color-navy-800);margin-bottom:4px;">Ecuación Fundamental y Desarrollo Analítico:</div>
-          <div id="mathFormulaRender">${r.formulaLatex}</div>
-          <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:4px;">${r.formulaSteps}</div>
-        `;
-        if (window.renderMathInElement) {
-          renderMathInElement(document.getElementById('mathFormulaRender'), {
-            delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }]
-          });
-        }
-
-        document.getElementById('industrialInterpretation').innerHTML = `<strong>Interpretación en Mantenimiento Industrial:</strong> ${r.interpText}`;
-        document.getElementById('hudMaxLoc').textContent = `Ubicación crítica: ${r.maxLocText}`;
-
-        // Escala de colores HUD
-        let maxVal = r.sigmaEq;
-        let labelUnit = state.units === 'SI' ? 'MPa' : 'psi';
-        let titleMap = 'σ_vm';
-        if (state.colorMode === 'normal') { maxVal = Math.abs(r.sigmaNormal); titleMap = 'σ_normal'; }
-        else if (state.colorMode === 'shear') { maxVal = r.tauShear; titleMap = 'τ_cortante'; }
-        else if (state.colorMode === 'disp') { maxVal = Math.abs(r.deltaMax); labelUnit = state.units === 'SI' ? 'mm' : 'in'; titleMap = 'δ_desplaz'; }
-
-        const convFactor = state.colorMode === 'disp' ? (state.units === 'SI' ? 1 : CONV.len) : (state.units === 'SI' ? 1 : CONV.stress);
-        const dispMax = Math.max(0.01, maxVal * convFactor);
-        document.getElementById('colorbarTitle').textContent = `${titleMap} (${labelUnit})`;
-        document.getElementById('cbMax').textContent = dispMax.toFixed(1);
-        document.getElementById('cb75').textContent = (dispMax * 0.75).toFixed(1);
-        document.getElementById('cb50').textContent = (dispMax * 0.50).toFixed(1);
-        document.getElementById('cb25').textContent = (dispMax * 0.25).toFixed(1);
-        document.getElementById('cbMin').textContent = '0.0';
-
-        // Actualizar Gráfico Chart.js
-        renderChart(r.chartData);
-      }
-
-      function renderChart(cd) {
-        document.getElementById('chartPanelTitle').textContent = cd.title;
-        const ctx = document.getElementById('stressChart');
-        if (!ctx || typeof Chart === 'undefined') return;
-        if (chartInstance) chartInstance.destroy();
-
-        const chartType = cd.type || (cd.datasets.length === 1 && !cd.datasets[0].fill ? 'bar' : 'line');
-        chartInstance = new Chart(ctx, {
-          type: chartType,
-          data: { labels: cd.labels || [], datasets: cd.datasets },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { labels: { font: { size: 11 } } } },
-            scales: chartType === 'scatter'
-              ? { x: { title: { display: true, text: 'Esfuerzo Normal σ (MPa)' } }, y: { title: { display: true, text: 'Esfuerzo Cortante τ (MPa)' } } }
-              : { y: { beginAtZero: true } }
-          }
-        });
-      }
-
-      // 7. MOTOR DE VISUALIZACIÓN 3D CON THREE.JS + WEBGL
-      let scene, camera, renderer, controls, meshGroup, ghostGroup, loadGroup, supportGroup, axesHelper;
-      let animClock = 0;
-
-      function initThreeJS() {
-        const container = document.getElementById('threeCanvas');
-        if (!container || typeof THREE === 'undefined') return;
-
-        scene = new THREE.Scene();
-        camera = new THREE.PerspectiveCamera(42, container.clientWidth / container.clientHeight, 0.1, 2000);
-        camera.position.set(14, 10, 16);
-
-        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
-        renderer.setSize(container.clientWidth, container.clientHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        container.innerHTML = '';
-        container.appendChild(renderer.domElement);
-
-        if (THREE.OrbitControls) {
-          controls = new THREE.OrbitControls(camera, renderer.domElement);
-          controls.enableDamping = true;
-          controls.dampingFactor = 0.07;
-        }
-
-        // Iluminación técnica de estudio CAD
-        const amb = new THREE.AmbientLight(0xffffff, 0.65);
-        scene.add(amb);
-        const dir1 = new THREE.DirectionalLight(0xffffff, 0.85);
-        dir1.position.set(15, 25, 20);
-        scene.add(dir1);
-        const dir2 = new THREE.DirectionalLight(0x38bdf8, 0.35);
-        dir2.position.set(-15, -10, -15);
-        scene.add(dir2);
-
-        // Retícula base
-        const grid = new THREE.GridHelper(24, 24, 0x0095d9, 0x1e3a5f);
-        grid.position.y = -3.2;
-        scene.add(grid);
-
-        axesHelper = new THREE.AxesHelper(4.5);
-        scene.add(axesHelper);
-
-        meshGroup = new THREE.Group();
-        ghostGroup = new THREE.Group();
-        loadGroup = new THREE.Group();
-        supportGroup = new THREE.Group();
-        scene.add(meshGroup, ghostGroup, loadGroup, supportGroup);
-
-        window.addEventListener('resize', () => {
-          if (!container.clientWidth) return;
-          camera.aspect = container.clientWidth / container.clientHeight;
-          camera.updateProjectionMatrix();
-          renderer.setSize(container.clientWidth, container.clientHeight);
-        });
-
-        animateLoop();
-      }
-
-      // Mapeo de gradiente científico (Azul -> Verde -> Amarillo -> Naranja -> Rojo)
-      function getStressColor(ratio) {
-        const t = Math.max(0, Math.min(1, ratio));
-        const c = new THREE.Color();
-        if (t < 0.25) c.lerpColors(new THREE.Color(0x2563EB), new THREE.Color(0x10B981), t / 0.25);
-        else if (t < 0.5) c.lerpColors(new THREE.Color(0x10B981), new THREE.Color(0xEAB308), (t - 0.25) / 0.25);
-        else if (t < 0.75) c.lerpColors(new THREE.Color(0xEAB308), new THREE.Color(0xF97316), (t - 0.5) / 0.25);
-        else c.lerpColors(new THREE.Color(0xF97316), new THREE.Color(0xEF4444), (t - 0.75) / 0.25);
-        return c;
-      }
-
-      function rebuild3DModel(phase = 1) {
-        if (!scene) return;
-        [meshGroup, ghostGroup, loadGroup, supportGroup].forEach(g => { while (g.children.length) g.remove(g.children[0]); });
-
-        const p = state.params;
-        const r = state.lastResults;
-        const scaleAmp = (parseFloat(document.getElementById('rngDeformScale').value) || 35) / 35;
-        const stressRatioBase = Math.min(1.15, (r.sigmaEq || 50) / (r.mat ? r.mat.Sy : 250));
-
-        // Dimensiones normalizadas para el visor 3D
-        const len3D = Math.max(4, Math.min(12, p.L / 80));
-        const rad3D = Math.max(0.45, Math.min(1.8, (p.d || p.h) / 45));
-        const segments = 28;
-
-        // Construcción de malla discretizada con colores por vértice según distribución física
-        let geom;
-        if (p.section === 'rect' || p.section === 'ibeam' || state.compId === 'key_parallel') {
-          const w3D = Math.max(0.45, Math.min(1.8, p.b / 45));
-          geom = new THREE.BoxGeometry(len3D, rad3D * 1.4, w3D * 1.4, segments, 6, 4);
-        } else {
-          geom = new THREE.CylinderGeometry(rad3D, rad3D, len3D, 24, segments, false);
-          geom.rotateZ(Math.PI / 2);
-        }
-
-        const pos = geom.attributes.position;
-        const colors = new Float32Array(pos.count * 3);
-        const defFactor = Math.min(0.45, (Math.abs(r.deltaMax || 0.1) / 8) * scaleAmp * phase);
-
-        for (let i = 0; i < pos.count; i++) {
-          let x = pos.getX(i);
-          let y = pos.getY(i);
-          let z = pos.getZ(i);
-          const u = (x + len3D / 2) / len3D; // 0 (izq) a 1 (der)
-          const radialNorm = Math.min(1, Math.sqrt(y * y + z * z) / (rad3D * 1.1));
-
-          let localIntensity = 0.2;
-          if (state.module === 1) {
-            // Tracción / compresión: esfuerzo uniforme, alargamiento axial
-            const dir = p.axialType === 'compression' ? -1 : 1;
-            x += dir * (u - 0.5) * len3D * defFactor * 0.8;
-            localIntensity = stressRatioBase;
-          } else if (state.module === 2) {
-            // Cortante: desplazamiento escalonado en el plano central
-            const shearZone = Math.exp(-Math.pow((u - 0.5) * 8, 2));
-            if (u > 0.5) y -= defFactor * 1.2;
-            localIntensity = stressRatioBase * (0.35 + 0.65 * shearZone);
-          } else if (state.module === 3) {
-            // Flexión: curvatura parabólica + gradiente desde línea neutra
-            const bendShape = p.support === 'simple' ? Math.sin(Math.PI * u) : Math.pow(u, 2);
-            y -= bendShape * defFactor * 2.2;
-            const momentProfile = p.support === 'simple' ? Math.sin(Math.PI * u) : (1 - u);
-            localIntensity = stressRatioBase * momentProfile * (0.2 + 0.8 * Math.abs(y) / rad3D);
-          } else if (state.module === 4) {
-            // Torsión: giro progresivo alrededor del eje X + gradiente radial
-            const twist = u * defFactor * 2.4;
-            const ny = y * Math.cos(twist) - z * Math.sin(twist);
-            const nz = y * Math.sin(twist) + z * Math.cos(twist);
-            y = ny; z = nz;
-            localIntensity = stressRatioBase * radialNorm;
+        // Flechas de fuerza
+        if (effectiveLoad > 0) {
+          const xEnd = x0 + newLen;
+          if (!isComp) {
+            drawArrow(ctx, xEnd + 8, cy, xEnd + 65, cy, "#ef4444", `F = ${effectiveLoad.toFixed(1)} kN`);
           } else {
-            // Esfuerzos combinados
-            const bendShape = Math.sin(Math.PI * u);
-            y -= bendShape * defFactor * 1.6;
-            const twist = u * defFactor * 1.4;
-            const ny = y * Math.cos(twist) - z * Math.sin(twist);
-            const nz = y * Math.sin(twist) + z * Math.cos(twist);
-            y = ny; z = nz;
-            localIntensity = stressRatioBase * (0.4 + 0.6 * radialNorm * (0.5 + 0.5 * bendShape));
-          }
-
-          pos.setXYZ(i, x, y, z);
-          const col = getStressColor(localIntensity);
-          colors[i * 3] = col.r;
-          colors[i * 3 + 1] = col.g;
-          colors[i * 3 + 2] = col.b;
-        }
-
-        geom.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-        geom.computeVertexNormals();
-
-        const matMesh = new THREE.MeshStandardMaterial({
-          vertexColors: true,
-          roughness: 0.38,
-          metalness: 0.25
-        });
-        const solidMesh = new THREE.Mesh(geom, matMesh);
-        meshGroup.add(solidMesh);
-
-        // Malla FEM superpuesta
-        if (document.getElementById('chkMesh').checked) {
-          const wireMat = new THREE.MeshBasicMaterial({ color: 0x091929, wireframe: true, transparent: true, opacity: 0.28 });
-          meshGroup.add(new THREE.Mesh(geom, wireMat));
-        }
-
-        // Fantasma del modelo sin deformar
-        const ghostGeom = p.section === 'rect' || p.section === 'ibeam'
-          ? new THREE.BoxGeometry(len3D, rad3D * 1.4, rad3D * 1.4)
-          : new THREE.CylinderGeometry(rad3D, rad3D, len3D, 20).rotateZ(Math.PI / 2);
-        const ghostMat = new THREE.MeshBasicMaterial({ color: 0x94a3b8, wireframe: true, transparent: true, opacity: 0.25 });
-        ghostGroup.add(new THREE.Mesh(ghostGeom, ghostMat));
-
-        // Apoyos y Restricciones (Verde esmeralda)
-        const supMat = new THREE.MeshStandardMaterial({ color: 0x10b981, roughness: 0.4 });
-        const leftBlock = new THREE.Mesh(new THREE.BoxGeometry(0.45, rad3D * 2.8, rad3D * 2.8), supMat);
-        leftBlock.position.set(-len3D / 2 - 0.22, 0, 0);
-        supportGroup.add(leftBlock);
-
-        if (state.module === 3 && p.support === 'simple') {
-          const rightSup = new THREE.Mesh(new THREE.ConeGeometry(0.55, 0.9, 16), supMat);
-          rightSup.position.set(len3D / 2, -rad3D - 0.45, 0);
-          supportGroup.add(rightSup);
-        }
-
-        // Vectores de Carga (Flechas Rojo/Naranja)
-        if (state.module === 1) {
-          const dirX = p.axialType === 'compression' ? -1 : 1;
-          const origin = new THREE.Vector3(p.axialType === 'compression' ? len3D / 2 + 2.2 : len3D / 2 + 0.1, 0, 0);
-          loadGroup.add(new THREE.ArrowHelper(new THREE.Vector3(dirX, 0, 0), origin, 2.1, 0xef4444, 0.55, 0.35));
-        } else if (state.module === 3 || state.module === 5 || state.module === 6) {
-          const loadX = -len3D / 2 + p.loadPos * len3D;
-          loadGroup.add(new THREE.ArrowHelper(new THREE.Vector3(0, -1, 0), new THREE.Vector3(loadX, rad3D + 2.3, 0), 2.1, 0xef4444, 0.55, 0.35));
-        } else if (state.module === 2) {
-          loadGroup.add(new THREE.ArrowHelper(new THREE.Vector3(0, -1, 0), new THREE.Vector3(0.4, rad3D + 2.1, 0), 1.9, 0xf97316, 0.5, 0.32));
-        }
-        if (state.module === 4 || state.module === 5) {
-          // Vector de torque tangencial
-          loadGroup.add(new THREE.ArrowHelper(new THREE.Vector3(0, 0, 1), new THREE.Vector3(len3D / 2, rad3D + 0.3, -1.1), 2.2, 0xf59e0b, 0.5, 0.3));
-        }
-
-        updateVisualLayers();
-      }
-
-      function updateVisualLayers() {
-        if (!meshGroup) return;
-        document.getElementById('lblDeformScale').textContent = `${document.getElementById('rngDeformScale').value}x`;
-        ghostGroup.visible = document.getElementById('chkOriginal').checked;
-        loadGroup.visible = document.getElementById('chkLoads').checked;
-        supportGroup.visible = document.getElementById('chkSupports').checked;
-        axesHelper.visible = document.getElementById('chkAxes').checked;
-      }
-
-      function animateLoop() {
-        requestAnimationFrame(animateLoop);
-        if (controls) controls.update();
-        if (document.getElementById('chkAnimate') && document.getElementById('chkAnimate').checked) {
-          animClock += 0.045;
-          const phase = 0.65 + 0.35 * Math.sin(animClock);
-          rebuild3DModel(phase);
-        }
-        if (renderer && scene && camera) renderer.render(scene, camera);
-      }
-
-      // 8. CONSTRUCCIÓN DINÁMICA DE CONTROLES E INTERFAZ
-      function renderComponentLibrary() {
-        const cats = [...new Set(COMPONENTS.map(c => c.cat))];
-        const container = document.getElementById('componentLibrary');
-        container.innerHTML = cats.map(cat => `
-          <div class="comp-cat">
-            <div class="comp-cat__label">${cat}</div>
-            ${COMPONENTS.filter(c => c.cat === cat).map(c => `
-              <button type="button" class="comp-item ${c.id === state.compId ? 'is-selected' : ''}"
-                draggable="true"
-                ondragstart="StressLab.onDragComp(event, '${c.id}')"
-                onclick="StressLab.selectComponent('${c.id}')">
-                <span>${c.name}</span>
-                <span class="comp-item__tag">M0${c.defaultMod}</span>
-              </button>
-            `).join('')}
-          </div>
-        `).join('');
-      }
-
-      function renderMaterialSelect() {
-        const sel = document.getElementById('selMaterial');
-        sel.innerHTML = MATERIALS.map(m => `<option value="${m.id}" ${m.id === state.matId ? 'selected' : ''}>${m.name} (Sy=${m.Sy} MPa)</option>`).join('');
-        updateMaterialSummary();
-      }
-
-      function updateMaterialSummary() {
-        const m = getMaterial();
-        document.getElementById('materialPropsSummary').innerHTML = `
-          <div>E: <strong>${m.E} GPa</strong></div>
-          <div>G: <strong>${m.G} GPa</strong></div>
-          <div>Sy: <strong>${fmtStress(m.Sy)}</strong></div>
-          <div>Su: <strong>${fmtStress(m.Su)}</strong></div>
-          <div>ν: <strong>${m.nu}</strong></div>
-          <div>ρ: <strong>${m.rho} kg/m³</strong></div>
-        `;
-      }
-
-      function renderDynamicControls() {
-        const p = state.params;
-        const uLen = state.units === 'SI' ? 'mm' : 'in';
-        const uForce = state.units === 'SI' ? 'N' : 'lbf';
-        const uTorque = state.units === 'SI' ? 'N·m' : 'lbf·in';
-
-        const geomHTML = `
-          <div class="param-row">
-            <label for="inpSection">Tipo de Sección Transversal</label>
-            <select id="inpSection" class="param-select" onchange="StressLab.updateParam('section', this.value)">
-              <option value="circ" ${p.section === 'circ' ? 'selected' : ''}>Circular maciza</option>
-              <option value="tube" ${p.section === 'tube' ? 'selected' : ''}>Circular tubular hueca</option>
-              <option value="rect" ${p.section === 'rect' ? 'selected' : ''}>Rectangular</option>
-              <option value="ibeam" ${p.section === 'ibeam' ? 'selected' : ''}>Perfil estructural I</option>
-            </select>
-          </div>
-          <div class="param-row">
-            <label>Longitud (L) <span class="unit-lbl">${uLen}</span></label>
-            <input type="number" class="param-input" value="${p.L}" min="20" max="5000" step="10" onchange="StressLab.updateParam('L', parseFloat(this.value))" />
-          </div>
-          ${(p.section === 'circ' || p.section === 'tube') ? `
-            <div class="param-row">
-              <label>Diámetro Exterior (d) <span class="unit-lbl">${uLen}</span></label>
-              <input type="number" class="param-input" value="${p.d}" min="5" max="500" step="1" onchange="StressLab.updateParam('d', parseFloat(this.value))" />
-            </div>
-          ` : ''}
-          ${p.section === 'tube' ? `
-            <div class="param-row">
-              <label>Diámetro Interior (d_i) <span class="unit-lbl">${uLen}</span></label>
-              <input type="number" class="param-input" value="${p.dInner}" min="2" max="480" step="1" onchange="StressLab.updateParam('dInner', parseFloat(this.value))" />
-            </div>
-          ` : ''}
-          ${(p.section === 'rect' || p.section === 'ibeam') ? `
-            <div class="param-row">
-              <label>Ancho / Ala (b) <span class="unit-lbl">${uLen}</span></label>
-              <input type="number" class="param-input" value="${p.b}" min="5" max="500" step="2" onchange="StressLab.updateParam('b', parseFloat(this.value))" />
-            </div>
-            <div class="param-row">
-              <label>Altura / Peralte (h) <span class="unit-lbl">${uLen}</span></label>
-              <input type="number" class="param-input" value="${p.h}" min="5" max="600" step="2" onchange="StressLab.updateParam('h', parseFloat(this.value))" />
-            </div>
-          ` : ''}
-        `;
-        document.getElementById('dynamicGeometryInputs').innerHTML = geomHTML;
-
-        let loadHTML = `
-          <div class="param-row">
-            <label>Fuerza Aplicada (F) <span class="unit-lbl">${uForce}</span></label>
-            <input type="number" class="param-input" value="${p.F}" min="100" max="500000" step="500" onchange="StressLab.updateParam('F', parseFloat(this.value))" />
-          </div>
-        `;
-
-        if (state.module === 1) {
-          loadHTML += `
-            <div class="param-row">
-              <label>Sentido de Carga Axial</label>
-              <select class="param-select" onchange="StressLab.updateParam('axialType', this.value)">
-                <option value="tension" ${p.axialType === 'tension' ? 'selected' : ''}>Tracción (+F)</option>
-                <option value="compression" ${p.axialType === 'compression' ? 'selected' : ''}>Compresión (-F)</option>
-              </select>
-            </div>
-          `;
-        } else if (state.module === 2) {
-          loadHTML += `
-            <div class="param-row">
-              <label>Planos de Corte (n)</label>
-              <select class="param-select" onchange="StressLab.updateParam('shearPlanes', parseInt(this.value))">
-                <option value="1" ${p.shearPlanes === 1 ? 'selected' : ''}>Cortante Simple (1 plano)</option>
-                <option value="2" ${p.shearPlanes === 2 ? 'selected' : ''}>Doble Cortante (2 planos)</option>
-              </select>
-            </div>
-          `;
-        } else if (state.module === 3) {
-          loadHTML += `
-            <div class="param-row">
-              <label>Condición de Apoyo</label>
-              <select class="param-select" onchange="StressLab.updateParam('support', this.value)">
-                <option value="simple" ${p.support === 'simple' ? 'selected' : ''}>Viga simplemente apoyada</option>
-                <option value="cantilever" ${p.support === 'cantilever' ? 'selected' : ''}>Viga en voladizo (empotrada)</option>
-              </select>
-            </div>
-            <div class="param-row">
-              <label>Distribución de Carga</label>
-              <select class="param-select" onchange="StressLab.updateParam('loadMode', this.value)">
-                <option value="point" ${p.loadMode === 'point' ? 'selected' : ''}>Carga puntual concentrada</option>
-                <option value="dist" ${p.loadMode === 'dist' ? 'selected' : ''}>Carga distribuida uniforme</option>
-              </select>
-            </div>
-            <div class="param-row">
-              <label>Posición Relativa Carga (x/L): ${(p.loadPos * 100).toFixed(0)}%</label>
-              <input type="range" min="0.1" max="1.0" step="0.05" value="${p.loadPos}" style="width:100%;" onchange="StressLab.updateParam('loadPos', parseFloat(this.value))" />
-            </div>
-          `;
-        } else if (state.module === 4 || state.module === 5 || state.module === 6) {
-          loadHTML += `
-            <div class="param-row">
-              <label>Torque Aplicado (T) <span class="unit-lbl">${uTorque}</span></label>
-              <input type="number" class="param-input" value="${p.T}" min="0" max="50000" step="50" onchange="StressLab.updateParam('T', parseFloat(this.value))" />
-            </div>
-          `;
-          if (state.module >= 5) {
-            loadHTML += `
-              <div class="param-row">
-                <label>Momento Flector (M) <span class="unit-lbl">${uTorque}</span></label>
-                <input type="number" class="param-input" value="${p.M}" min="0" max="50000" step="50" onchange="StressLab.updateParam('M', parseFloat(this.value))" />
-              </div>
-              <div class="param-row">
-                <label>Criterio de Falla Estática</label>
-                <select class="param-select" onchange="StressLab.updateParam('criterion', this.value)">
-                  <option value="vonMises" ${p.criterion === 'vonMises' ? 'selected' : ''}>Von Mises (Energía de Distorsión)</option>
-                  <option value="tresca" ${p.criterion === 'tresca' ? 'selected' : ''}>Tresca (Cortante Máximo)</option>
-                </select>
-              </div>
-            `;
+            drawArrow(ctx, xEnd + 68, cy, xEnd + 10, cy, "#3b82f6", `F = ${effectiveLoad.toFixed(1)} kN`);
           }
         }
 
-        document.getElementById('dynamicLoadInputs').innerHTML = loadHTML;
-      }
-
-      function updateSectionSummary() {
-        const sec = state.lastResults.sec;
-        if (!sec) return;
-        document.getElementById('sectionPropsSummary').innerHTML = `
-          <div>Área A: <strong>${fmtArea(sec.A)}</strong></div>
-          <div>Inercia I: <strong>${fmtInertia(sec.I)}</strong></div>
-          <div>Polar J: <strong>${fmtInertia(sec.J)}</strong></div>
-          <div>Fibra y: <strong>${fmtLen(sec.yMax)}</strong></div>
-        `;
-      }
-
-      function recalculateAll() {
-        runPhysicsSolver();
-        updateSectionSummary();
-        updateResultsUI();
-        rebuild3DModel(1);
-        renderReportPreview();
-      }
-
-      // 9. CASOS INDUSTRIALES, APRENDIZAJE Y REPORTES
-      function renderIndustrialCases() {
-        document.getElementById('industrialCasesGrid').innerHTML = INDUSTRIAL_CASES.map(c => `
-          <div class="case-card">
-            <div>
-              <span class="tech-badge tech-badge--cyan" style="margin-bottom:6px;">${c.equip}</span>
-              <h3 class="case-card__title">${c.title}</h3>
-              <p style="font-size:0.81rem;color:var(--text-secondary);margin-top:6px;"><strong>Problema en planta:</strong> ${c.problem}</p>
-              <p style="font-size:0.79rem;color:var(--color-navy-700);margin-top:6px;"><strong>Recomendación:</strong> ${c.rec}</p>
-            </div>
-            <button type="button" class="btn btn--primary" style="width:100%;padding:8px;font-size:0.82rem;" onclick="StressLab.loadIndustrialCase('${c.id}')">
-              Simular Caso en Laboratorio 3D
-            </button>
-          </div>
-        `).join('');
-      }
-
-      function renderQuiz() {
-        const questions = [
-          {
-            q: '1. Si duplicas el diámetro (d) de un eje macizo sometido a torsión pura manteniendo el mismo torque T, ¿qué ocurre con el esfuerzo cortante máximo τ?',
-            opts: ['Se reduce a la mitad (1/2)', 'Se reduce a la cuarta parte (1/4)', 'Se reduce a la octava parte (1/8)'],
-            ans: 2,
-            exp: 'Correcto: τ = 16·T / (π·d³). Como el diámetro está elevado al cubo, duplicar d reduce τ en 2³ = 8 veces.'
-          },
-          {
-            q: '2. En una viga simplemente apoyada sometida a flexión pura, ¿dónde se ubica el esfuerzo normal máximo?',
-            opts: ['En la línea neutra central (y = 0)', 'En las fibras exteriores más alejadas de la línea neutra', 'Únicamente en los apoyos extremos'],
-            ans: 1,
-            exp: 'Correcto: Según σ = M·y / I, el esfuerzo crece linealmente con la distancia y desde la línea neutra.'
-          },
-          {
-            q: '3. ¿Cuál de los dos criterios de falla dúctil es ligeramente más conservador (arroja un Factor de Seguridad menor)?',
-            opts: ['Criterio de Tresca (esfuerzo cortante máximo)', 'Criterio de Von Mises (energía de distorsión)', 'Ambos dan exactamente el mismo valor siempre'],
-            ans: 0,
-            exp: 'Correcto: Tresca predice fluencia cortante a 0.50·Sy frente a 0.577·Sy de Von Mises, resultando ~15% más conservador.'
-          }
-        ];
-
-        document.getElementById('quizContainer').innerHTML = `
-          <h3 style="font-size:1rem;color:var(--color-navy-800);margin-bottom:10px;">Evaluación Rápida de Comprensión Mecánica</h3>
-          ${questions.map((item, idx) => `
-            <div style="margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border-subtle);">
-              <div style="font-weight:600;font-size:0.86rem;">${item.q}</div>
-              ${item.opts.map((opt, oIdx) => `
-                <button type="button" class="quiz-option" onclick="StressLab.checkQuiz(${idx}, ${oIdx}, ${item.ans}, '${item.exp.replace(/'/g, "\\'")}')">${opt}</button>
-              `).join('')}
-              <div id="quizFeedback_${idx}" style="font-size:0.8rem;margin-top:6px;font-weight:600;"></div>
-            </div>
-          `).join('')}
-        `;
-      }
-
-      function renderReportPreview() {
-        const r = state.lastResults;
-        if (!r.mat) return;
-        const comp = COMPONENTS.find(c => c.id === state.compId) || COMPONENTS[0];
-        const student = document.getElementById('repStudentName')?.value || 'Estudiante';
-        const course = document.getElementById('repCourse')?.value || 'MECHPLANT';
-        const notes = document.getElementById('repNotes')?.value || '';
-        const dateStr = new Date().toLocaleDateString('es-PE', { year: 'numeric', month: 'long', day: 'numeric' });
-        const imgData = renderer ? renderer.domElement.toDataURL('image/png') : '';
-
-        document.getElementById('printableReport').innerHTML = `
-          <div style="display:flex;justify-content:space-between;border-bottom:2px solid #0F2942;padding-bottom:12px;margin-bottom:16px;">
-            <div>
-              <h2 style="color:#0F2942;font-size:1.25rem;">INFORME TÉCNICO DE ANÁLISIS DE ESFUERZOS — STRESSLAB 3D</h2>
-              <div style="font-size:0.82rem;color:#475569;">Plataforma Educativa MECHPLANT · ${course}</div>
-            </div>
-            <div style="text-align:right;font-size:0.8rem;font-family:var(--font-mono);">
-              <div><strong>Fecha:</strong> ${dateStr}</div>
-              <div><strong>Autor:</strong> ${student}</div>
-            </div>
-          </div>
-
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;font-size:0.83rem;margin-bottom:16px;">
-            <div style="background:#F8FAFC;padding:12px;border:1px solid #CBD5E1;border-radius:6px;">
-              <strong style="color:#0F2942;">1. Componente y Material</strong>
-              <ul style="margin-top:6px;padding-left:18px;">
-                <li>Componente: ${comp.name}</li>
-                <li>Material: ${r.mat.name} (${r.mat.spec})</li>
-                <li>Módulo Elasticidad E: ${r.mat.E} GPa | Fluencia Sy: ${fmtStress(r.mat.Sy)}</li>
-                <li>Área Transversal A: ${fmtArea(r.sec.A)} | Inercia I: ${fmtInertia(r.sec.I)}</li>
-              </ul>
-            </div>
-            <div style="background:#F8FAFC;padding:12px;border:1px solid #CBD5E1;border-radius:6px;">
-              <strong style="color:#0F2942;">2. Resumen de Resultados Analíticos</strong>
-              <ul style="margin-top:6px;padding-left:18px;">
-                <li>Esfuerzo Normal σ: <strong>${fmtStress(Math.abs(r.sigmaNormal))}</strong></li>
-                <li>Esfuerzo Cortante τ: <strong>${fmtStress(r.tauShear)}</strong></li>
-                <li>Esfuerzo Equivalente (${state.params.criterion}): <strong>${fmtStress(r.sigmaEq)}</strong></li>
-                <li>Factor de Seguridad (FS): <strong>${r.FS.toFixed(2)}</strong></li>
-              </ul>
-            </div>
-          </div>
-
-          ${imgData ? `<div style="text-align:center;margin-bottom:14px;"><img src="${imgData}" alt="Captura 3D" style="max-height:220px;border:1px solid #CBD5E1;border-radius:6px;" /></div>` : ''}
-
-          <div style="font-size:0.82rem;color:#1E293B;background:#F1F5F9;padding:12px;border-radius:6px;">
-            <strong>Conclusión e Interpretación Técnica:</strong> ${r.interpText}<br/>
-            <strong>Notas adicionales:</strong> ${notes}<br/>
-            <em style="color:#64748B;">Nota: Resultados obtenidos mediante ecuaciones analíticas de Resistencia de Materiales con fines académicos; no constituyen certificación estructural oficial.</em>
-          </div>
-        `;
-      }
-
-      // 10. MÉTODOS PÚBLICOS EXPUESTOS
-      return {
-        init() {
-          renderComponentLibrary();
-          renderMaterialSelect();
-          renderDynamicControls();
-          renderIndustrialCases();
-          renderQuiz();
-          initThreeJS();
-
-          // Drag & Drop hacia el visor 3D
-          const dz = document.getElementById('dropZone3D');
-          dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('is-dragover'); });
-          dz.addEventListener('dragleave', () => dz.classList.remove('is-dragover'));
-          dz.addEventListener('drop', e => {
-            e.preventDefault();
-            dz.classList.remove('is-dragover');
-            const cid = e.dataTransfer.getData('text/plain');
-            if (cid) this.selectComponent(cid);
-          });
-
-          recalculateAll();
-        },
-
-        onDragComp(ev, compId) {
-          ev.dataTransfer.setData('text/plain', compId);
-        },
-
-        selectComponent(compId) {
-          state.compId = compId;
-          const comp = COMPONENTS.find(c => c.id === compId);
-          if (comp) {
-            if (comp.shape === 'box' || comp.shape === 'ibeam' || comp.shape === 'key') state.params.section = 'rect';
-            else state.params.section = 'circ';
-            document.getElementById('hudComponentName').textContent = `${comp.name} — Módulo 0${state.module}`;
-          }
-          renderComponentLibrary();
-          renderDynamicControls();
-          recalculateAll();
-        },
-
-        selectModule(modNum) {
-          state.module = modNum;
-          document.querySelectorAll('.slab-mod-tab').forEach(btn => {
-            btn.classList.toggle('is-active', btn.dataset.tab === `mod${modNum}`);
-          });
-          document.getElementById('badgeModuleCode').textContent = `MÓDULO 0${modNum}`;
-          const comp = COMPONENTS.find(c => c.id === state.compId);
-          document.getElementById('hudComponentName').textContent = `${comp ? comp.name : 'Componente'} — Módulo 0${modNum}`;
-          this.switchTab('sim');
-          renderDynamicControls();
-          recalculateAll();
-        },
-
-        switchTab(tab) {
-          document.getElementById('viewSimulator').classList.toggle('is-visible', tab === 'sim');
-          document.getElementById('viewCases').classList.toggle('is-visible', tab === 'cases');
-          document.getElementById('viewLearning').classList.toggle('is-visible', tab === 'learning');
-          document.getElementById('viewReport').classList.toggle('is-visible', tab === 'report');
-
-          if (tab !== 'sim') {
-            document.querySelectorAll('.slab-mod-tab').forEach(btn => {
-              btn.classList.toggle('is-active', btn.dataset.tab === tab);
-            });
-          } else {
-            document.querySelectorAll('.slab-mod-tab').forEach(btn => {
-              btn.classList.toggle('is-active', btn.dataset.tab === `mod${state.module}`);
-            });
-          }
-          if (tab === 'report') renderReportPreview();
-        },
-
-        setUnits(u) {
-          state.units = u;
-          document.getElementById('btnUnitSI').classList.toggle('is-active', u === 'SI');
-          document.getElementById('btnUnitIMP').classList.toggle('is-active', u === 'IMP');
-          updateMaterialSummary();
-          renderDynamicControls();
-          recalculateAll();
-        },
-
-        onMaterialChange() {
-          state.matId = document.getElementById('selMaterial').value;
-          updateMaterialSummary();
-          recalculateAll();
-        },
-
-        updateParam(key, val) {
-          if (Number.isNaN(val)) return;
-          state.params[key] = val;
-          if (key === 'section' || key === 'loadPos') renderDynamicControls();
-          recalculateAll();
-        },
-
-        setColorMode(mode, btn) {
-          state.colorMode = mode;
-          ['mapVonMises', 'mapNormal', 'mapShear', 'mapDisp'].forEach(id => document.getElementById(id).classList.remove('is-active'));
-          if (btn) btn.classList.add('is-active');
-          updateResultsUI();
-        },
-
-        setCameraView(view, btn) {
-          if (!camera || !controls) return;
-          document.querySelectorAll('.slab-view-controls .slab-view-group:first-child .view-chip').forEach(b => b.classList.remove('is-active'));
-          if (btn) btn.classList.add('is-active');
-          if (view === 'iso') camera.position.set(14, 10, 16);
-          else if (view === 'front') camera.position.set(0, 0, 20);
-          else if (view === 'side') camera.position.set(20, 0, 0);
-          else if (view === 'top') camera.position.set(0, 20, 0.01);
-          controls.target.set(0, 0, 0);
-          controls.update();
-        },
-
-        updateVisualLayers,
-
-        loadIndustrialCase(caseId) {
-          const c = INDUSTRIAL_CASES.find(item => item.id === caseId);
-          if (!c) return;
-          state.module = c.module;
-          state.compId = c.compId;
-          state.matId = c.matId;
-          Object.assign(state.params, c.params);
-          renderMaterialSelect();
-          renderComponentLibrary();
-          this.selectModule(c.module);
-        },
-
-        startGuidedExercise() {
-          this.selectModule(1);
-          alert('NIVEL 1 — GUÍA PASO A PASO:\n1. Observa la barra cilíndrica sometida a tracción axial (F = 35,000 N).\n2. En el panel derecho, reduce el diámetro de 40 mm a 20 mm.\n3. Verifica cómo el área se reduce 4 veces y el esfuerzo normal σ supera el límite de fluencia Sy del Acero A36.');
-        },
-
-        loadChallengePreset(type) {
-          if (type === 'autonomous') {
-            state.matId = '1045';
-            state.params.d = 32;
-            state.params.T = 450;
-            state.params.L = 600;
-            renderMaterialSelect();
-            this.selectModule(4);
-            alert('RETO AUTÓNOMO CARGADO:\nEje SAE 1045 con T = 450 N·m y diámetro inicial d = 32 mm. Ajusta el diámetro hasta lograr un Factor de Seguridad FS ≥ 2.5.');
-          } else {
-            this.loadIndustrialCase('c2');
-            alert('RETO INDUSTRIAL CARGADO:\nPerno de anclaje M12 de soporte de motor en falla por cortante. Aumenta el diámetro o cambia el material para alcanzar FS ≥ 2.0.');
-          }
-        },
-
-        checkQuiz(qIdx, chosen, correct, explanation) {
-          const fb = document.getElementById(`quizFeedback_${qIdx}`);
-          if (chosen === correct) {
-            fb.style.color = '#065F46';
-            fb.textContent = `✓ ${explanation}`;
-            state.score = Math.min(100, state.score + 34);
-            document.getElementById('studentScoreBadge').textContent = `Puntuación: ${state.score} / 100 pts`;
-          } else {
-            fb.style.color = '#991B1B';
-            fb.textContent = '✗ Revisa la ecuación fundamental del módulo correspondiente e inténtalo nuevamente.';
-          }
-        },
-
-        saveConfig() {
-          localStorage.setItem('mechplant_stresslab_cfg', JSON.stringify({
-            module: state.module, compId: state.compId, matId: state.matId, params: state.params
-          }));
-          alert('Configuración de simulación guardada localmente en el navegador.');
-        },
-
-        resetSimulation() {
-          localStorage.removeItem('mechplant_stresslab_cfg');
-          state.matId = 'a36';
-          state.compId = 'bar_cyl';
-          state.params = {
-            L: 500, d: 40, dInner: 24, b: 40, h: 60, section: 'circ',
-            axialType: 'tension', shearPlanes: 1, support: 'simple',
-            loadMode: 'point', loadPos: 0.5, F: 35000, T: 650, M: 1200,
-            criterion: 'vonMises', combType: 'combined_bt'
-          };
-          renderMaterialSelect();
-          renderComponentLibrary();
-          this.selectModule(1);
-        },
-
-        exportCSV() {
-          const r = state.lastResults;
-          const rows = [
-            ['Parametro', 'Valor', 'Unidad'],
-            ['Componente', state.compId, '-'],
-            ['Material', r.mat.name, '-'],
-            ['Limite_Fluencia_Sy', r.mat.Sy, 'MPa'],
-            ['Area_Transversal', r.sec.A.toFixed(2), 'mm2'],
-            ['Esfuerzo_Normal', r.sigmaNormal.toFixed(2), 'MPa'],
-            ['Esfuerzo_Cortante', r.tauShear.toFixed(2), 'MPa'],
-            ['Esfuerzo_Von_Mises', r.sigmaVM.toFixed(2), 'MPa'],
-            ['Deformacion_Max', r.deltaMax.toFixed(4), 'mm'],
-            ['Factor_Seguridad', r.FS.toFixed(2), '-']
-          ];
-          const csv = rows.map(e => e.join(',')).join('\n');
-          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-          const link = document.createElement('a');
-          link.href = URL.createObjectURL(blob);
-          link.download = `STRESSLAB3D_Reporte_M0${state.module}.csv`;
-          link.click();
-        },
-
-        exportPDF() {
-          renderReportPreview();
-          window.print();
-        },
-
-        renderReportPreview,
-
-        openModal(id) {
-          if (id === 'materialsModal') {
-            document.getElementById('materialsTable').innerHTML = `
-              <thead>
-                <tr style="background:#0F2942;color:#fff;text-align:left;">
-                  <th style="padding:8px;">Material</th>
-                  <th style="padding:8px;">Especificación</th>
-                  <th style="padding:8px;">E (GPa)</th>
-                  <th style="padding:8px;">G (GPa)</th>
-                  <th style="padding:8px;">Sy (MPa)</th>
-                  <th style="padding:8px;">Su (MPa)</th>
-                  <th style="padding:8px;">ρ (kg/m³)</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${MATERIALS.map(m => `
-                  <tr style="border-bottom:1px solid #E2E8F0;">
-                    <td style="padding:7px;font-weight:600;">${m.name}</td>
-                    <td style="padding:7px;color:#475569;">${m.spec}</td>
-                    <td style="padding:7px;">${m.E}</td>
-                    <td style="padding:7px;">${m.G}</td>
-                    <td style="padding:7px;"><input type="number" value="${m.Sy}" style="width:68px;padding:3px;" onchange="StressLab.editMaterialSy('${m.id}', parseFloat(this.value))" /></td>
-                    <td style="padding:7px;">${m.Su}</td>
-                    <td style="padding:7px;">${m.rho}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            `;
-          }
-          document.getElementById(id).classList.add('is-open');
-        },
-
-        editMaterialSy(id, newSy) {
-          const m = MATERIALS.find(item => item.id === id);
-          if (m && newSy > 0) {
-            m.Sy = newSy;
-            renderMaterialSelect();
-            recalculateAll();
-          }
-        },
-
-        closeModal(id) {
-          document.getElementById(id).classList.remove('is-open');
+        // Cota ΔL
+        if (Math.abs(signedDelta) > 2) {
+          ctx.fillStyle = "#cbd5e1";
+          ctx.font = "12px monospace";
+          ctx.fillText(`ΔL visual: ${isComp ? "-" : "+"}${Math.abs(signedDelta).toFixed(1)} px`, x0 + newLen - 40, cy + newThick / 2 + 24);
         }
-      };
-    })();
 
-    document.addEventListener('DOMContentLoaded', () => {
-      StressLab.init();
+      } else if (state.mode === "corte") {
+        const blockW = Math.min(240, 120 + state.length * 25);
+        const blockH = Math.max(60, baseThick * 1.45);
+        const shearShift = Math.min(blockW * 0.45, phys.normDef * blockH * 0.5);
+
+        const xBase = cx - blockW / 2;
+        const yBot = cy + blockH / 2;
+        const yTop = cy - blockH / 2;
+
+        // Base fija inferior
+        ctx.fillStyle = "#334155";
+        ctx.fillRect(xBase - 25, yBot, blockW + 50, 14);
+
+        // Contorno indeformado
+        ctx.save();
+        ctx.setLineDash([5, 5]);
+        ctx.strokeStyle = "#64748b";
+        ctx.strokeRect(xBase, yTop, blockW, blockH);
+        ctx.restore();
+
+        // Paralelogramo deformado por cizalladura
+        ctx.beginPath();
+        ctx.moveTo(xBase, yBot);
+        ctx.lineTo(xBase + blockW, yBot);
+        ctx.lineTo(xBase + blockW + shearShift, yTop);
+        ctx.lineTo(xBase + shearShift, yTop);
+        ctx.closePath();
+
+        ctx.fillStyle = `rgba(245, 158, 11, ${0.3 + ratioStress * 0.55})`;
+        ctx.fill();
+        ctx.strokeStyle = "#fbbf24";
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        // Malla inclinada
+        if (state.showGrid) {
+          ctx.strokeStyle = "rgba(255,255,255,0.22)";
+          ctx.lineWidth = 1;
+          for (let i = 1; i < 6; i++) {
+            const frac = i / 6;
+            ctx.beginPath();
+            ctx.moveTo(xBase + blockW * frac, yBot);
+            ctx.lineTo(xBase + blockW * frac + shearShift, yTop);
+            ctx.stroke();
+          }
+          for (let j = 1; j < 4; j++) {
+            const frac = j / 4;
+            const yL = yBot - blockH * frac;
+            const xOff = shearShift * frac;
+            ctx.beginPath();
+            ctx.moveTo(xBase + xOff, yL);
+            ctx.lineTo(xBase + blockW + xOff, yL);
+            ctx.stroke();
+          }
+        }
+
+        if (effectiveLoad > 0) {
+          drawArrow(ctx, xBase + shearShift - 55, yTop, xBase + shearShift - 6, yTop, "#f59e0b", `V = ${effectiveLoad.toFixed(1)} kN`);
+          drawArrow(ctx, xBase + blockW + 55, yBot, xBase + blockW + 6, yBot, "#f59e0b", "");
+        }
+
+        ctx.fillStyle = "#fcd34d";
+        ctx.font = "12px monospace";
+        ctx.fillText(`Distorsión angular γ`, xBase - 10, yTop - 16);
+
+      } else if (state.mode === "flexion") {
+        const xLeft = cx - baseLen / 2;
+        const xRight = cx + baseLen / 2;
+        const maxDefPx = Math.min(95, phys.normDef * baseLen * 0.45);
+        const halfH = baseThick / 2;
+
+        // Apoyos articulado y móvil
+        ctx.fillStyle = "#64748b";
+        ctx.beginPath();
+        ctx.moveTo(xLeft, cy + halfH);
+        ctx.lineTo(xLeft - 12, cy + halfH + 20);
+        ctx.lineTo(xLeft + 12, cy + halfH + 20);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(xRight, cy + halfH);
+        ctx.lineTo(xRight - 12, cy + halfH + 16);
+        ctx.lineTo(xRight + 12, cy + halfH + 16);
+        ctx.closePath();
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(xRight - 6, cy + halfH + 20, 4, 0, Math.PI * 2);
+        ctx.arc(xRight + 6, cy + halfH + 20, 4, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Viga indeformada punteada
+        ctx.save();
+        ctx.setLineDash([5, 5]);
+        ctx.strokeStyle = "#64748b";
+        ctx.strokeRect(xLeft, cy - halfH, baseLen, baseThick);
+        ctx.restore();
+
+        // Ecuación elástica viga simplemente apoyada carga puntual: y(x) = delta * (3*(x/L) - 4*(x/L)^3) para x en [0, L/2]
+        function beamDeflection(u) {
+          const s = u <= 0.5 ? u : 1 - u;
+          return maxDefPx * (3 * s - 4 * Math.pow(s, 3));
+        }
+
+        const segs = 40;
+        // Gradiente vertical: arriba compresión (azul), medio neutro, abajo tracción (rojo)
+        const grad = ctx.createLinearGradient(0, cy - halfH, 0, cy + halfH + maxDefPx);
+        grad.addColorStop(0, `rgba(59, 130, 246, ${0.45 + ratioStress * 0.5})`);
+        grad.addColorStop(0.5, "rgba(148, 163, 184, 0.25)");
+        grad.addColorStop(1, `rgba(239, 68, 68, ${0.45 + ratioStress * 0.5})`);
+
+        ctx.beginPath();
+        for (let i = 0; i <= segs; i++) {
+          const u = i / segs;
+          const x = xLeft + u * baseLen;
+          const y = cy - halfH + beamDeflection(u);
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        for (let i = segs; i >= 0; i--) {
+          const u = i / segs;
+          const x = xLeft + u * baseLen;
+          const y = cy + halfH + beamDeflection(u);
+          ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.fillStyle = grad;
+        ctx.fill();
+        ctx.strokeStyle = "#e2e8f0";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Eje Neutro
+        ctx.save();
+        ctx.setLineDash([4, 4]);
+        ctx.strokeStyle = "#38bdf8";
+        ctx.beginPath();
+        for (let i = 0; i <= segs; i++) {
+          const u = i / segs;
+          const x = xLeft + u * baseLen;
+          const y = cy + beamDeflection(u);
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        ctx.restore();
+
+        if (effectiveLoad > 0) {
+          drawArrow(ctx, cx, cy - halfH - 58, cx, cy - halfH - 4, "#38bdf8", `P = ${effectiveLoad.toFixed(1)} kN`);
+        }
+
+      } else if (state.mode === "torsion") {
+        const x0 = cx - baseLen / 2 - 20;
+        const x1 = x0 + baseLen;
+        const halfH = baseThick / 2;
+        const twistAngle = Math.min(Math.PI * 0.85, phys.normDef);
+
+        drawSupportWall(ctx, x0, cy, baseThick + 56);
+
+        // Cuerpo cilíndrico
+        const grad = ctx.createLinearGradient(0, cy - halfH, 0, cy + halfH);
+        grad.addColorStop(0, `rgba(245, 158, 11, ${0.35 + ratioStress * 0.5})`);
+        grad.addColorStop(0.5, "rgba(51, 65, 85, 0.5)");
+        grad.addColorStop(1, `rgba(245, 158, 11, ${0.35 + ratioStress * 0.5})`);
+
+        ctx.fillStyle = grad;
+        ctx.strokeStyle = "#fbbf24";
+        ctx.lineWidth = 2;
+        ctx.fillRect(x0, cy - halfH, baseLen, baseThick);
+        ctx.strokeRect(x0, cy - halfH, baseLen, baseThick);
+
+        // Generatrices helicoidales que muestran la torsión
+        if (state.showGrid) {
+          const lines = 5;
+          for (let l = 0; l < lines; l++) {
+            const phi0 = (l / lines) * Math.PI - Math.PI / 2;
+            ctx.beginPath();
+            ctx.strokeStyle = l === 2 ? "#ef4444" : "rgba(255,255,255,0.35)";
+            ctx.lineWidth = l === 2 ? 2.2 : 1.1;
+            const steps = 30;
+            for (let s = 0; s <= steps; s++) {
+              const u = s / steps;
+              const px = x0 + u * baseLen;
+              const phi = phi0 + u * twistAngle;
+              const py = cy + Math.sin(phi) * halfH;
+              if (s === 0) ctx.moveTo(px, py);
+              else ctx.lineTo(px, py);
+            }
+            ctx.stroke();
+          }
+        }
+
+        // Disco extremo con radio girado
+        const discR = halfH + 14;
+        const discX = x1 + 42;
+        ctx.beginPath();
+        ctx.arc(discX, cy, discR, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(30, 41, 59, 0.9)";
+        ctx.fill();
+        ctx.strokeStyle = "#fbbf24";
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        // Radio inicial (punteado) y radio girado
+        ctx.save();
+        ctx.setLineDash([3, 3]);
+        ctx.strokeStyle = "#94a3b8";
+        ctx.beginPath();
+        ctx.moveTo(discX, cy);
+        ctx.lineTo(discX, cy - discR);
+        ctx.stroke();
+        ctx.restore();
+
+        const rx = discX + Math.sin(twistAngle) * discR;
+        const ry = cy - Math.cos(twistAngle) * discR;
+        ctx.strokeStyle = "#ef4444";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(discX, cy);
+        ctx.lineTo(rx, ry);
+        ctx.stroke();
+
+        if (effectiveLoad > 0) {
+          ctx.fillStyle = "#fbbf24";
+          ctx.font = "bold 12px sans-serif";
+          ctx.fillText(`T = ${effectiveLoad.toFixed(1)} kN·m`, discX - 36, cy + discR + 20);
+        }
+      }
+    }
+
+    // Mini gráfico Esfuerzo-Deformación
+    function renderStressCurve(phys) {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = curveCanvas.getBoundingClientRect();
+      curveCanvas.width = rect.width * dpr;
+      curveCanvas.height = rect.height * dpr;
+      cctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      const W = rect.width;
+      const H = rect.height;
+      cctx.clearRect(0, 0, W, H);
+
+      const padL = 28, padB = 20, padT = 14, padR = 16;
+      const plotW = W - padL - padR;
+      const plotH = H - padT - padB;
+
+      // Ejes
+      cctx.strokeStyle = "#475569";
+      cctx.lineWidth = 1.2;
+      cctx.beginPath();
+      cctx.moveTo(padL, padT);
+      cctx.lineTo(padL, H - padB);
+      cctx.lineTo(W - padR, H - padB);
+      cctx.stroke();
+
+      // Punto de fluencia en coordenadas del gráfico
+      const yieldX = padL + plotW * 0.55;
+      const yieldY = padT + plotH * 0.28;
+
+      // Curva elástica + meseta plástica
+      cctx.beginPath();
+      cctx.moveTo(padL, H - padB);
+      cctx.lineTo(yieldX, yieldY);
+      cctx.bezierCurveTo(yieldX + plotW * 0.12, yieldY - 4, yieldX + plotW * 0.25, yieldY - 12, W - padR, yieldY - 6);
+      cctx.strokeStyle = "#38bdf8";
+      cctx.lineWidth = 2;
+      cctx.stroke();
+
+      // Línea límite fluencia
+      cctx.save();
+      cctx.setLineDash([3, 3]);
+      cctx.strokeStyle = "rgba(239,68,68,0.6)";
+      cctx.beginPath();
+      cctx.moveTo(padL, yieldY);
+      cctx.lineTo(yieldX, yieldY);
+      cctx.stroke();
+      cctx.restore();
+
+      // Punto actual del ensayo
+      const ratio = phys.stressMPa / phys.limitMPa;
+      let px, py;
+      if (ratio <= 1) {
+        px = padL + ratio * (yieldX - padL);
+        py = (H - padB) - ratio * ((H - padB) - yieldY);
+      } else {
+        const over = Math.min(1, (ratio - 1) / 0.8);
+        px = yieldX + over * (W - padR - yieldX);
+        py = yieldY - over * 8;
+      }
+
+      cctx.beginPath();
+      cctx.arc(px, py, 5, 0, Math.PI * 2);
+      cctx.fillStyle = ratio > 1 ? "#ef4444" : (ratio > 0.67 ? "#f59e0b" : "#10b981");
+      cctx.fill();
+      cctx.strokeStyle = "#ffffff";
+      cctx.lineWidth = 1.5;
+      cctx.stroke();
+
+      cctx.fillStyle = "#94a3b8";
+      cctx.font = "10px monospace";
+      cctx.fillText("σ", 10, padT + 6);
+      cctx.fillText("ε", W - padR - 4, H - 6);
+      cctx.fillStyle = "#f87171";
+      cctx.fillText("Lím.", padL + 3, yieldY - 4);
+    }
+
+    function update() {
+      let effectiveLoad = state.load;
+      if (state.animate) {
+        effectiveLoad = state.load * (0.5 + 0.5 * Math.sin(state.animPhase));
+      }
+      const phys = computePhysics(effectiveLoad);
+      updateUI(phys, effectiveLoad);
+      renderSimulation(phys, effectiveLoad);
+      renderStressCurve(phys);
+    }
+
+    function loop() {
+      if (state.animate) {
+        state.animPhase += 0.04;
+        update();
+      }
+      requestAnimationFrame(loop);
+    }
+
+    // Event Listeners
+    elTabs.forEach(btn => btn.addEventListener("click", () => setMode(btn.dataset.mode)));
+    elMat.addEventListener("change", e => {
+      state.material = e.target.value;
+      updateMaterialProps();
+      update();
     });
+    elLoadSlider.addEventListener("input", e => { state.load = parseFloat(e.target.value); update(); });
+    elLengthSlider.addEventListener("input", e => { state.length = parseFloat(e.target.value); update(); });
+    elDimSlider.addEventListener("input", e => { state.dim = parseFloat(e.target.value); update(); });
+    elScaleSlider.addEventListener("input", e => { state.scale = parseFloat(e.target.value); update(); });
+    elShowGrid.addEventListener("change", e => { state.showGrid = e.target.checked; update(); });
+    elAnimate.addEventListener("change", e => { state.animate = e.target.checked; update(); });
+
+    elBtnReset.addEventListener("click", () => {
+      state.material = "steel";
+      elMat.value = "steel";
+      state.length = 1.5;
+      elLengthSlider.value = 1.5;
+      state.dim = 24;
+      elDimSlider.value = 24;
+      state.scale = 150;
+      elScaleSlider.value = 150;
+      state.animate = false;
+      elAnimate.checked = false;
+      updateMaterialProps();
+      setMode(state.mode);
+    });
+
+    window.addEventListener("resize", update);
+
+    // Inicialización
+    updateMaterialProps();
+    setMode("traccion");
+    loop();
   </script>
 </body>
 </html>
