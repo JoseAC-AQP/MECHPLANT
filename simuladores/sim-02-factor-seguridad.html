@@ -3,541 +3,2239 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SIM-02: Teorías de Falla Estática | MECHPLANT</title>
-  <link rel="manifest" href="../manifest.json" />
-  <meta name="theme-color" content="#0B192C" />
+  <title>SIM-02: SAFETYFACTOR 3D — Laboratorio Virtual de Factor de Seguridad | MECHPLANT</title>
+  <meta name="description" content="Laboratorio virtual interactivo 3D para cálculo, análisis y visualización de Factor de Seguridad, criterios de falla dúctiles/frágiles, concentración de esfuerzos Kt y mantenimiento industrial." />
 
+  <!-- Estilos globales MECHPLANT -->
   <link rel="stylesheet" href="../assets/css/tokens.css" />
-  <link rel="stylesheet" href="../assets/css/reset.css" />
   <link rel="stylesheet" href="../assets/css/layout.css" />
-  <link rel="stylesheet" href="../assets/css/navbar.css" />
   <link rel="stylesheet" href="../assets/css/components.css" />
-  <link rel="stylesheet" href="../assets/css/math-diagrams.css" />
-  <link rel="stylesheet" href="../assets/css/print.css" media="print" />
+
+  <!-- KaTeX (Local + CDN Fallback) -->
+  <link rel="stylesheet" href="../assets/vendor/katex/katex.min.css" onerror="this.onerror=null;this.href='https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css';" />
+  <script defer src="../assets/vendor/katex/katex.min.js" onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js';"></script>
+  <script defer src="../assets/vendor/katex/contrib/auto-render.min.js" onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js';"></script>
+
+  <!-- Three.js & OrbitControls (Local + CDN Fallback) -->
+  <script src="../assets/vendor/three/three.min.js" onerror="this.onerror=null;this.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';"></script>
+  <script src="../assets/vendor/three/OrbitControls.js" onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js';"></script>
+
+  <!-- Chart.js (Local + CDN Fallback) -->
+  <script src="../assets/vendor/chartjs/chart.umd.min.js" onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js';"></script>
+
+  <!-- jsPDF (CDN con fallback a window.print) -->
+  <script defer src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
+  <!-- Base de datos y navegación MECHPLANT -->
+  <script src="../assets/js/db.js"></script>
+  <script defer src="../assets/js/navbar.js"></script>
 
   <style>
-    .sim-workspace {
+    /* ========================================================================
+       ESTILOS ESPECÍFICOS SAFETYFACTOR 3D (Alineados con tokens.css MECHPLANT)
+       ======================================================================== */
+    .sf-workbench {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* A. Barra Superior */
+    .sf-toolbar {
+      background: var(--color-navy-800);
+      color: var(--text-inverse);
+      border-radius: var(--radius-lg);
+      padding: 12px 18px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: var(--shadow-md);
+      border-bottom: 3px solid var(--color-cyan-500);
+    }
+
+    .sf-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .sf-brand__badge {
+      background: var(--color-cyan-500);
+      color: #fff;
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 0.78rem;
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+    }
+
+    .sf-brand__title {
+      font-size: 1.12rem;
+      font-weight: 800;
+    }
+
+    .sf-brand__sub {
+      font-size: 0.76rem;
+      color: #93C5FD;
+      display: block;
+    }
+
+    .sf-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sf-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 7px 11px;
+      font-size: 0.79rem;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.08);
+      color: #F8FAFC;
+      transition: all 0.15s ease;
+    }
+
+    .sf-btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: var(--color-cyan-500);
+    }
+
+    .sf-btn--accent {
+      background: var(--color-cyan-500);
+      border-color: var(--color-cyan-500);
+      color: #fff;
+    }
+
+    .sf-btn--accent:hover {
+      background: var(--color-cyan-600);
+    }
+
+    .sf-unit-toggle {
+      display: inline-flex;
+      background: var(--color-navy-900);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+
+    .sf-unit-toggle button {
+      padding: 6px 10px;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 700;
+      border: none;
+      background: transparent;
+      color: #94A3B8;
+    }
+
+    .sf-unit-toggle button.is-active {
+      background: var(--color-cyan-500);
+      color: #fff;
+    }
+
+    /* Menú de Módulos (11 Módulos) */
+    .sf-module-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      background: var(--bg-surface);
+      padding: 10px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .sf-mod-tab {
+      padding: 7px 11px;
+      font-size: 0.79rem;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-canvas);
+      color: var(--text-secondary);
+      transition: all 0.14s ease;
+    }
+
+    .sf-mod-tab:hover {
+      border-color: var(--color-cyan-500);
+      color: var(--color-navy-800);
+    }
+
+    .sf-mod-tab.is-active {
+      background: var(--color-navy-800);
+      color: #fff;
+      border-color: var(--color-navy-800);
+    }
+
+    .sf-mod-tab--highlight {
+      background: var(--color-cyan-100);
+      border-color: rgba(0, 149, 217, 0.4);
+      color: var(--color-navy-800);
+    }
+
+    .sf-mod-tab--highlight.is-active {
+      background: var(--color-cyan-600);
+      color: #fff;
+    }
+
+    /* Rejilla Principal CAE: Biblioteca Izq | Visor 3D | Parámetros Der */
+    .sf-cae-grid {
       display: grid;
-      grid-template-columns: 390px minmax(0, 1fr);
-      gap: 22px;
+      grid-template-columns: 260px minmax(0, 1fr) 335px;
+      gap: 16px;
       align-items: start;
     }
 
-    @media (max-width: 960px) {
-      .sim-workspace {
+    .sf-panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .sf-panel__header {
+      background: var(--bg-surface-alt);
+      border-bottom: 1px solid var(--border-light);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sf-panel__title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--color-navy-800);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .sf-panel__body {
+      padding: 12px;
+      max-height: 690px;
+      overflow-y: auto;
+    }
+
+    /* Biblioteca de 22 Componentes */
+    .comp-cat {
+      margin-bottom: 12px;
+    }
+
+    .comp-cat__label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--color-navy-700);
+      text-transform: uppercase;
+      margin-bottom: 5px;
+      padding-bottom: 3px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .comp-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      text-align: left;
+      padding: 6px 9px;
+      margin-bottom: 3px;
+      font-size: 0.79rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      background: var(--bg-canvas);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      transition: all 0.13s ease;
+    }
+
+    .comp-item:hover {
+      border-color: var(--color-cyan-500);
+      background: var(--color-cyan-100);
+    }
+
+    .comp-item.is-selected {
+      background: var(--color-navy-800);
+      color: #fff;
+      border-color: var(--color-navy-800);
+      font-weight: 600;
+    }
+
+    /* Visor 3D Central */
+    .sf-viewport-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sf-view-controls {
+      background: var(--bg-surface-alt);
+      border-bottom: 1px solid var(--border-light);
+      padding: 8px 12px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .view-chip {
+      padding: 4px 8px;
+      font-family: var(--font-mono);
+      font-size: 0.71rem;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-light);
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+    }
+
+    .view-chip:hover {
+      border-color: var(--color-cyan-500);
+      color: var(--color-navy-800);
+    }
+
+    .view-chip.is-active {
+      background: var(--color-cyan-500);
+      color: #fff;
+      border-color: var(--color-cyan-500);
+    }
+
+    .sf-canvas-wrap {
+      position: relative;
+      width: 100%;
+      height: 445px;
+      background: radial-gradient(circle at center, #14324f 0%, #091929 100%);
+      overflow: hidden;
+    }
+
+    #sfThreeCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* HUD en el Visor 3D */
+    .hud-top-left {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: rgba(9, 25, 41, 0.86);
+      backdrop-filter: blur(4px);
+      color: #F8FAFC;
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      border-left: 3px solid var(--color-cyan-500);
+      font-size: 0.75rem;
+      pointer-events: none;
+    }
+
+    .hud-fs-gauge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(9, 25, 41, 0.9);
+      color: #F8FAFC;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      font-family: var(--font-mono);
+      text-align: right;
+      pointer-events: none;
+    }
+
+    .hud-colorbar {
+      position: absolute;
+      bottom: 44px;
+      right: 12px;
+      background: rgba(9, 25, 41, 0.88);
+      color: #F8FAFC;
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      width: 112px;
+      pointer-events: none;
+    }
+
+    .colorbar-gradient {
+      height: 95px;
+      width: 13px;
+      border-radius: 2px;
+      background: linear-gradient(to bottom, #EF4444 0%, #F97316 25%, #EAB308 50%, #10B981 75%, #2563EB 100%);
+      margin-right: 8px;
+    }
+
+    .hud-bottom-bar {
+      position: absolute;
+      bottom: 10px;
+      left: 12px;
+      right: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      background: rgba(9, 25, 41, 0.85);
+      color: #CBD5E1;
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+    }
+
+    .sf-layer-toggles {
+      padding: 9px 14px;
+      background: var(--bg-canvas);
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 11px;
+      font-size: 0.77rem;
+    }
+
+    .sf-layer-toggles label {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    /* Parámetros Derecho */
+    .param-group {
+      margin-bottom: 11px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .param-group:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+
+    .param-group__title {
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--color-navy-700);
+      text-transform: uppercase;
+      margin-bottom: 7px;
+    }
+
+    .param-row {
+      margin-bottom: 7px;
+    }
+
+    .param-row label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.77rem;
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .param-input, .param-select {
+      width: 100%;
+      padding: 6px 8px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-sm);
+      background: var(--bg-surface);
+      color: var(--text-primary);
+    }
+
+    .param-select {
+      font-family: var(--font-sans);
+    }
+
+    .param-readonly-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+      background: var(--bg-canvas);
+      padding: 7px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+    }
+
+    /* Evaluación Módulo 08 (Escala Configurable) */
+    .eval-card {
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      border-left: 5px solid var(--status-ok);
+      background: var(--status-ok-bg);
+      color: #065F46;
+      margin-bottom: 14px;
+    }
+
+    .eval-card.is-warn {
+      border-left-color: var(--status-warn);
+      background: var(--status-warn-bg);
+      color: #92400E;
+    }
+
+    .eval-card.is-danger {
+      border-left-color: var(--status-danger);
+      background: var(--status-danger-bg);
+      color: #991B1B;
+    }
+
+    .fs-meter-track {
+      position: relative;
+      height: 12px;
+      border-radius: 6px;
+      background: linear-gradient(90deg, #EF4444 0%, #F59E0B 30%, #10B981 60%, #0095D9 100%);
+      margin-top: 10px;
+    }
+
+    .fs-meter-marker {
+      position: absolute;
+      top: -5px;
+      width: 4px;
+      height: 22px;
+      background: #091929;
+      border: 1px solid #fff;
+      transition: left 0.25s ease;
+    }
+
+    .fs-meter-target {
+      position: absolute;
+      top: -4px;
+      width: 2px;
+      height: 20px;
+      background: #fff;
+      box-shadow: 0 0 0 1px #091929;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .kpi-card {
+      background: var(--bg-canvas);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-sm);
+      padding: 9px 11px;
+    }
+
+    .kpi-card__label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+
+    .kpi-card__value {
+      font-family: var(--font-mono);
+      font-size: 1.08rem;
+      font-weight: 800;
+      color: var(--color-navy-800);
+      margin-top: 2px;
+    }
+
+    .kpi-card__sub {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .sf-results-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 16px;
+    }
+
+    .chart-box {
+      position: relative;
+      height: 255px;
+      width: 100%;
+    }
+
+    /* Subvistas de Módulos Especializados */
+    .sf-subview {
+      display: none;
+    }
+
+    .sf-subview.is-visible {
+      display: block;
+    }
+
+    .grid-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 14px;
+    }
+
+    .info-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    /* Modal */
+    .sf-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(9, 25, 41, 0.75);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .sf-modal.is-open {
+      display: flex;
+    }
+
+    .sf-modal__card {
+      background: var(--bg-surface);
+      max-width: 820px;
+      width: 100%;
+      max-height: 86vh;
+      overflow-y: auto;
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-lg);
+      border-top: 4px solid var(--color-cyan-500);
+    }
+
+    @media (max-width: 1180px) {
+      .sf-cae-grid, .sf-results-grid {
         grid-template-columns: 1fr;
       }
     }
 
-    .form-grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
+    @media (max-width: 768px) {
+      .kpi-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
-    .field-group {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      margin-bottom: 12px;
-    }
-
-    .field-group label {
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--color-navy-800);
-    }
-
-    .field-group input,
-    .field-group select {
-      padding: 8px 11px;
-      border: 1px solid var(--border-strong);
-      border-radius: var(--radius-sm);
-      font-size: 0.88rem;
-      font-family: var(--font-mono);
-      background: #fff;
-    }
-
-    .field-hint {
-      font-size: 0.74rem;
-      color: var(--text-muted);
-    }
-
-    .envelope-box {
-      background: #0B192C;
-      border: 1px solid #1E3A5F;
-      border-radius: var(--radius-md);
-      padding: 14px;
-      color: #E2E8F0;
-      margin-bottom: 18px;
+    @media print {
+      body * { visibility: hidden; }
+      #sfPrintableReport, #sfPrintableReport * { visibility: visible; }
+      #sfPrintableReport {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        background: #fff;
+        padding: 20px;
+      }
     }
   </style>
 </head>
-<body data-root="../">
-  <header id="mp-navbar"></header>
+<body>
 
-  <main class="mp-container" style="padding-top: 24px; padding-bottom: 52px;">
-    <nav aria-label="Ruta de navegación" style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 12px;">
-      <a href="../index.html">Inicio</a> &rsaquo;
-      <a href="index.html">Simuladores</a> &rsaquo;
-      <strong>SIM-02: Teorías de Falla Estática</strong>
+  <!-- Barra de navegación global MECHPLANT -->
+  <div id="mechplant-navbar"></div>
+
+  <main class="mp-container sf-workbench">
+
+    <!-- A. BARRA SUPERIOR -->
+    <header class="sf-toolbar">
+      <div class="sf-brand">
+        <span class="sf-brand__badge">SIM-02 · CAE</span>
+        <div>
+          <div class="sf-brand__title">SAFETYFACTOR 3D — Laboratorio Virtual de Factor de Seguridad</div>
+          <span class="sf-brand__sub">Criterios de Falla (Von Mises, Tresca, Esfuerzo Normal Máx.), Concentración Kt y Diseño Industrial · ISO 80000 / ASME / Shigley</span>
+        </div>
+      </div>
+
+      <div class="sf-actions">
+        <div class="sf-unit-toggle">
+          <button type="button" id="sfUnitSI" class="is-active" onclick="SafetyApp.setUnits('SI')">SI (mm, N, MPa)</button>
+          <button type="button" id="sfUnitIMP" onclick="SafetyApp.setUnits('IMP')">IMP (in, lbf, psi)</button>
+        </div>
+        <button type="button" class="sf-btn" onclick="SafetyApp.switchView('materials')">Comparar Materiales</button>
+        <button type="button" class="sf-btn" onclick="SafetyApp.saveConfig()">Guardar</button>
+        <button type="button" class="sf-btn" onclick="SafetyApp.resetAll()">Restablecer</button>
+        <button type="button" class="sf-btn sf-btn--accent" onclick="SafetyApp.switchView('report')">Exportar Informe</button>
+        <button type="button" class="sf-btn" onclick="SafetyApp.openModal('helpModal')">Ayuda</button>
+      </div>
+    </header>
+
+    <!-- MENÚ DE MÓDULOS INTEGRADOS (01 AL 11) -->
+    <nav class="sf-module-bar" aria-label="Módulos de SafetyFactor 3D">
+      <button type="button" class="sf-mod-tab" data-view="fundamentals" onclick="SafetyApp.switchView('fundamentals')">M01 · Fundamentos n</button>
+      <button type="button" class="sf-mod-tab is-active" data-view="sim_stress" onclick="SafetyApp.switchSimMode('stress', this)">M02 · Por Tipo de Esfuerzo</button>
+      <button type="button" class="sf-mod-tab" data-view="sim_criteria" onclick="SafetyApp.switchSimMode('criteria', this)">M03 · Criterios de Falla</button>
+      <button type="button" class="sf-mod-tab" data-view="materials" onclick="SafetyApp.switchView('materials')">M04 · Biblioteca Materiales</button>
+      <button type="button" class="sf-mod-tab" data-view="sim_geometry" onclick="SafetyApp.switchSimMode('geometry', this)">M05 · Influencia Geometría</button>
+      <button type="button" class="sf-mod-tab" data-view="sim_kt" onclick="SafetyApp.switchSimMode('kt', this)">M06 · Concentración Kt</button>
+      <button type="button" class="sf-mod-tab sf-mod-tab--highlight" data-view="cases" onclick="SafetyApp.switchView('cases')">M07 · Casos Planta (6)</button>
+      <button type="button" class="sf-mod-tab sf-mod-tab--highlight" data-view="challenges" onclick="SafetyApp.switchView('challenges')">M10 · Retos Ingeniería (4)</button>
+      <button type="button" class="sf-mod-tab sf-mod-tab--highlight" data-view="report" onclick="SafetyApp.switchView('report')">M11 · Informe PDF / CSV</button>
     </nav>
 
-    <!-- Cabecera del Simulador -->
-    <section class="mp-hero-banner" style="background: linear-gradient(135deg, #0B192C 0%, #163254 100%); color: #fff; padding: 22px 28px; border-radius: var(--radius-lg); margin-bottom: 24px; border-left: 5px solid var(--color-cyan-500);">
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
-        <div>
-          <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
-            <span class="tech-badge tech-badge--cyan">SIM-02 · MÓDULO 01</span>
-            <span class="tech-badge">SHIGLEY CAP. 5 · ASTM A48</span>
+    <!-- ======================================================================
+         ENTORNO INTERACTIVO PRINCIPAL (MÓDULOS 02, 03, 05, 06, 08, 09)
+         ====================================================================== -->
+    <section id="viewSim" class="sf-subview is-visible">
+      <div class="sf-cae-grid">
+
+        <!-- B. PANEL IZQUIERDO: BIBLIOTECA DE 22 COMPONENTES -->
+        <aside class="sf-panel">
+          <div class="sf-panel__header">
+            <span class="sf-panel__title">Biblioteca Componentes</span>
+            <span class="tech-badge">22 Piezas</span>
           </div>
-          <h1 style="font-size: 1.6rem; margin-bottom: 4px;">Teorías de Falla Estática (Materiales Dúctiles y Frágiles)</h1>
-          <p style="color: #CBD5E1; font-size: 0.9rem; max-width: 78ch;">
-            Evalúa factores de seguridad bajo cargas estáticas mediante <strong>Energía de Distorsión (Von Mises)</strong> y <strong>Esfuerzo Cortante Máximo (Tresca)</strong> para aceros dúctiles, o <strong>Coulomb-Mohr Modificado</strong> y <strong>Rankine</strong> para fundiciones grises y materiales frágiles.
-          </p>
+          <div class="sf-panel__body" id="sfComponentTree"></div>
+        </aside>
+
+        <!-- C. ÁREA CENTRAL: VISUALIZADOR 3D -->
+        <div class="sf-viewport-card">
+          <div class="sf-view-controls">
+            <div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;">
+              <span style="font-size:0.73rem;font-weight:700;color:var(--color-navy-800);margin-right:3px;">Vistas:</span>
+              <button type="button" class="view-chip is-active" onclick="SafetyApp.setCamera('iso', this)">Isométrica</button>
+              <button type="button" class="view-chip" onclick="SafetyApp.setCamera('front', this)">Frontal</button>
+              <button type="button" class="view-chip" onclick="SafetyApp.setCamera('top', this)">Superior</button>
+              <button type="button" class="view-chip" onclick="SafetyApp.setCamera('side', this)">Lateral</button>
+            </div>
+
+            <div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;">
+              <span style="font-size:0.73rem;font-weight:700;color:var(--color-navy-800);">Solicitación:</span>
+              <button type="button" class="view-chip is-active" id="btnLoadAxial" onclick="SafetyApp.setLoadCase('axial', this)">Tracción/Comp.</button>
+              <button type="button" class="view-chip" id="btnLoadShear" onclick="SafetyApp.setLoadCase('shear', this)">Cortante</button>
+              <button type="button" class="view-chip" id="btnLoadBend" onclick="SafetyApp.setLoadCase('bend', this)">Flexión</button>
+              <button type="button" class="view-chip" id="btnLoadTorsion" onclick="SafetyApp.setLoadCase('torsion', this)">Torsión</button>
+              <button type="button" class="view-chip" id="btnLoadComb" onclick="SafetyApp.setLoadCase('combined', this)">Combinado</button>
+            </div>
+          </div>
+
+          <div class="sf-canvas-wrap">
+            <div id="sfThreeCanvas"></div>
+
+            <!-- HUD Superior Izquierdo -->
+            <div class="hud-top-left">
+              <div style="font-weight:700;color:#38BDF8;" id="hudTitle">Barra cilíndrica — Tracción Axial</div>
+              <div style="font-family:var(--font-mono);font-size:0.69rem;color:#CBD5E1;" id="hudMethodNote">Cálculo Analítico + Concentrador Kt + Amplif. Visual</div>
+            </div>
+
+            <!-- HUD Indicador Rápido Factor de Seguridad -->
+            <div class="hud-fs-gauge">
+              <div style="font-size:0.68rem;color:#93C5FD;">FACTOR DE SEGURIDAD</div>
+              <div style="font-size:1.45rem;font-weight:800;color:#10B981;" id="hudFsValue">n = 2.86</div>
+              <div style="font-size:0.68rem;color:#CBD5E1;" id="hudFsTarget">Objetivo: n_req = 2.00</div>
+            </div>
+
+            <!-- Escala Cromática de Esfuerzos -->
+            <div class="hud-colorbar">
+              <div style="font-weight:700;color:#7DD3FC;" id="cbUnitLabel">σ_máx (MPa)</div>
+              <div style="display:flex;align-items:stretch;margin-top:5px;">
+                <div class="colorbar-gradient"></div>
+                <div style="display:flex;flex-direction:column;justify-content:space-between;font-size:0.65rem;color:#CBD5E1;">
+                  <span id="cbMax">87.5</span>
+                  <span id="cbMid">43.8</span>
+                  <span id="cbMin">0.0</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Barra Inferior -->
+            <div class="hud-bottom-bar">
+              <span id="hudCriticalZone">Zona crítica: Sección transversal uniforme</span>
+              <span>Mouse: Rotar (Izq) · Zoom (Rueda) · Pan (Der)</span>
+            </div>
+          </div>
+
+          <!-- Controles de Visibilidad 3D -->
+          <div class="sf-layer-toggles">
+            <label><input type="checkbox" id="chkSfDeform" checked onchange="SafetyApp.updateLayers()" /> Deformado</label>
+            <label><input type="checkbox" id="chkSfGhost" checked onchange="SafetyApp.updateLayers()" /> Original</label>
+            <label><input type="checkbox" id="chkSfLoads" checked onchange="SafetyApp.updateLayers()" /> Vectores Carga</label>
+            <label><input type="checkbox" id="chkSfSupports" checked onchange="SafetyApp.updateLayers()" /> Apoyos</label>
+            <label><input type="checkbox" id="chkSfAxes" checked onchange="SafetyApp.updateLayers()" /> Ejes XYZ</label>
+            <label><input type="checkbox" id="chkSfAnim" checked onchange="SafetyApp.updateLayers()" /> Animar</label>
+            <div style="margin-left:auto;display:flex;align-items:center;gap:6px;">
+              <span style="font-weight:600;">Amplif. visual:</span>
+              <input type="range" id="rngSfScale" min="1" max="100" value="35" style="width:80px;" oninput="SafetyApp.updateLayers()" />
+              <span id="lblSfScale" style="font-family:var(--font-mono);font-size:0.72rem;">35x</span>
+            </div>
+          </div>
         </div>
 
-        <a href="../modulos/m1-esfuerzos-falla-tolerancias/index.html" class="btn btn--outline-light" style="font-size: 0.82rem;">
-          📘 Ver Teoría M01
-        </a>
+        <!-- D. PANEL DERECHO: PARÁMETROS DE DISEÑO -->
+        <aside class="sf-panel">
+          <div class="sf-panel__header">
+            <span class="sf-panel__title">Parámetros de Diseño</span>
+            <span class="tech-badge tech-badge--cyan" id="badgeSimMode">M02 · ESFUERZOS</span>
+          </div>
+          <div class="sf-panel__body">
+
+            <!-- 1. Material y Temperatura de Servicio -->
+            <div class="param-group">
+              <div class="param-group__title">1. Material y Condición de Servicio</div>
+              <div class="param-row">
+                <label for="sfSelMaterial">Material Seleccionado</label>
+                <select id="sfSelMaterial" class="param-select" onchange="SafetyApp.onMaterialChange()"></select>
+              </div>
+              <div class="param-row">
+                <label>Temperatura de Operación (°C): <span id="lblTemp">25 °C</span></label>
+                <input type="range" min="20" max="450" step="5" value="25" style="width:100%;" oninput="SafetyApp.updateParam('temp', parseFloat(this.value))" />
+              </div>
+              <div class="param-readonly-grid" id="sfMatPropsBox"></div>
+            </div>
+
+            <!-- 2. Geometría y Concentración de Esfuerzos (M05 & M06) -->
+            <div class="param-group">
+              <div class="param-group__title">2. Geometría y Discontinuidad (Kt)</div>
+              <div id="sfGeomControls"></div>
+              <div class="param-readonly-grid" id="sfSecSummary" style="margin-top:6px;"></div>
+            </div>
+
+            <!-- 3. Cargas, Criterio de Falla y FS Objetivo (M03 & M08) -->
+            <div class="param-group">
+              <div class="param-group__title">3. Cargas, Criterio y FS Objetivo</div>
+              <div id="sfLoadControls"></div>
+            </div>
+
+          </div>
+        </aside>
+
+      </div>
+
+      <!-- MÓDULO 08: EVALUACIÓN DEL RESULTADO + RESULTADOS ANALÍTICOS Y GRÁFICOS -->
+      <div class="sf-results-grid" style="margin-top:16px;">
+        <div class="sf-panel">
+          <div class="sf-panel__header">
+            <span class="sf-panel__title">Evaluación del Factor de Seguridad (M08) y Memoria Analítica</span>
+            <span class="tech-badge" id="badgeCriterionTag">Von Mises</span>
+          </div>
+          <div class="sf-panel__body" style="max-height:none;">
+
+            <!-- Escala Visual Configurable -->
+            <div class="eval-card" id="sfEvalCard">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+                <div>
+                  <div style="font-weight:800;font-size:0.95rem;" id="evalHeadline">NO SUPERA LA RESISTENCIA DE REFERENCIA (n &gt; n_req)</div>
+                  <div style="font-size:0.8rem;margin-top:2px;" id="evalSubline">Margen positivo respecto al factor de seguridad objetivo definido para el ejercicio.</div>
+                </div>
+                <div style="text-align:right;font-family:var(--font-mono);">
+                  <div style="font-size:0.7rem;">CALCULADO / OBJETIVO</div>
+                  <div style="font-size:1.3rem;font-weight:800;" id="evalRatioText">2.86 / 2.00</div>
+                </div>
+              </div>
+              <div class="fs-meter-track" title="Escala visual n: Rojo (<1), Ámbar (1..n_req), Verde (>n_req)">
+                <div class="fs-meter-target" id="fsTargetMarker" style="left:40%;" title="FS Objetivo"></div>
+                <div class="fs-meter-marker" id="fsCalcMarker" style="left:57%;" title="FS Calculado"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:0.68rem;margin-top:4px;">
+                <span>n = 0 (Falla)</span>
+                <span>n = 1.0 (Límite referencia)</span>
+                <span id="lblMeterTarget">Objetivo n_req = 2.0</span>
+                <span>n ≥ 5.0</span>
+              </div>
+            </div>
+
+            <!-- KPIs Numéricos -->
+            <div class="kpi-grid" id="sfKpiGrid"></div>
+
+            <!-- Ecuaciones Renderizadas -->
+            <div style="background:var(--bg-surface-alt);border:1px solid var(--border-light);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:10px;" id="sfFormulaBox"></div>
+
+            <!-- Interpretación Industrial y Nota Metodológica -->
+            <div style="background:var(--bg-canvas);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:10px 12px;font-size:0.81rem;color:var(--text-secondary);" id="sfTechNotes"></div>
+          </div>
+        </div>
+
+        <!-- Panel Gráfico Dinámico (Curvas Paramétricas / Envolvente de Falla) -->
+        <div class="sf-panel">
+          <div class="sf-panel__header">
+            <span class="sf-panel__title" id="sfChartTitle">Sensibilidad del Factor de Seguridad</span>
+            <select id="sfChartSelector" class="param-select" style="width:auto;padding:3px 8px;font-size:0.75rem;" onchange="SafetyApp.recalculate()">
+              <option value="diam_vs_n">Diámetro / Dimensión vs. Factor n</option>
+              <option value="load_vs_n">Carga Aplicada vs. Factor n</option>
+              <option value="mat_vs_n">Comparativa Materiales vs. Factor n</option>
+              <option value="envelope">Envolvente de Falla (Von Mises vs Tresca)</option>
+            </select>
+          </div>
+          <div class="sf-panel__body" style="max-height:none;">
+            <div class="chart-box">
+              <canvas id="sfChartCanvas"></canvas>
+            </div>
+            <p style="font-size:0.74rem;color:var(--text-muted);margin-top:10px;">
+              <strong>Trazabilidad técnica:</strong> Ecuaciones analíticas según Shigley's Mechanical Engineering Design y Beer & Johnston. La resistencia de referencia corresponde al modo de falla seleccionado (Sy para fluencia dúctil; Sut/Suc para materiales frágiles).
+            </p>
+          </div>
+        </div>
       </div>
     </section>
 
-    <!-- Área de Trabajo -->
-    <div class="sim-workspace">
-      <!-- Panel Izquierdo: Entradas -->
-      <aside class="mp-card">
-        <h2 style="font-size: 1.05rem; color: var(--color-navy-800); margin-bottom: 14px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px;">
-          ⚙️ Comportamiento del Material y Cargas
-        </h2>
-
-        <form id="sim02-form">
-          <div class="field-group">
-            <label for="mat-type">Clasificación del Material</label>
-            <select id="mat-type">
-              <option value="ductil">Material Dúctil (εf ≥ 0.05 — Aceros, Bronces)</option>
-              <option value="fragil">Material Frágil (εf &lt; 0.05 — Fundición Gris ASTM A48)</option>
-            </select>
-          </div>
-
-          <div class="field-group">
-            <label for="mat-preset">Material Industrial Predefinido</label>
-            <select id="mat-preset">
-              <option value="sae1045">Acero SAE 1045 CD (Sy = 530 MPa)</option>
-              <option value="sae4140">Acero SAE 4140 Q&amp;T (Sy = 900 MPa)</option>
-              <option value="aisi316">Acero Inox AISI 316L (Sy = 170 MPa)</option>
-              <option value="astm30">Fundición Gris ASTM A48 Cl. 30 (Sut=214, Suc=752 MPa)</option>
-              <option value="astm40">Fundición Gris ASTM A48 Cl. 40 (Sut=293, Suc=965 MPa)</option>
-            </select>
-          </div>
-
-          <!-- Propiedades Dúctiles -->
-          <div id="props-ductil">
-            <div class="field-group">
-              <label for="inp-sy">Límite de Fluencia Sy (MPa)</label>
-              <input type="number" id="inp-sy" step="any" min="10" value="530" />
-              <span class="field-hint">Resistencia a la fluencia en tracción (Syt = Syc = Sy)</span>
-            </div>
-          </div>
-
-          <!-- Propiedades Frágiles -->
-          <div id="props-fragil" style="display: none;">
-            <div class="form-grid-2">
-              <div class="field-group">
-                <label for="inp-sut">Resistencia Tracción Sut (MPa)</label>
-                <input type="number" id="inp-sut" step="any" min="10" value="214" />
-              </div>
-              <div class="field-group">
-                <label for="inp-suc">Resistencia Compresión Suc (MPa)</label>
-                <input type="number" id="inp-suc" step="any" min="10" value="752" />
-              </div>
-            </div>
-          </div>
-
-          <!-- Esfuerzos Principales -->
-          <div style="border-top: 1px solid var(--border-subtle); padding-top: 12px; margin-top: 4px;">
-            <div style="font-size: 0.8rem; font-weight: 700; color: var(--color-navy-700); margin-bottom: 8px;">
-              Esfuerzos Principales en el Punto Crítico (σ1 ≥ σ2)
-            </div>
-
-            <div class="form-grid-2">
-              <div class="field-group">
-                <label for="inp-s1">Esfuerzo Principal σ1 (MPa)</label>
-                <input type="number" id="inp-s1" step="any" value="240" required />
-                <span class="field-hint">+ Tracción / - Compresión</span>
-              </div>
-              <div class="field-group">
-                <label for="inp-s2">Esfuerzo Principal σ2 (MPa)</label>
-                <input type="number" id="inp-s2" step="any" value="-110" required />
-                <span class="field-hint">+ Tracción / - Compresión</span>
-              </div>
-            </div>
-          </div>
-
-          <div style="display: flex; gap: 10px; margin-top: 14px;">
-            <button type="submit" class="btn btn--primary" style="flex: 1;">
-              ⚡ Evaluar Teorías de Falla
-            </button>
-            <button type="button" id="btn-reset-sim02" class="btn btn--outline-dark">
-              Reiniciar
-            </button>
-          </div>
-        </form>
-      </aside>
-
-      <!-- Panel Derecho: Envolvente Gráfica 2D + Reporte -->
-      <section>
-        <div class="envelope-box">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
-            <span id="env-title-label" style="font-size: 0.82rem; font-weight: 700; color: #38BDF8; letter-spacing: 0.04em;">
-              ENVOLVENTE DE FALLA 2D: VON MISES (ELIPSE) vs TRESCA (HEXÁGONO)
-            </span>
-            <span id="env-point-label" style="font-family: var(--font-mono); font-size: 0.78rem; color: #CBD5E1;">
-              Punto Operación: (240.0, -110.0) MPa
-            </span>
-          </div>
-
-          <svg id="envelope-svg" viewBox="0 0 640 310" width="100%" height="285" style="background: #081220; border-radius: 6px; border: 1px solid #1E3A5F;">
-            <!-- Ejes -->
-            <line x1="60" y1="155" x2="580" y2="155" stroke="#334155" stroke-width="1.5" />
-            <line x1="320" y1="20" x2="320" y2="290" stroke="#334155" stroke-width="1.5" />
-            <text x="562" y="147" fill="#94A3B8" font-size="11" font-family="monospace">+σ1</text>
-            <text x="66" y="147" fill="#94A3B8" font-size="11" font-family="monospace">-σ1</text>
-            <text x="326" y="32" fill="#94A3B8" font-size="11" font-family="monospace">+σ2</text>
-            <text x="326" y="284" fill="#94A3B8" font-size="11" font-family="monospace">-σ2</text>
-
-            <!-- Envolvente Primaria (Von Mises o Coulomb-Mohr) -->
-            <polygon id="env-primary-poly" points="" fill="rgba(0, 149, 217, 0.14)" stroke="#0095D9" stroke-width="2.4" />
-            <!-- Envolvente Secundaria (Tresca o Rankine) -->
-            <polygon id="env-secondary-poly" points="" fill="none" stroke="#F59E0B" stroke-width="1.7" stroke-dasharray="5 4" />
-
-            <!-- Línea de carga desde el origen -->
-            <line id="load-ray" x1="320" y1="155" x2="380" y2="120" stroke="#38BDF8" stroke-width="1.5" stroke-dasharray="3 3" />
-
-            <!-- Punto de estado tensional actual -->
-            <circle id="op-point" cx="380" cy="120" r="6" fill="#22C55E" stroke="#fff" stroke-width="1.5" />
-            <text id="op-point-text" x="390" y="116" fill="#4ADE80" font-size="11" font-family="monospace">(σ1, σ2)</text>
-
-            <!-- Leyenda -->
-            <rect x="22" y="18" width="12" height="4" fill="#0095D9" />
-            <text id="leg-primary" x="40" y="23" fill="#CBD5E1" font-size="10.5" font-family="sans-serif">Von Mises (DE)</text>
-            <rect x="22" y="34" width="12" height="4" fill="#F59E0B" />
-            <text id="leg-secondary" x="40" y="39" fill="#CBD5E1" font-size="10.5" font-family="sans-serif">Tresca (MSS)</text>
-          </svg>
+    <!-- ======================================================================
+         MÓDULO 01: FUNDAMENTOS DEL FACTOR DE SEGURIDAD
+         ====================================================================== -->
+    <section id="viewFundamentals" class="sf-subview">
+      <div class="sf-panel">
+        <div class="sf-panel__header">
+          <span class="sf-panel__title">Módulo 01 — Fundamentos Conceptuales del Factor de Seguridad</span>
+          <button type="button" class="btn btn--primary" style="padding:6px 12px;font-size:0.8rem;" onclick="SafetyApp.switchSimMode('stress')">Ir al Laboratorio 3D</button>
         </div>
+        <div class="sf-panel__body" style="max-height:none;">
+          <div style="display:grid;grid-template-columns:1.2fr 0.8fr;gap:20px;align-items:start;">
+            <div>
+              <h3 style="color:var(--color-navy-800);margin-bottom:8px;">¿Qué es y por qué se utiliza el Factor de Seguridad (n)?</h3>
+              <p style="font-size:0.88rem;color:var(--text-secondary);margin-bottom:10px;">
+                En ingeniería mecánica y mantenimiento industrial, el <strong>Factor de Seguridad ($n$ o $FS$)</strong> expresa la relación entre la capacidad resistente real o de referencia de un componente y el esfuerzo máximo generado por las cargas de servicio:
+              </p>
+              <div style="background:var(--bg-surface-alt);border-left:4px solid var(--color-cyan-500);padding:12px 16px;border-radius:var(--radius-sm);margin-bottom:12px;">
+                $$n = \frac{\text{Resistencia de referencia del material}}{\text{Esfuerzo equivalente de diseño}} \quad \xrightarrow{\text{Fluencia uniaxial dúctil}} \quad n = \frac{S_y}{\sigma}$$
+              </div>
+              <ul style="font-size:0.85rem;color:var(--text-primary);padding-left:20px;display:flex;flex-direction:column;gap:6px;">
+                <li><strong>Resistencia vs. Esfuerzo de trabajo:</strong> La resistencia ($S_y$, $S_{ut}$) es una propiedad intrínseca del material; el esfuerzo ($\sigma$, $\tau$) depende de la carga y de la geometría.</li>
+                <li><strong>Esfuerzo admisible ($\sigma_{\text{adm}}$):</strong> Se define como $\sigma_{\text{adm}} = S_{\text{ref}} / n_{\text{req}}$. El diseño cumple cuando $\sigma_{\text{real}} \le \sigma_{\text{adm}}$.</li>
+                <li><strong>Factores que gobiernan su selección:</strong> Incertidumbre en las cargas dinámicas, dispersión de propiedades metalúrgicas, temperatura, corrosión, calidad de inspección y consecuencias de falla (seguridad humana vs. parada de línea).</li>
+                <li><strong>Nota crítica:</strong> La resistencia de referencia debe corresponder al modo de falla analizado (fluencia, rotura frágil, fatiga o pandeo). No existe una única fórmula universal para todos los componentes.</li>
+              </ul>
+            </div>
 
-        <div id="sim02-output"></div>
-      </section>
-    </div>
+            <!-- Laboratorio Rápido Didáctico de Fundamentos -->
+            <div style="background:var(--bg-canvas);border:1px solid var(--border-light);border-radius:var(--radius-md);padding:16px;">
+              <h4 style="color:var(--color-navy-800);margin-bottom:10px;">Demostrador Interactivo: Resistencia vs. Esfuerzo</h4>
+              <div class="param-row">
+                <label>Resistencia de Referencia S_ref (MPa): <strong id="demoSyVal">250 MPa</strong></label>
+                <input type="range" min="100" max="800" step="10" value="250" style="width:100%;" oninput="SafetyApp.updateFundDemo(this.value, null)" />
+              </div>
+              <div class="param-row">
+                <label>Esfuerzo de Trabajo σ (MPa): <strong id="demoSigVal">125 MPa</strong></label>
+                <input type="range" min="20" max="600" step="5" value="125" style="width:100%;" oninput="SafetyApp.updateFundDemo(null, this.value)" />
+              </div>
+              <div id="demoFundResult" style="margin-top:12px;padding:12px;background:#fff;border-radius:6px;border:1px solid var(--border-light);font-family:var(--font-mono);font-size:0.84rem;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         MÓDULO 04: BIBLIOTECA EDITABLE Y COMPARADOR DE 3 MATERIALES
+         ====================================================================== -->
+    <section id="viewMaterials" class="sf-subview">
+      <div class="sf-panel">
+        <div class="sf-panel__header">
+          <span class="sf-panel__title">Módulo 04 — Biblioteca Editable de Materiales y Comparador Simultáneo (3 Aleaciones)</span>
+          <button type="button" class="btn btn--primary" style="padding:6px 12px;font-size:0.8rem;" onclick="SafetyApp.switchSimMode('stress')">Volver al Simulador 3D</button>
+        </div>
+        <div class="sf-panel__body" style="max-height:none;">
+          <p style="font-size:0.84rem;color:var(--text-secondary);margin-bottom:14px;">
+            Valores referenciales según normas ASTM / SAE / ISO (sujetos a variación por tratamiento térmico y condición de suministro). Selecciona hasta <strong>3 materiales</strong> para comparar su Factor de Seguridad bajo las cargas actuales del visor 3D.
+          </p>
+
+          <!-- Comparador de 3 Materiales -->
+          <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:12px;margin-bottom:16px;" id="matCompareCards"></div>
+
+          <!-- Tabla Editable -->
+          <div style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;font-size:0.8rem;" id="sfMaterialsTable"></table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         MÓDULO 07: CASOS APLICADOS A MANTENIMIENTO INDUSTRIAL (6 CASOS)
+         ====================================================================== -->
+    <section id="viewCases" class="sf-subview">
+      <div class="sf-panel">
+        <div class="sf-panel__header">
+          <span class="sf-panel__title">Módulo 07 — Factor de Seguridad y Mantenimiento Industrial en Planta</span>
+          <button type="button" class="btn btn--primary" style="padding:6px 12px;font-size:0.8rem;" onclick="SafetyApp.switchSimMode('stress')">Volver al Simulador 3D</button>
+        </div>
+        <div class="sf-panel__body" style="max-height:none;">
+          <div class="grid-cards" id="sfCasesGrid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         MÓDULO 10: RETOS DE INGENIERÍA (4 RETOS INTERACTIVOS)
+         ====================================================================== -->
+    <section id="viewChallenges" class="sf-subview">
+      <div class="sf-panel">
+        <div class="sf-panel__header">
+          <span class="sf-panel__title">Módulo 10 — Retos Interactivos de Diseño y Optimización Mecánica</span>
+          <span class="tech-badge tech-badge--cyan" id="sfChallengeScore">Retos completados: 0 / 4</span>
+        </div>
+        <div class="sf-panel__body" style="max-height:none;">
+          <div class="grid-cards" id="sfChallengesGrid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         MÓDULO 11: GENERACIÓN DE INFORMES TÉCNICOS (PDF / CSV)
+         ====================================================================== -->
+    <section id="viewReport" class="sf-subview">
+      <div class="sf-panel">
+        <div class="sf-panel__header">
+          <span class="sf-panel__title">Módulo 11 — Generación de Informe Técnico de Factor de Seguridad</span>
+          <div style="display:flex;gap:8px;">
+            <button type="button" class="btn btn--outline" style="padding:6px 12px;font-size:0.8rem;" onclick="SafetyApp.exportCSV()">Descargar CSV</button>
+            <button type="button" class="btn btn--primary" style="padding:6px 12px;font-size:0.8rem;" onclick="SafetyApp.exportPDF()">Exportar PDF (jsPDF / Imprimir)</button>
+          </div>
+        </div>
+        <div class="sf-panel__body" style="max-height:none;">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px;">
+            <div>
+              <label style="font-size:0.77rem;font-weight:700;">Estudiante / Ingeniero</label>
+              <input type="text" id="sfRepAuthor" class="param-input" value="Estudiante de Ingeniería Mecánica" oninput="SafetyApp.renderReport()" />
+            </div>
+            <div>
+              <label style="font-size:0.77rem;font-weight:700;">Equipo / Planta Industrial</label>
+              <input type="text" id="sfRepPlant" class="param-input" value="Línea de Transmisión — Planta Concentradora" oninput="SafetyApp.renderReport()" />
+            </div>
+            <div>
+              <label style="font-size:0.77rem;font-weight:700;">Recomendación de Diseño</label>
+              <input type="text" id="sfRepRec" class="param-input" value="Mantener radio de acuerdo r/d ≥ 0.15 y verificar fatiga." oninput="SafetyApp.renderReport()" />
+            </div>
+          </div>
+          <div id="sfPrintableReport" style="border:1px solid var(--border-light);border-radius:var(--radius-md);padding:24px;background:#fff;"></div>
+        </div>
+      </div>
+    </section>
+
   </main>
 
-  <script src="../assets/js/data/db-curriculum.js"></script>
-  <script src="../assets/js/data/db-equipos.js"></script>
-  <script src="../assets/js/data/db-componentes.js"></script>
-  <script src="../assets/js/data/db-normas.js"></script>
-  <script src="../assets/js/core/navbar.js"></script>
-  <script src="../assets/js/core/search-engine.js"></script>
-  <script src="../assets/js/core/unit-converter.js"></script>
-  <script src="../assets/js/core/progress-tracker.js"></script>
-  <script src="../assets/js/core/app-init.js"></script>
-
-  <!-- Solver y Renderizador -->
-  <script src="../assets/js/solvers/solver-falla-estatica.js"></script>
-  <script src="../assets/js/ui-simulator/sim-renderer.js"></script>
+  <!-- MODAL AYUDA Y REFERENCIAS NORMATIVAS -->
+  <div class="sf-modal" id="helpModal">
+    <div class="sf-modal__card">
+      <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid var(--border-subtle);padding-bottom:10px;margin-bottom:12px;">
+        <h2 style="font-size:1.1rem;color:var(--color-navy-800);">Guía Técnica y Alcance Normativo — SAFETYFACTOR 3D</h2>
+        <button type="button" class="btn btn--outline" style="padding:4px 10px;" onclick="SafetyApp.closeModal('helpModal')">Cerrar</button>
+      </div>
+      <div style="font-size:0.85rem;color:var(--text-primary);display:flex;flex-direction:column;gap:9px;">
+        <p><strong>1. Criterios de Falla Implementados:</strong> Para materiales dúctiles se emplea la <em>Teoría de Energía de Distorsión (Von Mises)</em> y la <em>Teoría del Esfuerzo Cortante Máximo (Tresca)</em> respecto al límite de fluencia $S_y$. Para materiales frágiles (ej. Hierro fundido gris), se emplea el criterio de <em>Esfuerzo Normal Máximo / Mohr Modificado</em> diferenciando $S_{ut}$ y $S_{uc}$.</p>
+        <p><strong>2. Concentración de Esfuerzos ($K_t$ vs. $K_f$):</strong> El factor geométrico $K_t = \sigma_{\text{máx}} / \sigma_{\text{nom}}$ amplifica el esfuerzo local en escalones, agujeros, chaveteros y entallas bajo carga estática. En fatiga cíclica se emplea $K_f = 1 + q(K_t - 1)$ según la sensibilidad a la entalla $q$ del material (Shigley, Cap. 6).</p>
+        <p><strong>3. Marco Normativo:</strong> ISO 80000 (magnitudes y unidades), ISO 898-1 (elementos de fijación roscados), ASTM (especificaciones de materiales), ASME y referencias académicas (Shigley, Norton, Beer & Johnston). Los resultados tienen fines educativos y de pre-dimensionamiento.</p>
+      </div>
+    </div>
+  </div>
 
   <script>
-    (function () {
-      const form = document.getElementById("sim02-form");
-      const matType = document.getElementById("mat-type");
-      const matPreset = document.getElementById("mat-preset");
-      const propsDuctil = document.getElementById("props-ductil");
-      const propsFragil = document.getElementById("props-fragil");
+    /* ==========================================================================
+       SAFETYFACTOR 3D — MOTOR MODULAR DE ANÁLISIS Y VISUALIZACIÓN (MECHPLANT)
+       ========================================================================== */
+    const SafetyApp = (() => {
+      // 1. BIBLIOTECA DE MATERIALES (SI: E[GPa], G[GPa], Sy[MPa], Sut[MPa], Suc[MPa], rho[kg/m3])
+      const MATERIALS = [
+        { id: 'a36', name: 'Acero ASTM A36', type: 'ductile', spec: 'ASTM A36', E: 200, G: 77.2, nu: 0.29, Sy: 250, Sut: 400, Suc: 400, rho: 7850 },
+        { id: '1020', name: 'Acero SAE/AISI 1020', type: 'ductile', spec: 'ASTM A29 / SAE 1020', E: 205, G: 79.0, nu: 0.29, Sy: 350, Sut: 420, Suc: 420, rho: 7870 },
+        { id: '1045', name: 'Acero SAE/AISI 1045', type: 'ductile', spec: 'ASTM A29 / SAE 1045', E: 206, G: 80.0, nu: 0.29, Sy: 530, Sut: 625, Suc: 625, rho: 7850 },
+        { id: '4140', name: 'Acero Aleado AISI 4140', type: 'ductile', spec: 'ASTM A29 / AISI 4140', E: 210, G: 80.8, nu: 0.29, Sy: 655, Sut: 850, Suc: 850, rho: 7850 },
+        { id: '304', name: 'Acero Inoxidable AISI 304', type: 'ductile', spec: 'ASTM A240 / AISI 304', E: 193, G: 74.0, nu: 0.29, Sy: 215, Sut: 505, Suc: 505, rho: 8000 },
+        { id: '6061', name: 'Aluminio 6061-T6', type: 'ductile', spec: 'ASTM B221 / AA 6061-T6', E: 68.9, G: 26.0, nu: 0.33, Sy: 276, Sut: 310, Suc: 310, rho: 2700 },
+        { id: 'castiron', name: 'Hierro Fundido Gris Cl.30', type: 'brittle', spec: 'ASTM A48 Clase 30', E: 100, G: 41.0, nu: 0.26, Sy: 207, Sut: 214, Suc: 752, rho: 7150 },
+        { id: 'bronze', name: 'Bronce al Estaño SAE 660', type: 'ductile', spec: 'ASTM B505 / C93200', E: 100, G: 38.0, nu: 0.34, Sy: 140, Sut: 240, Suc: 240, rho: 8800 },
+        { id: 'polymer', name: 'Polímero PA66 (Nylon)', type: 'ductile', spec: 'ISO 1874-1 PA66', E: 2.8, G: 1.02, nu: 0.38, Sy: 70, Sut: 82, Suc: 95, rho: 1140 }
+      ];
 
-      function syncMaterialUI() {
-        const isDuctil = matType.value === "ductil";
-        propsDuctil.style.display = isDuctil ? "block" : "none";
-        propsFragil.style.display = isDuctil ? "none" : "block";
+      // 2. BIBLIOTECA DE 22 COMPONENTES EN 3 CATEGORÍAS
+      const COMPONENTS = [
+        // Elementos estructurales (6)
+        { id: 'bar_cyl', cat: 'Elementos estructurales', name: 'Barra cilíndrica', geom: 'cyl', load: 'axial' },
+        { id: 'bar_rect', cat: 'Elementos estructurales', name: 'Barra rectangular', geom: 'rect', load: 'axial' },
+        { id: 'beam_main', cat: 'Elementos estructurales', name: 'Viga', geom: 'rect', load: 'bend' },
+        { id: 'plate_hole', cat: 'Elementos estructurales', name: 'Placa (con agujero opcional)', geom: 'plate', load: 'axial', notch: 'hole' },
+        { id: 'profile_struct', cat: 'Elementos estructurales', name: 'Perfil estructural', geom: 'rect', load: 'bend' },
+        { id: 'column_comp', cat: 'Elementos estructurales', name: 'Columna', geom: 'cyl', load: 'axial' },
+        // Elementos de máquinas (9)
+        { id: 'shaft_trans', cat: 'Elementos de máquinas', name: 'Eje de transmisión', geom: 'cyl', load: 'torsion' },
+        { id: 'shaft_step', cat: 'Elementos de máquinas', name: 'Eje escalonado', geom: 'stepped', load: 'combined', notch: 'step' },
+        { id: 'key_elem', cat: 'Elementos de máquinas', name: 'Chaveta', geom: 'rect', load: 'shear' },
+        { id: 'bolt_elem', cat: 'Elementos de máquinas', name: 'Perno', geom: 'cyl', load: 'shear' },
+        { id: 'pin_elem', cat: 'Elementos de máquinas', name: 'Pasador', geom: 'cyl', load: 'shear' },
+        { id: 'gear_tooth', cat: 'Elementos de máquinas', name: 'Engranaje (diente)', geom: 'rect', load: 'bend', notch: 'fillet' },
+        { id: 'bearing_sup', cat: 'Elementos de máquinas', name: 'Soporte de rodamiento', geom: 'rect', load: 'bend', notch: 'fillet' },
+        { id: 'lever_arm', cat: 'Elementos de máquinas', name: 'Brazo de palanca', geom: 'rect', load: 'bend' },
+        { id: 'coupling_flange', cat: 'Elementos de máquinas', name: 'Acoplamiento', geom: 'cyl', load: 'torsion' },
+        // Componentes industriales (7)
+        { id: 'motor_sup', cat: 'Componentes industriales', name: 'Soporte de motor', geom: 'rect', load: 'bend', notch: 'fillet' },
+        { id: 'conv_shaft', cat: 'Componentes industriales', name: 'Eje de transportador', geom: 'stepped', load: 'combined', notch: 'step' },
+        { id: 'pulley_sup', cat: 'Componentes industriales', name: 'Soporte de polea', geom: 'cyl', load: 'combined' },
+        { id: 'machine_frame', cat: 'Componentes industriales', name: 'Bastidor de máquina', geom: 'rect', load: 'combined' },
+        { id: 'crusher_arm', cat: 'Componentes industriales', name: 'Brazo de chancadora', geom: 'rect', load: 'bend' },
+        { id: 'pipe_sup', cat: 'Componentes industriales', name: 'Soporte de tubería', geom: 'cyl', load: 'bend' },
+        { id: 'hopper_frame', cat: 'Componentes industriales', name: 'Estructura de tolva', geom: 'rect', load: 'bend' }
+      ];
+
+      // 3. CASOS APLICADOS A MANTENIMIENTO INDUSTRIAL (Módulo 07 - 6 casos)
+      const PLANT_CASES = [
+        {
+          id: 'pc1', title: 'Caso 1: Eje de transmisión de faja transportadora',
+          desc: 'Eje escalonado sometido a torque motriz de 1,350 N·m y flexión radial de 1,900 N·m por tensión de banda.',
+          compId: 'conv_shaft', matId: '1045', loadCase: 'combined',
+          params: { d: 60, L: 900, F: 9000, T: 1350, M: 1900, notchType: 'step', notchRadius: 4, nTarget: 2.5 },
+          rec: 'Aumentar radio de acuerdo a r ≥ 8 mm (reduce Kt de 2.1 a 1.55) o elevar diámetro a 68 mm.'
+        },
+        {
+          id: 'pc2', title: 'Caso 2: Perno de soporte de motor eléctrico',
+          desc: 'Perno M14 sometido a cortante simple por desalineación radial de 24 kN en bancada.',
+          compId: 'bolt_elem', matId: 'a36', loadCase: 'shear',
+          params: { d: 14, L: 65, F: 24000, shearPlanes: 1, notchType: 'none', nTarget: 2.2 },
+          rec: 'Cambiar a perno ISO 898-1 Grado 8.8 (Sy = 640 MPa) o rediseñar a doble cortante.'
+        },
+        {
+          id: 'pc3', title: 'Caso 3: Soporte de rodamiento en voladizo',
+          desc: 'Ménsula de acero A36 con esquina pronunciada (r = 2 mm) que soporta carga radial de 15 kN.',
+          compId: 'bearing_sup', matId: 'a36', loadCase: 'bend',
+          params: { b: 60, h: 85, L: 380, F: 15000, support: 'cantilever', notchType: 'fillet', notchRadius: 2, nTarget: 2.5 },
+          rec: 'Suavizar radio de transición a r = 12 mm e incorporar nervio rigidizador.'
+        },
+        {
+          id: 'pc4', title: 'Caso 4: Chaveta de acoplamiento de reductor',
+          desc: 'Chaveta paralela 16×10×70 mm en acero SAE 1020 sometida a cortante por picos de arranque.',
+          compId: 'key_elem', matId: '1020', loadCase: 'shear',
+          params: { b: 16, h: 10, L: 70, F: 64000, shearPlanes: 1, notchType: 'none', nTarget: 2.0 },
+          rec: 'Extender longitud de chaveta a 90 mm o emplear acero SAE 1045 estirado en frío.'
+        },
+        {
+          id: 'pc5', title: 'Caso 5: Brazo de soporte de chancadora primaria',
+          desc: 'Brazo estructural sometido a cargas de impacto en flexión de 58 kN durante trituración.',
+          compId: 'crusher_arm', matId: '4140', loadCase: 'bend',
+          params: { b: 95, h: 145, L: 1050, F: 58000, support: 'cantilever', notchType: 'none', nTarget: 3.0 },
+          rec: 'Mantener inspección por líquidos penetrantes en cordones de soldadura y n ≥ 3.0.'
+        },
+        {
+          id: 'pc6', title: 'Caso 6: Bastidor de equipo industrial vibratorio',
+          desc: 'Viga principal de bastidor sometida a esfuerzos combinados de flexión y torsión.',
+          compId: 'machine_frame', matId: 'a36', loadCase: 'combined',
+          params: { b: 80, h: 120, L: 1400, F: 28000, T: 950, M: 2400, notchType: 'none', nTarget: 2.8 },
+          rec: 'Añadir travesaños torsionales cerrados para reducir el esfuerzo equivalente de Von Mises.'
+        }
+      ];
+
+      // 4. RETOS DE INGENIERÍA (Módulo 10 - 4 Retos)
+      const CHALLENGES = [
+        {
+          id: 'ch1', title: 'RETO 1: Eje de transmisión subdimensionado',
+          desc: 'Un eje SAE 1020 transmite 850 N·m con d = 34 mm (n < 1.5). Aumenta el diámetro o selecciona un acero aleado hasta alcanzar n ≥ 2.5.',
+          setup: () => { state.compId = 'shaft_trans'; state.matId = '1020'; state.loadCase = 'torsion'; Object.assign(state.params, { d: 34, L: 600, T: 850, notchType: 'none', nTarget: 2.5 }); },
+          verify: (r) => r.FS >= 2.5
+        },
+        {
+          id: 'ch2', title: 'RETO 2: Perno de soporte en falla por cortante',
+          desc: 'Un perno A36 de d = 10 mm soporta 18,000 N en cortante simple (n < 1.0). Cambia a doble cortante o incrementa su diámetro para lograr n ≥ 2.0.',
+          setup: () => { state.compId = 'bolt_elem'; state.matId = 'a36'; state.loadCase = 'shear'; Object.assign(state.params, { d: 10, F: 18000, shearPlanes: 1, notchType: 'none', nTarget: 2.0 }); },
+          verify: (r) => r.FS >= 2.0
+        },
+        {
+          id: 'ch3', title: 'RETO 3: Alta concentración de esfuerzos Kt',
+          desc: 'Un eje escalonado tiene un radio de entalla agudo (r = 1 mm) que eleva Kt > 2.6. Suaviza el radio de acuerdo hasta reducir Kt ≤ 1.65 y lograr n ≥ 2.2.',
+          setup: () => { state.compId = 'shaft_step'; state.matId = '1045'; state.loadCase = 'bend'; Object.assign(state.params, { d: 45, L: 500, F: 12000, support: 'simple', notchType: 'step', notchRadius: 1, nTarget: 2.2 }); },
+          verify: (r) => r.Kt <= 1.65 && r.FS >= 2.2
+        },
+        {
+          id: 'ch4', title: 'RETO 4: Optimización por sobredimensionamiento',
+          desc: 'Una barra tirante en AISI 4140 de d = 80 mm soporta 40 kN con n > 80 (desperdicio de masa y costo). Optimiza el diámetro para ubicar n en el rango eficiente [2.0, 3.2].',
+          setup: () => { state.compId = 'bar_cyl'; state.matId = '4140'; state.loadCase = 'axial'; Object.assign(state.params, { d: 80, L: 800, F: 40000, axialDir: 1, notchType: 'none', nTarget: 2.2 }); },
+          verify: (r) => r.FS >= 2.0 && r.FS <= 3.2
+        }
+      ];
+
+      // 5. ESTADO GLOBAL
+      const state = {
+        units: 'SI',
+        simSubMode: 'stress', // 'stress', 'criteria', 'geometry', 'kt'
+        compId: 'bar_cyl',
+        matId: 'a36',
+        compareMats: ['a36', '1045', '6061'],
+        loadCase: 'axial', // 'axial', 'shear', 'bend', 'torsion', 'combined'
+        activeChallengeId: null,
+        completedChallenges: new Set(),
+        demoFund: { Sy: 250, sig: 125 },
+        params: {
+          L: 500,
+          d: 40,
+          b: 40,
+          h: 60,
+          t: 10,
+          F: 35000,
+          T: 650,
+          M: 1200,
+          axialDir: 1, // 1 tracción, -1 compresión
+          shearPlanes: 1,
+          support: 'simple', // 'simple', 'cantilever'
+          loadPos: 0.5,
+          temp: 25,
+          criterion: 'vonMises', // 'vonMises', 'tresca', 'maxNormal'
+          notchType: 'none', // 'none', 'step', 'hole', 'fillet'
+          notchRadius: 4,
+          holeDiam: 10,
+          qFatigue: 0.82,
+          nTarget: 2.0
+        },
+        lastResults: {}
+      };
+
+      const CONV = { len: 1 / 25.4, force: 0.224809, torque: 8.85075, stress: 145.038, area: 1 / 645.16, inertia: 1 / 416231.4 };
+
+      function fmtLen(mm) { return state.units === 'SI' ? `${mm.toFixed(1)} mm` : `${(mm * CONV.len).toFixed(3)} in`; }
+      function fmtForce(N) { return state.units === 'SI' ? `${N.toFixed(0)} N` : `${(N * CONV.force).toFixed(1)} lbf`; }
+      function fmtTorque(Nm) { return state.units === 'SI' ? `${Nm.toFixed(1)} N·m` : `${(Nm * CONV.torque).toFixed(1)} lbf·in`; }
+      function fmtStress(MPa) { return state.units === 'SI' ? `${MPa.toFixed(2)} MPa` : `${(MPa * CONV.stress).toFixed(0)} psi`; }
+      function fmtArea(mm2) { return state.units === 'SI' ? `${mm2.toFixed(1)} mm²` : `${(mm2 * CONV.area).toFixed(3)} in²`; }
+
+      function getMat(id = state.matId) {
+        return MATERIALS.find(m => m.id === id) || MATERIALS[0];
       }
 
-      matType.addEventListener("change", () => {
-        syncMaterialUI();
-        runCalculation();
-      });
+      // 6. CÁLCULO DE PROPIEDADES SECCIONALES Y CONCENTRADOR Kt (Módulo 06)
+      function computeGeometryAndKt() {
+        const p = state.params;
+        const comp = COMPONENTS.find(c => c.id === state.compId) || COMPONENTS[0];
+        let A = 0, I = 0, J = 0, cMax = 0;
 
-      matPreset.addEventListener("change", () => {
-        const p = matPreset.value;
-        if (p === "sae1045") {
-          matType.value = "ductil";
-          document.getElementById("inp-sy").value = 530;
-        } else if (p === "sae4140") {
-          matType.value = "ductil";
-          document.getElementById("inp-sy").value = 900;
-        } else if (p === "aisi316") {
-          matType.value = "ductil";
-          document.getElementById("inp-sy").value = 170;
-        } else if (p === "astm30") {
-          matType.value = "fragil";
-          document.getElementById("inp-sut").value = 214;
-          document.getElementById("inp-suc").value = 752;
-        } else if (p === "astm40") {
-          matType.value = "fragil";
-          document.getElementById("inp-sut").value = 293;
-          document.getElementById("inp-suc").value = 965;
+        if (comp.geom === 'cyl' || comp.geom === 'stepped') {
+          A = Math.PI * Math.pow(p.d, 2) / 4;
+          I = Math.PI * Math.pow(p.d, 4) / 64;
+          J = Math.PI * Math.pow(p.d, 4) / 32;
+          cMax = p.d / 2;
+        } else if (comp.geom === 'plate') {
+          const wNet = Math.max(5, p.b - (p.notchType === 'hole' ? p.holeDiam : 0));
+          A = wNet * p.t;
+          I = (p.t * Math.pow(p.b, 3)) / 12;
+          J = I * 1.4;
+          cMax = p.b / 2;
+        } else {
+          A = p.b * p.h;
+          I = (p.b * Math.pow(p.h, 3)) / 12;
+          J = (p.b * p.h * (p.b * p.b + p.h * p.h)) / 12;
+          cMax = p.h / 2;
         }
-        syncMaterialUI();
-        runCalculation();
-      });
 
-      function updateEnvelopeSVG(isDuctil, params, s1, s2, fsPrimary) {
-        const cx = 320;
-        const cy = 155;
-        const primaryPoly = document.getElementById("env-primary-poly");
-        const secondaryPoly = document.getElementById("env-secondary-poly");
-        const envTitle = document.getElementById("env-title-label");
-        const legPrimary = document.getElementById("leg-primary");
-        const legSecondary = document.getElementById("leg-secondary");
+        // Factor geométrico de concentración de esfuerzos Kt (curvas Peterson / Shigley)
+        let Kt = 1.0;
+        let ktDesc = 'Sin discontinuidad geométrica (Kt = 1.00)';
+        if (p.notchType === 'step' || p.notchType === 'fillet') {
+          const rOverD = Math.max(0.015, p.notchRadius / Math.max(10, p.d));
+          Kt = Math.min(3.2, 1.0 + 0.62 / Math.sqrt(rOverD));
+          ktDesc = `Escalón/Acuerdo (r/d = ${rOverD.toFixed(3)}) → Kt = ${Kt.toFixed(2)}`;
+        } else if (p.notchType === 'hole') {
+          const dOverW = Math.min(0.8, p.holeDiam / Math.max(12, p.b));
+          Kt = 3.0 - 3.14 * dOverW + 3.66 * Math.pow(dOverW, 2) - 1.53 * Math.pow(dOverW, 3);
+          Kt = Math.max(2.0, Kt);
+          ktDesc = `Placa con agujero (d/w = ${dOverW.toFixed(2)}) → Kt = ${Kt.toFixed(2)}`;
+        }
 
-        let scale = 1;
+        const Kf = 1 + p.qFatigue * (Kt - 1);
+        return { A, I, J, cMax, Kt, Kf, ktDesc, geomType: comp.geom };
+      }
 
-        if (isDuctil) {
-          const Sy = params.Sy;
-          const maxRef = Math.max(Sy * 1.15, Math.abs(s1), Math.abs(s2), 50);
-          scale = 110 / maxRef;
+      // 7. SOLVER ANALÍTICO COMPLETO (Módulos 02, 03, 05, 06, 08)
+      function solveMechanicsForMaterial(matObj) {
+        const p = state.params;
+        const g = computeGeometryAndKt();
 
-          envTitle.textContent = "ENVOLVENTE DE FALLA 2D: VON MISES (ELIPSE) vs TRESCA (HEXÁGONO)";
-          legPrimary.textContent = "Von Mises (Energía Distorsión)";
-          legSecondary.textContent = "Tresca (Cortante Máximo)";
+        // Derating por temperatura (> 100 °C)
+        const tempFactor = p.temp <= 100 ? 1.0 : Math.max(0.55, 1.0 - 0.0011 * (p.temp - 100));
+        const SyEff = matObj.Sy * tempFactor;
+        const SutEff = matObj.Sut * tempFactor;
+        const SucEff = matObj.Suc * tempFactor;
+        const E_MPa = matObj.E * 1000 * tempFactor;
+        const G_MPa = matObj.G * 1000 * tempFactor;
 
-          // Generar puntos de la elipse de Von Mises: sA^2 - sA*sB + sB^2 = Sy^2
-          const ellipsePts = [];
-          const steps = 64;
-          for (let i = 0; i < steps; i++) {
-            const theta = (2 * Math.PI * i) / steps;
-            const denom = Math.sqrt(1 - Math.sin(theta) * Math.cos(theta));
-            const r = Sy / denom;
-            const x = cx + r * Math.cos(theta) * scale;
-            const y = cy - r * Math.sin(theta) * scale;
-            ellipsePts.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+        let sigmaNom = 0, tauNom = 0, deltaMax = 0, thetaDeg = 0, Mmax = 0;
+
+        if (state.loadCase === 'axial') {
+          sigmaNom = p.axialDir * (p.F / g.A);
+          deltaMax = (sigmaNom / E_MPa) * p.L;
+        } else if (state.loadCase === 'shear') {
+          const As = state.compId === 'key_elem' ? (p.b * p.L) : (g.A * p.shearPlanes);
+          tauNom = p.F / As;
+          deltaMax = (tauNom / G_MPa) * (p.d * 0.25);
+        } else if (state.loadCase === 'bend') {
+          if (p.support === 'simple') {
+            const a = p.loadPos * p.L;
+            Mmax = (p.F * a * (p.L - a)) / p.L;
+            deltaMax = (p.F * Math.pow(p.L, 3)) / (48 * E_MPa * g.I);
+          } else {
+            Mmax = p.F * p.L;
+            deltaMax = (p.F * Math.pow(p.L, 3)) / (3 * E_MPa * g.I);
           }
-          primaryPoly.setAttribute("points", ellipsePts.join(" "));
+          sigmaNom = (Mmax * g.cMax) / g.I;
+          tauNom = (1.33 * p.F) / g.A;
+        } else if (state.loadCase === 'torsion') {
+          const T_Nmm = p.T * 1000;
+          const r = p.d / 2;
+          tauNom = (T_Nmm * r) / g.J;
+          const thetaRad = (T_Nmm * p.L) / (G_MPa * g.J);
+          thetaDeg = thetaRad * (180 / Math.PI);
+          deltaMax = r * thetaRad;
+        } else {
+          // Combinado (Axial + Flexión + Torsión)
+          sigmaNom = (p.F / g.A) * 0.5 + ((p.M * 1000) * g.cMax) / g.I;
+          tauNom = ((p.T * 1000) * (p.d / 2)) / g.J;
+          deltaMax = ((p.M * 1000) * Math.pow(p.L, 2)) / (8 * E_MPa * g.I);
+        }
 
-          // Hexágono de Tresca
-          const S = Sy * scale;
+        // Aplicar factor geométrico de concentración Kt al esfuerzo local
+        const sigmaLocal = sigmaNom * g.Kt;
+        const tauLocal = tauNom * (1 + 0.65 * (g.Kt - 1));
+
+        // Esfuerzos principales 2D
+        const sigAvg = sigmaLocal / 2;
+        const R = Math.sqrt(Math.pow(sigAvg, 2) + Math.pow(tauLocal, 2));
+        const sig1 = sigAvg + R;
+        const sig2 = sigAvg - R;
+
+        // Criterios de Falla (Módulo 03: Dúctiles vs Frágiles)
+        let sigmaEq = 0;
+        let Sref = SyEff;
+        let FS = 99.9;
+        let criterionLabel = '';
+
+        if (matObj.type === 'brittle' || p.criterion === 'maxNormal') {
+          // Criterio para materiales frágiles (Esfuerzo Normal Máximo / Mohr Modificado)
+          criterionLabel = 'Esfuerzo Normal Máximo / Frágil (Sut / Suc)';
+          const ratioT = sig1 > 0 ? sig1 / SutEff : 0;
+          const ratioC = sig2 < 0 ? Math.abs(sig2) / SucEff : 0;
+          const maxRatio = Math.max(ratioT, ratioC);
+          sigmaEq = Math.max(Math.abs(sig1), Math.abs(sig2));
+          Sref = sig1 >= Math.abs(sig2) ? SutEff : SucEff;
+          FS = maxRatio > 0.0001 ? 1 / maxRatio : 99.9;
+        } else if (p.criterion === 'tresca') {
+          criterionLabel = 'Tresca — Esfuerzo Cortante Máximo (Sy)';
+          sigmaEq = Math.sqrt(Math.pow(sigmaLocal, 2) + 4 * Math.pow(tauLocal, 2));
+          Sref = SyEff;
+          FS = sigmaEq > 0.001 ? Sref / sigmaEq : 99.9;
+        } else {
+          criterionLabel = 'Von Mises — Energía de Distorsión (Sy)';
+          sigmaEq = Math.sqrt(Math.pow(sigmaLocal, 2) + 3 * Math.pow(tauLocal, 2));
+          Sref = SyEff;
+          FS = sigmaEq > 0.001 ? Sref / sigmaEq : 99.9;
+        }
+
+        return {
+          mat: matObj, g, SyEff, SutEff, SucEff, Sref,
+          sigmaNom, tauNom, sigmaLocal, tauLocal, sig1, sig2,
+          sigmaEq, FS, deltaMax, thetaDeg, Mmax, criterionLabel
+        };
+      }
+
+      function recalculate() {
+        const mat = getMat();
+        const r = solveMechanicsForMaterial(mat);
+        state.lastResults = r;
+
+        updateEvalAndKpis(r);
+        update3DScene(1);
+        updateChart(r);
+        renderMaterialsModule();
+        renderReport();
+        checkActiveChallenge(r);
+      }
+
+      // 8. ACTUALIZAR EVALUACIÓN (M08), KPIs Y ECUACIONES
+      function updateEvalAndKpis(r) {
+        const p = state.params;
+        const marginPct = ((r.FS - p.nTarget) / p.nTarget) * 100;
+
+        // HUD Superior Derecho
+        const hudFs = document.getElementById('hudFsValue');
+        hudFs.textContent = `n = ${r.FS > 50 ? '>50' : r.FS.toFixed(2)}`;
+        hudFs.style.color = r.FS < 1.0 ? '#EF4444' : (r.FS < p.nTarget ? '#F59E0B' : '#10B981');
+        document.getElementById('hudFsTarget').textContent = `Objetivo: n_req = ${p.nTarget.toFixed(2)}`;
+
+        // Escala Visual Configurable (Módulo 08)
+        const card = document.getElementById('sfEvalCard');
+        const head = document.getElementById('evalHeadline');
+        const sub = document.getElementById('evalSubline');
+        card.classList.remove('is-warn', 'is-danger');
+
+        if (r.FS < 1.0) {
+          card.classList.add('is-danger');
+          head.textContent = 'n < 1.0 — SUPERA LA RESISTENCIA DE REFERENCIA (CONDICIÓN DE FALLA)';
+          sub.textContent = `El esfuerzo local (${fmtStress(r.sigmaEq)}) excede la resistencia de referencia (${fmtStress(r.Sref)}). Margen: ${marginPct.toFixed(1)}%.`;
+        } else if (r.FS < p.nTarget) {
+          card.classList.add('is-warn');
+          head.textContent = `1.0 ≤ n < n_req — POR DEBAJO DEL FACTOR OBJETIVO (${p.nTarget.toFixed(2)})`;
+          sub.textContent = `No alcanza fluencia estática inmediata, pero incumple el margen requerido (${marginPct.toFixed(1)}%).`;
+        } else {
+          head.textContent = `n ≥ n_req — CUMPLE EL CRITERIO DE DISEÑO EVALUADO`;
+          sub.textContent = `Margen disponible sobre el objetivo: +${marginPct.toFixed(1)}% (${r.criterionLabel}).`;
+        }
+
+        document.getElementById('evalRatioText').textContent = `${r.FS > 50 ? '>50' : r.FS.toFixed(2)} / ${p.nTarget.toFixed(2)}`;
+        document.getElementById('lblMeterTarget').textContent = `Objetivo n_req = ${p.nTarget.toFixed(1)}`;
+        document.getElementById('fsTargetMarker').style.left = `${Math.min(96, (p.nTarget / 5.0) * 100)}%`;
+        document.getElementById('fsCalcMarker').style.left = `${Math.min(98, (r.FS / 5.0) * 100)}%`;
+        document.getElementById('badgeCriterionTag').textContent = r.criterionLabel.split('—')[0].trim();
+
+        // KPIs
+        const kpis = [
+          { label: 'Esfuerzo Nominal', val: fmtStress(Math.abs(r.sigmaNom || r.tauNom)), sub: `Concentrador Kt = ${r.g.Kt.toFixed(2)}` },
+          { label: 'Esfuerzo Máx. Local', val: fmtStress(r.sigmaEq), sub: `Kf fatiga = ${r.g.Kf.toFixed(2)}` },
+          { label: 'Resist. Referencia', val: fmtStress(r.Sref), sub: `${r.mat.name} (${p.temp}°C)` },
+          { label: 'Factor Seguridad n', val: r.FS > 50 ? '> 50' : r.FS.toFixed(2), sub: `Esf. admisible: ${fmtStress(r.Sref / p.nTarget)}` },
+          { label: 'Esf. Principales', val: `${r.sig1.toFixed(1)} / ${r.sig2.toFixed(1)}`, sub: 'σ1 / σ2 (MPa)' },
+          { label: 'Deformación Elástica', val: fmtLen(Math.abs(r.deltaMax)), sub: state.loadCase === 'torsion' ? `Giro: ${r.thetaDeg.toFixed(2)}°` : `Área: ${fmtArea(r.g.A)}` }
+        ];
+
+        document.getElementById('sfKpiGrid').innerHTML = kpis.map(k => `
+          <div class="kpi-card">
+            <div class="kpi-card__label">${k.label}</div>
+            <div class="kpi-card__value">${k.val}</div>
+            <div class="kpi-card__sub">${k.sub}</div>
+          </div>
+        `).join('');
+
+        // Ecuación LaTeX
+        const eqLatex = `$$n = \\frac{S_{\\text{ref}}}{\\sigma_{\\text{eq,local}}} = \\frac{${r.Sref.toFixed(1)}\\,\\text{MPa}}{${r.sigmaEq.toFixed(2)}\\,\\text{MPa}} = ${r.FS.toFixed(2)} \\qquad \\left(K_t = ${r.g.Kt.toFixed(2)},\\; K_f = ${r.g.Kf.toFixed(2)}\\right)$$`;
+        document.getElementById('sfFormulaBox').innerHTML = `<div id="sfMathRender">${eqLatex}</div>`;
+        if (window.renderMathInElement) {
+          renderMathInElement(document.getElementById('sfMathRender'), { delimiters: [{ left: '$$', right: '$$', display: true }] });
+        }
+
+        document.getElementById('sfTechNotes').innerHTML = `
+          <strong>Análisis de Concentración y Servicio:</strong> ${r.g.ktDesc}.
+          ${r.g.Kt > 1.3 ? 'La discontinuidad geométrica amplifica localmente el esfuerzo y reduce el factor de seguridad efectivo en la zona de transición.' : ''}
+        `;
+
+        // Escala de colores 3D
+        const uStress = state.units === 'SI' ? 'MPa' : 'psi';
+        const maxDisp = Math.max(0.1, r.sigmaEq * (state.units === 'SI' ? 1 : CONV.stress));
+        document.getElementById('cbUnitLabel').textContent = `σ_eq (${uStress})`;
+        document.getElementById('cbMax').textContent = maxDisp.toFixed(1);
+        document.getElementById('cbMid').textContent = (maxDisp * 0.5).toFixed(1);
+        document.getElementById('cbMin').textContent = '0.0';
+      }
+
+      // 9. GRÁFICOS PARAMÉTRICOS Y ENVOLVENTE DE FALLA (Chart.js)
+      let sfChart = null;
+
+      function updateChart(r) {
+        const ctx = document.getElementById('sfChartCanvas');
+        if (!ctx || typeof Chart === 'undefined') return;
+        if (sfChart) sfChart.destroy();
+
+        const mode = document.getElementById('sfChartSelector').value;
+        const p = state.params;
+
+        if (mode === 'diam_vs_n') {
+          document.getElementById('sfChartTitle').textContent = 'Influencia Geométrica: Dimensión Principal vs. Factor n';
+          const baseDim = r.g.geomType === 'cyl' || r.g.geomType === 'stepped' ? p.d : p.h;
+          const dims = [0.6, 0.75, 0.9, 1.0, 1.15, 1.3, 1.5].map(f => Math.round(baseDim * f));
+          const nVals = dims.map(val => {
+            const origD = p.d, origH = p.h;
+            p.d = val; p.h = val;
+            const res = solveMechanicsForMaterial(r.mat);
+            p.d = origD; p.h = origH;
+            return Math.min(15, res.FS);
+          });
+          sfChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: dims.map(d => `${d} mm`),
+              datasets: [
+                { label: 'Factor de Seguridad n', data: nVals, borderColor: '#0095D9', backgroundColor: 'rgba(0,149,217,0.18)', fill: true, tension: 0.25 },
+                { label: 'FS Objetivo (n_req)', data: dims.map(() => p.nTarget), borderColor: '#EF4444', borderDash: [6, 4], fill: false }
+              ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+          });
+
+        } else if (mode === 'load_vs_n') {
+          document.getElementById('sfChartTitle').textContent = 'Sensibilidad a la Carga: Magnitud vs. Factor n';
+          const baseLoad = state.loadCase === 'torsion' ? p.T : p.F;
+          const loads = [0.4, 0.6, 0.8, 1.0, 1.25, 1.5, 1.8].map(f => Math.round(baseLoad * f));
+          const nVals = loads.map(ld => {
+            const origF = p.F, origT = p.T;
+            if (state.loadCase === 'torsion') p.T = ld; else p.F = ld;
+            const res = solveMechanicsForMaterial(r.mat);
+            p.F = origF; p.T = origT;
+            return Math.min(15, res.FS);
+          });
+          sfChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: loads.map(l => `${l}`),
+              datasets: [
+                { label: 'Factor de Seguridad n', data: nVals, borderColor: '#10B981', backgroundColor: 'rgba(16,185,129,0.18)', fill: true, tension: 0.25 },
+                { label: 'Límite Falla (n = 1.0)', data: loads.map(() => 1.0), borderColor: '#EF4444', borderDash: [5, 5], fill: false }
+              ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+          });
+
+        } else if (mode === 'mat_vs_n') {
+          document.getElementById('sfChartTitle').textContent = 'Comparativa de Factor de Seguridad entre Materiales';
+          const resultsAll = MATERIALS.map(m => ({ name: m.name.replace('Acero ', ''), fs: Math.min(12, solveMechanicsForMaterial(m).FS) }));
+          sfChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: resultsAll.map(x => x.name),
+              datasets: [{
+                label: 'Factor de Seguridad n',
+                data: resultsAll.map(x => x.fs),
+                backgroundColor: resultsAll.map(x => x.fs >= p.nTarget ? '#0095D9' : (x.fs >= 1.0 ? '#F59E0B' : '#EF4444'))
+              }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+          });
+
+        } else {
+          // Envolvente de falla 2D Von Mises vs Tresca (Módulo 03)
+          document.getElementById('sfChartTitle').textContent = 'Envolvente de Falla Plana (σ1 vs σ2) — Von Mises vs Tresca';
+          const Sy = r.SyEff;
+          const vmPts = [];
+          for (let a = 0; a <= 360; a += 10) {
+            const rad = a * Math.PI / 180;
+            const c = Math.cos(rad), s = Math.sin(rad);
+            const denom = Math.sqrt(c * c - c * s + s * s);
+            vmPts.push({ x: (Sy / denom) * c, y: (Sy / denom) * s });
+          }
           const trescaPts = [
-            `${cx + S},${cy}`,
-            `${cx + S},${cy - S}`,
-            `${cx},${cy - S}`,
-            `${cx - S},${cy}`,
-            `${cx - S},${cy + S}`,
-            `${cx},${cy + S}`
+            { x: Sy, y: 0 }, { x: Sy, y: Sy }, { x: 0, y: Sy },
+            { x: -Sy, y: 0 }, { x: -Sy, y: -Sy }, { x: 0, y: -Sy }, { x: Sy, y: 0 }
           ];
-          secondaryPoly.setAttribute("points", trescaPts.join(" "));
-        } else {
-          const { Sut, Suc } = params;
-          const maxRef = Math.max(Suc, Sut, Math.abs(s1), Math.abs(s2), 50);
-          scale = 115 / maxRef;
-
-          envTitle.textContent = "ENVOLVENTE FRÁGIL 2D: COULOMB-MOHR MODIFICADO vs RANKINE";
-          legPrimary.textContent = "Coulomb-Mohr Modificado";
-          legSecondary.textContent = "Rankine (Esfuerzo Normal Máx.)";
-
-          const t = Sut * scale;
-          const c = Suc * scale;
-
-          // Polígono Coulomb-Mohr Modificado
-          const cmPts = [
-            `${cx + t},${cy}`,
-            `${cx + t},${cy - t}`,
-            `${cx},${cy - t}`,
-            `${cx - c},${cy}`,
-            `${cx - c},${cy + c}`,
-            `${cx},${cy + c}`
-          ];
-          primaryPoly.setAttribute("points", cmPts.join(" "));
-
-          // Cuadrado Rankine
-          const rkPts = [
-            `${cx + t},${cy - t}`,
-            `${cx - c},${cy - t}`,
-            `${cx - c},${cy + c}`,
-            `${cx + t},${cy + c}`
-          ];
-          secondaryPoly.setAttribute("points", rkPts.join(" "));
+          sfChart = new Chart(ctx, {
+            type: 'scatter',
+            data: {
+              datasets: [
+                { label: 'Elipse Von Mises', data: vmPts, showLine: true, borderColor: '#0095D9', pointRadius: 0 },
+                { label: 'Hexágono Tresca', data: trescaPts, showLine: true, borderColor: '#F59E0B', borderDash: [5, 4], pointRadius: 2 },
+                { label: 'Estado Actual (σ1, σ2)', data: [{ x: r.sig1, y: r.sig2 }], backgroundColor: '#EF4444', pointRadius: 7 }
+              ]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                x: { title: { display: true, text: 'σ1 (MPa)' } },
+                y: { title: { display: true, text: 'σ2 (MPa)' } }
+              }
+            }
+          });
         }
-
-        const px = cx + s1 * scale;
-        const py = cy - s2 * scale;
-        const opDot = document.getElementById("op-point");
-        const loadRay = document.getElementById("load-ray");
-        const opText = document.getElementById("op-point-text");
-
-        loadRay.setAttribute("x2", px.toFixed(1));
-        loadRay.setAttribute("y2", py.toFixed(1));
-        opDot.setAttribute("cx", px.toFixed(1));
-        opDot.setAttribute("cy", py.toFixed(1));
-        opDot.setAttribute("fill", fsPrimary < 1.0 ? "#EF4444" : fsPrimary < 1.5 ? "#F59E0B" : "#22C55E");
-
-        opText.setAttribute("x", Math.min(px + 8, 550).toFixed(1));
-        opText.setAttribute("y", Math.max(py - 6, 24).toFixed(1));
-        opText.textContent = `(${s1.toFixed(0)}, ${s2.toFixed(0)})`;
-
-        document.getElementById("env-point-label").textContent =
-          `Punto Operación: (${s1.toFixed(1)}, ${s2.toFixed(1)}) MPa`;
       }
 
-      function runCalculation() {
-        const solver = window.MECHPLANT_SOLVERS && window.MECHPLANT_SOLVERS.fallaEstatica;
-        const ui = window.MECHPLANT_SIM_UI;
-        if (!solver || !ui) return;
+      // 10. VISUALIZADOR 3D THREE.JS (Módulo 09)
+      let scene, camera, renderer, controls, meshGrp, ghostGrp, loadGrp, supGrp, axesGrp;
+      let animT = 0;
 
-        const isDuctil = matType.value === "ductil";
-        const s1Raw = parseFloat(document.getElementById("inp-s1").value) || 0;
-        const s2Raw = parseFloat(document.getElementById("inp-s2").value) || 0;
-        const s1 = Math.max(s1Raw, s2Raw);
-        const s2 = Math.min(s1Raw, s2Raw);
+      function init3D() {
+        const box = document.getElementById('sfThreeCanvas');
+        if (!box || typeof THREE === 'undefined') return;
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(42, box.clientWidth / box.clientHeight, 0.1, 1000);
+        camera.position.set(13, 9, 15);
 
-        const steps = [];
-        let kpis = [];
-        let fsPrimary = 99;
-        let titleReport = "";
-        let verdict = {};
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+        renderer.setSize(box.clientWidth, box.clientHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        box.innerHTML = '';
+        box.appendChild(renderer.domElement);
 
-        if (isDuctil) {
-          const Sy = Math.max(parseFloat(document.getElementById("inp-sy").value) || 530, 1);
-          const res = solver.evaluarDuctil(s1, s2, Sy);
-          fsPrimary = res.fsVonMises;
-
-          updateEnvelopeSVG(true, { Sy }, s1, s2, fsPrimary);
-
-          steps.push({
-            title: "Paso 1: Ordenamiento de esfuerzos principales en el plano (σ3 = 0)",
-            formula: `σ1 = ${s1.toFixed(2)} MPa,  σ2 = ${s2.toFixed(2)} MPa,  Sy = ${Sy.toFixed(1)} MPa`,
-            result: "Material dúctil evaluado"
-          });
-
-          steps.push({
-            title: "Paso 2: Teoría de Energía de Distorsión (Von Mises)",
-            formula: `σ' = √(σ1² - σ1·σ2 + σ2²) = √(${s1.toFixed(1)}² - (${s1.toFixed(1)})(${s2.toFixed(1)}) + ${s2.toFixed(1)}²) = ${res.esfuerzoVonMises.toFixed(2)} MPa`,
-            result: `FS (Von Mises) = Sy / σ' = ${res.fsVonMises.toFixed(2)}`
-          });
-
-          steps.push({
-            title: "Paso 3: Teoría del Esfuerzo Cortante Máximo (Tresca — Conservadora)",
-            formula: `τmáx_abs = máx(|σ1 - σ2|, |σ1|, |σ2|) / 2 = ${res.tauMaxAbsoluto.toFixed(2)} MPa`,
-            result: `FS (Tresca) = (Sy / 2) / τmáx_abs = ${res.fsTresca.toFixed(2)}`
-          });
-
-          titleReport = "Memoria de Cálculo: Falla Estática en Material Dúctil";
-          kpis = [
-            { label: "Esfuerzo Von Mises σ'", value: `${res.esfuerzoVonMises.toFixed(2)} MPa` },
-            { label: "FS Von Mises (DE)", value: res.fsVonMises.toFixed(2), highlight: true },
-            { label: "FS Tresca (MSS)", value: res.fsTresca.toFixed(2), highlight: true },
-            { label: "Cortante Máx. Abs.", value: `${res.tauMaxAbsoluto.toFixed(2)} MPa` }
-          ];
-
-          if (res.fsVonMises < 1.0) {
-            verdict = {
-              status: "danger",
-              title: "FALLA POR FLUENCIA DÚCTIL (FS Von Mises < 1.0)",
-              message: `El esfuerzo equivalente σ' (${res.esfuerzoVonMises.toFixed(1)} MPa) excede el límite de fluencia Sy (${Sy} MPa). Se producirá deformación plástica permanente.`
-            };
-          } else if (res.fsTresca < 1.25 || res.fsVonMises < 1.5) {
-            verdict = {
-              status: "warn",
-              title: "ZONA DE PRECAUCIÓN ESTÁTICA (1.0 ≤ FS < 1.5)",
-              message: `El punto está dentro de la elipse de Von Mises (FS = ${res.fsVonMises.toFixed(2)}), pero presenta bajo margen frente a sobrecargas de arranque o impacto.`
-            };
-          } else {
-            verdict = {
-              status: "ok",
-              title: "DISEÑO ESTÁTICO SEGURO (FS ≥ 1.50)",
-              message: `Tanto Von Mises (FS = ${res.fsVonMises.toFixed(2)}) como Tresca (FS = ${res.fsTresca.toFixed(2)}) confirman operación elástica segura.`
-            };
-          }
-        } else {
-          const Sut = Math.max(parseFloat(document.getElementById("inp-sut").value) || 214, 1);
-          const Suc = Math.max(parseFloat(document.getElementById("inp-suc").value) || 752, 1);
-          const res = solver.evaluarFragil(s1, s2, Sut, Suc);
-          fsPrimary = res.fsCoulombMohr;
-
-          updateEnvelopeSVG(false, { Sut, Suc }, s1, s2, fsPrimary);
-
-          steps.push({
-            title: "Paso 1: Parámetros asimétricos del material frágil",
-            formula: `Sut = ${Sut.toFixed(1)} MPa (Tracción)  |  Suc = ${Suc.toFixed(1)} MPa (Compresión)  |  σ1 = ${s1.toFixed(1)} MPa, σ2 = ${s2.toFixed(1)} MPa`,
-            result: `Relación Suc / Sut = ${(Suc / Sut).toFixed(2)}`
-          });
-
-          steps.push({
-            title: "Paso 2: Criterio de Coulomb-Mohr Modificado (Shigley Cap. 5)",
-            formula: `Cuadrante evaluado: ${res.cuadrante}  →  Ecuación lineal de interacción tracción-compresión`,
-            result: `FS (Coulomb-Mohr Mod.) = ${res.fsCoulombMohr.toFixed(2)}`
-          });
-
-          steps.push({
-            title: "Paso 3: Teoría del Esfuerzo Normal Máximo (Rankine)",
-            formula: `Comparación directa de σ1 contra Sut y |σ2| contra Suc`,
-            result: `FS (Rankine) = ${res.fsRankine.toFixed(2)}`
-          });
-
-          titleReport = "Memoria de Cálculo: Falla Estática en Material Frágil";
-          kpis = [
-            { label: "FS Coulomb-Mohr Mod.", value: res.fsCoulombMohr.toFixed(2), highlight: true },
-            { label: "FS Rankine (MNS)", value: res.fsRankine.toFixed(2) },
-            { label: "Cuadrante Tensional", value: res.cuadrante },
-            { label: "Asimetría Suc / Sut", value: (Suc / Sut).toFixed(2) }
-          ];
-
-          if (res.fsCoulombMohr < 1.0) {
-            verdict = {
-              status: "danger",
-              title: "FRACTURA FRÁGIL SÚBITA (FS Coulomb-Mohr < 1.0)",
-              message: `El estado de esfuerzos excede la envolvente de fractura del material frágil. En fundiciones grises la rotura ocurre sin fluencia previa.`
-            };
-          } else if (res.fsCoulombMohr < 2.0) {
-            verdict = {
-              status: "warn",
-              title: "MARGEN BAJO PARA MATERIAL FRÁGIL (1.0 ≤ FS < 2.0)",
-              message: `Para carcasas y piezas fundidas (ASTM A48) se recomienda un FS ≥ 2.0 – 2.5 debido a la dispersión estadística de defectos internos.`
-            };
-          } else {
-            verdict = {
-              status: "ok",
-              title: "DISEÑO SEGURO PARA MATERIAL FRÁGIL (FS ≥ 2.0)",
-              message: `El estado tensional cumple satisfactoriamente el criterio de Coulomb-Mohr Modificado (FS = ${res.fsCoulombMohr.toFixed(2)}).`
-            };
-          }
+        if (THREE.OrbitControls) {
+          controls = new THREE.OrbitControls(camera, renderer.domElement);
+          controls.enableDamping = true;
         }
 
-        ui.renderReport("sim02-output", {
-          simCode: "SIM-02",
-          title: titleReport,
-          kpis,
-          steps,
-          verdict
+        scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+        const d1 = new THREE.DirectionalLight(0xffffff, 0.85);
+        d1.position.set(14, 22, 18);
+        scene.add(d1);
+
+        const grid = new THREE.GridHelper(22, 22, 0x0095d9, 0x1e3a5f);
+        grid.position.y = -3.0;
+        scene.add(grid);
+
+        axesGrp = new THREE.AxesHelper(4.2);
+        meshGrp = new THREE.Group();
+        ghostGrp = new THREE.Group();
+        loadGrp = new THREE.Group();
+        supGrp = new THREE.Group();
+        scene.add(axesGrp, meshGrp, ghostGrp, loadGrp, supGrp);
+
+        window.addEventListener('resize', () => {
+          if (!box.clientWidth) return;
+          camera.aspect = box.clientWidth / box.clientHeight;
+          camera.updateProjectionMatrix();
+          renderer.setSize(box.clientWidth, box.clientHeight);
         });
 
-        if (window.MECHPLANT_PROGRESS && typeof window.MECHPLANT_PROGRESS.markSimulatorUsed === "function") {
-          window.MECHPLANT_PROGRESS.markSimulatorUsed("SIM-02");
+        loop3D();
+      }
+
+      function stressGradient(ratio) {
+        const t = Math.max(0, Math.min(1, ratio));
+        const c = new THREE.Color();
+        if (t < 0.25) c.lerpColors(new THREE.Color(0x2563EB), new THREE.Color(0x10B981), t / 0.25);
+        else if (t < 0.5) c.lerpColors(new THREE.Color(0x10B981), new THREE.Color(0xEAB308), (t - 0.25) / 0.25);
+        else if (t < 0.75) c.lerpColors(new THREE.Color(0xEAB308), new THREE.Color(0xF97316), (t - 0.5) / 0.25);
+        else c.lerpColors(new THREE.Color(0xF97316), new THREE.Color(0xEF4444), (t - 0.75) / 0.25);
+        return c;
+      }
+
+      function update3DScene(phase = 1) {
+        if (!scene) return;
+        [meshGrp, ghostGrp, loadGrp, supGrp].forEach(g => { while (g.children.length) g.remove(g.children[0]); });
+
+        const p = state.params;
+        const r = state.lastResults;
+        if (!r.mat) return;
+
+        const amp = (parseFloat(document.getElementById('rngSfScale').value) || 35) / 35;
+        const len3D = Math.max(4.5, Math.min(11.5, p.L / 80));
+        const rad3D = Math.max(0.5, Math.min(1.75, (p.d || p.h) / 45));
+        const baseRatio = Math.min(1.15, r.sigmaEq / r.Sref);
+
+        let geom;
+        if (r.g.geomType === 'rect' || r.g.geomType === 'plate') {
+          const w3D = Math.max(0.45, Math.min(1.75, (r.g.geomType === 'plate' ? p.t : p.b) / 35));
+          geom = new THREE.BoxGeometry(len3D, rad3D * 1.4, w3D * 1.4, 30, 6, 4);
+        } else {
+          geom = new THREE.CylinderGeometry(rad3D, rad3D, len3D, 24, 30, false);
+          geom.rotateZ(Math.PI / 2);
+        }
+
+        const pos = geom.attributes.position;
+        const cols = new Float32Array(pos.count * 3);
+        const def = Math.min(0.42, (Math.abs(r.deltaMax) / 7) * amp * phase);
+
+        for (let i = 0; i < pos.count; i++) {
+          let x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
+          const u = (x + len3D / 2) / len3D;
+
+          // Escalonamiento visual si es eje escalonado
+          if (r.g.geomType === 'stepped' && u > 0.45) {
+            y *= 0.72; z *= 0.72;
+          }
+
+          // Pico localizado por concentrador Kt cerca de u = 0.45 (escalón/agujero)
+          const notchPeak = p.notchType !== 'none' ? Math.exp(-Math.pow((u - 0.45) * 10, 2)) : 0;
+          let intensity = baseRatio * (0.45 + 0.55 * notchPeak);
+
+          if (state.loadCase === 'axial') {
+            x += p.axialDir * (u - 0.5) * len3D * def * 0.8;
+            intensity = baseRatio * (0.65 + 0.35 * notchPeak);
+          } else if (state.loadCase === 'shear') {
+            if (u > 0.5) y -= def * 1.2;
+            intensity = baseRatio * (0.3 + 0.7 * Math.exp(-Math.pow((u - 0.5) * 9, 2)));
+          } else if (state.loadCase === 'bend') {
+            const shape = p.support === 'simple' ? Math.sin(Math.PI * u) : Math.pow(u, 2);
+            y -= shape * def * 2.1;
+            intensity = baseRatio * (p.support === 'simple' ? Math.sin(Math.PI * u) : (1 - u)) * (0.25 + 0.75 * Math.abs(y) / rad3D + 0.3 * notchPeak);
+          } else if (state.loadCase === 'torsion') {
+            const tw = u * def * 2.3;
+            const ny = y * Math.cos(tw) - z * Math.sin(tw);
+            const nz = y * Math.sin(tw) + z * Math.cos(tw);
+            y = ny; z = nz;
+            const rNorm = Math.min(1, Math.sqrt(y * y + z * z) / rad3D);
+            intensity = baseRatio * rNorm * (0.7 + 0.3 * notchPeak);
+          } else {
+            y -= Math.sin(Math.PI * u) * def * 1.5;
+            const tw = u * def * 1.3;
+            const ny = y * Math.cos(tw) - z * Math.sin(tw);
+            const nz = y * Math.sin(tw) + z * Math.cos(tw);
+            y = ny; z = nz;
+            intensity = baseRatio * (0.5 + 0.5 * notchPeak);
+          }
+
+          pos.setXYZ(i, x, y, z);
+          const c = stressGradient(intensity);
+          cols[i * 3] = c.r; cols[i * 3 + 1] = c.g; cols[i * 3 + 2] = c.b;
+        }
+
+        geom.setAttribute('color', new THREE.BufferAttribute(cols, 3));
+        geom.computeVertexNormals();
+        meshGrp.add(new THREE.Mesh(geom, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.36, metalness: 0.25 })));
+
+        // Agujero visual si notchType === 'hole'
+        if (p.notchType === 'hole') {
+          const holeMesh = new THREE.Mesh(
+            new THREE.CylinderGeometry(rad3D * 0.35, rad3D * 0.35, rad3D * 2.2, 20).rotateX(Math.PI / 2),
+            new THREE.MeshBasicMaterial({ color: 0x091929 })
+          );
+          holeMesh.position.set(-len3D * 0.05, 0, 0);
+          meshGrp.add(holeMesh);
+        }
+
+        // Fantasma original
+        const ghostGeom = r.g.geomType === 'rect' || r.g.geomType === 'plate'
+          ? new THREE.BoxGeometry(len3D, rad3D * 1.4, rad3D * 1.1)
+          : new THREE.CylinderGeometry(rad3D, rad3D, len3D, 18).rotateZ(Math.PI / 2);
+        ghostGrp.add(new THREE.Mesh(ghostGeom, new THREE.MeshBasicMaterial({ color: 0x94a3b8, wireframe: true, transparent: true, opacity: 0.22 })));
+
+        // Apoyos
+        const supMat = new THREE.MeshStandardMaterial({ color: 0x10b981 });
+        const fix = new THREE.Mesh(new THREE.BoxGeometry(0.45, rad3D * 2.6, rad3D * 2.6), supMat);
+        fix.position.set(-len3D / 2 - 0.22, 0, 0);
+        supGrp.add(fix);
+
+        // Flechas de carga
+        if (state.loadCase === 'axial') {
+          const orig = new THREE.Vector3(p.axialDir > 0 ? len3D / 2 + 0.1 : len3D / 2 + 2.1, 0, 0);
+          loadGrp.add(new THREE.ArrowHelper(new THREE.Vector3(p.axialDir, 0, 0), orig, 2.0, 0xef4444, 0.5, 0.32));
+        } else {
+          loadGrp.add(new THREE.ArrowHelper(new THREE.Vector3(0, -1, 0), new THREE.Vector3(0, rad3D + 2.1, 0), 2.0, 0xef4444, 0.5, 0.32));
+        }
+
+        updateLayers();
+      }
+
+      function updateLayers() {
+        if (!meshGrp) return;
+        document.getElementById('lblSfScale').textContent = `${document.getElementById('rngSfScale').value}x`;
+        ghostGrp.visible = document.getElementById('chkSfGhost').checked;
+        loadGrp.visible = document.getElementById('chkSfLoads').checked;
+        supGrp.visible = document.getElementById('chkSfSupports').checked;
+        axesGrp.visible = document.getElementById('chkSfAxes').checked;
+      }
+
+      function loop3D() {
+        requestAnimationFrame(loop3D);
+        if (controls) controls.update();
+        if (document.getElementById('chkSfAnim')?.checked) {
+          animT += 0.045;
+          update3DScene(0.65 + 0.35 * Math.sin(animT));
+        }
+        if (renderer && scene && camera) renderer.render(scene, camera);
+      }
+
+      // 11. RENDERIZADO DE ÁRBOL, CONTROLES, MATERIALES, CASOS Y RETOS
+      function renderComponentTree() {
+        const cats = [...new Set(COMPONENTS.map(c => c.cat))];
+        document.getElementById('sfComponentTree').innerHTML = cats.map(cat => `
+          <div class="comp-cat">
+            <div class="comp-cat__label">${cat}</div>
+            ${COMPONENTS.filter(c => c.cat === cat).map(c => `
+              <button type="button" class="comp-item ${c.id === state.compId ? 'is-selected' : ''}" onclick="SafetyApp.selectComponent('${c.id}')">
+                <span>${c.name}</span>
+              </button>
+            `).join('')}
+          </div>
+        `).join('');
+      }
+
+      function renderControls() {
+        const sel = document.getElementById('sfSelMaterial');
+        sel.innerHTML = MATERIALS.map(m => `<option value="${m.id}" ${m.id === state.matId ? 'selected' : ''}>${m.name} (${m.type === 'brittle' ? 'Frágil' : 'Dúctil'})</option>`).join('');
+
+        const m = getMat();
+        document.getElementById('lblTemp').textContent = `${state.params.temp} °C`;
+        document.getElementById('sfMatPropsBox').innerHTML = `
+          <div>E: <strong>${m.E} GPa</strong></div>
+          <div>G: <strong>${m.G} GPa</strong></div>
+          <div>Sy: <strong>${fmtStress(m.Sy)}</strong></div>
+          <div>Sut: <strong>${fmtStress(m.Sut)}</strong></div>
+          <div>Suc: <strong>${fmtStress(m.Suc)}</strong></div>
+          <div>Tipo: <strong>${m.type === 'brittle' ? 'Frágil' : 'Dúctil'}</strong></div>
+        `;
+
+        const p = state.params;
+        const g = computeGeometryAndKt();
+        const uLen = state.units === 'SI' ? 'mm' : 'in';
+
+        document.getElementById('sfGeomControls').innerHTML = `
+          <div class="param-row">
+            <label>Longitud (L) <span>${uLen}</span></label>
+            <input type="number" class="param-input" value="${p.L}" min="20" max="5000" step="10" onchange="SafetyApp.updateParam('L', parseFloat(this.value))" />
+          </div>
+          ${(g.geomType === 'cyl' || g.geomType === 'stepped') ? `
+            <div class="param-row">
+              <label>Diámetro (d): <strong>${fmtLen(p.d)}</strong></label>
+              <input type="range" min="8" max="150" step="1" value="${p.d}" style="width:100%;" oninput="SafetyApp.updateParam('d', parseFloat(this.value))" />
+              <input type="number" class="param-input" value="${p.d}" min="5" max="400" onchange="SafetyApp.updateParam('d', parseFloat(this.value))" />
+            </div>
+          ` : `
+            <div class="param-row">
+              <label>Ancho (b) <span>${uLen}</span></label>
+              <input type="number" class="param-input" value="${p.b}" min="5" max="400" onchange="SafetyApp.updateParam('b', parseFloat(this.value))" />
+            </div>
+            <div class="param-row">
+              <label>${g.geomType === 'plate' ? 'Espesor (t)' : 'Altura (h)'} <span>${uLen}</span></label>
+              <input type="number" class="param-input" value="${g.geomType === 'plate' ? p.t : p.h}" min="2" max="400" onchange="SafetyApp.updateParam('${g.geomType === 'plate' ? 't' : 'h'}', parseFloat(this.value))" />
+            </div>
+          `}
+          <div class="param-row">
+            <label>Discontinuidad / Concentrador (M06)</label>
+            <select class="param-select" onchange="SafetyApp.updateParam('notchType', this.value)">
+              <option value="none" ${p.notchType === 'none' ? 'selected' : ''}>Sin discontinuidad (Kt = 1.0)</option>
+              <option value="step" ${p.notchType === 'step' ? 'selected' : ''}>Escalón / Cambio de diámetro</option>
+              <option value="fillet" ${p.notchType === 'fillet' ? 'selected' : ''}>Esquina con radio de acuerdo</option>
+              <option value="hole" ${p.notchType === 'hole' ? 'selected' : ''}>Agujero pasante transversal</option>
+            </select>
+          </div>
+          ${(p.notchType === 'step' || p.notchType === 'fillet') ? `
+            <div class="param-row">
+              <label>Radio de entalla (r): <strong>${p.notchRadius} mm</strong></label>
+              <input type="range" min="1" max="25" step="0.5" value="${p.notchRadius}" style="width:100%;" oninput="SafetyApp.updateParam('notchRadius', parseFloat(this.value))" />
+            </div>
+          ` : ''}
+          ${p.notchType === 'hole' ? `
+            <div class="param-row">
+              <label>Diámetro agujero (d_h): <strong>${p.holeDiam} mm</strong></label>
+              <input type="range" min="4" max="30" step="1" value="${p.holeDiam}" style="width:100%;" oninput="SafetyApp.updateParam('holeDiam', parseFloat(this.value))" />
+            </div>
+          ` : ''}
+        `;
+
+        document.getElementById('sfSecSummary').innerHTML = `
+          <div>Área A: <strong>${fmtArea(g.A)}</strong></div>
+          <div>Kt / Kf: <strong>${g.Kt.toFixed(2)} / ${g.Kf.toFixed(2)}</strong></div>
+        `;
+
+        const uForce = state.units === 'SI' ? 'N' : 'lbf';
+        const uTorque = state.units === 'SI' ? 'N·m' : 'lbf·in';
+        document.getElementById('sfLoadControls').innerHTML = `
+          <div class="param-row">
+            <label>Fuerza Aplicada (F) <span>${uForce}</span></label>
+            <input type="number" class="param-input" value="${p.F}" min="100" max="500000" step="500" onchange="SafetyApp.updateParam('F', parseFloat(this.value))" />
+          </div>
+          ${(state.loadCase === 'torsion' || state.loadCase === 'combined') ? `
+            <div class="param-row">
+              <label>Torque (T) <span>${uTorque}</span></label>
+              <input type="number" class="param-input" value="${p.T}" min="0" max="50000" step="50" onchange="SafetyApp.updateParam('T', parseFloat(this.value))" />
+            </div>
+          ` : ''}
+          ${state.loadCase === 'combined' ? `
+            <div class="param-row">
+              <label>Momento Flector (M) <span>${uTorque}</span></label>
+              <input type="number" class="param-input" value="${p.M}" min="0" max="50000" step="50" onchange="SafetyApp.updateParam('M', parseFloat(this.value))" />
+            </div>
+          ` : ''}
+          ${state.loadCase === 'shear' ? `
+            <div class="param-row">
+              <label>Planos de Corte</label>
+              <select class="param-select" onchange="SafetyApp.updateParam('shearPlanes', parseInt(this.value))">
+                <option value="1" ${p.shearPlanes === 1 ? 'selected' : ''}>Cortante Simple (1 plano)</option>
+                <option value="2" ${p.shearPlanes === 2 ? 'selected' : ''}>Doble Cortante (2 planos)</option>
+              </select>
+            </div>
+          ` : ''}
+          <div class="param-row">
+            <label>Criterio de Falla (M03)</label>
+            <select class="param-select" onchange="SafetyApp.updateParam('criterion', this.value)">
+              <option value="vonMises" ${p.criterion === 'vonMises' ? 'selected' : ''}>Von Mises (Dúctil)</option>
+              <option value="tresca" ${p.criterion === 'tresca' ? 'selected' : ''}>Tresca / Cortante Máx. (Dúctil)</option>
+              <option value="maxNormal" ${p.criterion === 'maxNormal' ? 'selected' : ''}>Esfuerzo Normal Máx. (Frágil)</option>
+            </select>
+          </div>
+          <div class="param-row">
+            <label>Factor de Seguridad Objetivo (n_req): <strong>${p.nTarget.toFixed(1)}</strong></label>
+            <input type="range" min="1.2" max="5.0" step="0.1" value="${p.nTarget}" style="width:100%;" oninput="SafetyApp.updateParam('nTarget', parseFloat(this.value))" />
+          </div>
+        `;
+      }
+
+      function renderMaterialsModule() {
+        // 3 Tarjetas de Comparación Simultánea
+        document.getElementById('matCompareCards').innerHTML = state.compareMats.map((mId, idx) => {
+          const mat = getMat(mId);
+          const res = solveMechanicsForMaterial(mat);
+          return `
+            <div class="info-card" style="border-top:4px solid ${res.FS >= state.params.nTarget ? '#10B981' : '#EF4444'};">
+              <div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                  <span class="tech-badge">OPCIÓN ${idx + 1}</span>
+                  <select class="param-select" style="width:auto;padding:3px 6px;font-size:0.76rem;" onchange="SafetyApp.setCompareMat(${idx}, this.value)">
+                    ${MATERIALS.map(m => `<option value="${m.id}" ${m.id === mId ? 'selected' : ''}>${m.name}</option>`).join('')}
+                  </select>
+                </div>
+                <div style="font-size:0.78rem;color:var(--text-secondary);">Spec: ${mat.spec} (${mat.type === 'brittle' ? 'Frágil' : 'Dúctil'})</div>
+                <div style="font-family:var(--font-mono);font-size:1.25rem;font-weight:800;color:var(--color-navy-800);margin:8px 0;">
+                  n = ${res.FS > 50 ? '>50' : res.FS.toFixed(2)}
+                </div>
+                <div style="font-size:0.76rem;font-family:var(--font-mono);">
+                  S_ref: ${fmtStress(res.Sref)} | E: ${mat.E} GPa | ρ: ${mat.rho} kg/m³
+                </div>
+              </div>
+              <button type="button" class="btn btn--outline" style="padding:5px 10px;font-size:0.76rem;" onclick="SafetyApp.selectMaterialAndGo('${mat.id}')">Aplicar al Modelo 3D</button>
+            </div>
+          `;
+        }).join('');
+
+        // Tabla Editable de los 9 Materiales
+        document.getElementById('sfMaterialsTable').innerHTML = `
+          <thead>
+            <tr style="background:#0F2942;color:#fff;text-align:left;">
+              <th style="padding:8px;">Material</th>
+              <th style="padding:8px;">Tipo</th>
+              <th style="padding:8px;">E (GPa)</th>
+              <th style="padding:8px;">G (GPa)</th>
+              <th style="padding:8px;">ν</th>
+              <th style="padding:8px;">Sy (MPa) [Editable]</th>
+              <th style="padding:8px;">Sut (MPa)</th>
+              <th style="padding:8px;">Suc (MPa)</th>
+              <th style="padding:8px;">ρ (kg/m³)</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${MATERIALS.map(m => `
+              <tr style="border-bottom:1px solid #E2E8F0;">
+                <td style="padding:7px;font-weight:600;">${m.name}</td>
+                <td style="padding:7px;">${m.type === 'brittle' ? 'Frágil' : 'Dúctil'}</td>
+                <td style="padding:7px;">${m.E}</td>
+                <td style="padding:7px;">${m.G}</td>
+                <td style="padding:7px;">${m.nu}</td>
+                <td style="padding:7px;"><input type="number" value="${m.Sy}" style="width:70px;padding:3px;" onchange="SafetyApp.editMatSy('${m.id}', parseFloat(this.value))" /></td>
+                <td style="padding:7px;">${m.Sut}</td>
+                <td style="padding:7px;">${m.Suc}</td>
+                <td style="padding:7px;">${m.rho}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        `;
+      }
+
+      function renderCasesAndChallenges() {
+        document.getElementById('sfCasesGrid').innerHTML = PLANT_CASES.map(c => `
+          <div class="info-card">
+            <div>
+              <span class="tech-badge tech-badge--cyan" style="margin-bottom:6px;">Mantenimiento Industrial</span>
+              <h3 style="font-size:0.96rem;color:var(--color-navy-800);margin-bottom:6px;">${c.title}</h3>
+              <p style="font-size:0.81rem;color:var(--text-secondary);">${c.desc}</p>
+              <p style="font-size:0.78rem;color:var(--color-navy-700);margin-top:8px;"><strong>Acción recomendada:</strong> ${c.rec}</p>
+            </div>
+            <button type="button" class="btn btn--primary" style="width:100%;padding:8px;font-size:0.8rem;" onclick="SafetyApp.loadPlantCase('${c.id}')">Cargar Escenario en 3D</button>
+          </div>
+        `).join('');
+
+        document.getElementById('sfChallengesGrid').innerHTML = CHALLENGES.map(ch => {
+          const done = state.completedChallenges.has(ch.id);
+          return `
+            <div class="info-card" style="border-top:4px solid ${done ? '#10B981' : '#0095D9'};">
+              <div>
+                <span class="tech-badge" style="background:${done ? 'var(--status-ok-bg)' : 'var(--bg-surface-alt)'};color:${done ? '#065F46' : '#0F2942'};margin-bottom:6px;">
+                  ${done ? '✓ COMPLETADO' : 'PENDIENTE'}
+                </span>
+                <h3 style="font-size:0.96rem;color:var(--color-navy-800);margin-bottom:6px;">${ch.title}</h3>
+                <p style="font-size:0.81rem;color:var(--text-secondary);">${ch.desc}</p>
+              </div>
+              <button type="button" class="btn btn--outline" style="width:100%;padding:8px;font-size:0.8rem;" onclick="SafetyApp.startChallenge('${ch.id}')">Abrir Reto en Simulador</button>
+            </div>
+          `;
+        }).join('');
+      }
+
+      function checkActiveChallenge(r) {
+        if (!state.activeChallengeId) return;
+        const ch = CHALLENGES.find(c => c.id === state.activeChallengeId);
+        if (ch && ch.verify(r) && !state.completedChallenges.has(ch.id)) {
+          state.completedChallenges.add(ch.id);
+          document.getElementById('sfChallengeScore').textContent = `Retos completados: ${state.completedChallenges.size} / 4`;
+          renderCasesAndChallenges();
+          alert(`¡EXCELENTE! Has resuelto exitosamente el ${ch.title} con n = ${r.FS.toFixed(2)}.`);
         }
       }
 
-      form.addEventListener("submit", (e) => {
-        e.preventDefault();
-        runCalculation();
-      });
+      function renderReport() {
+        const r = state.lastResults;
+        if (!r.mat) return;
+        const comp = COMPONENTS.find(c => c.id === state.compId) || COMPONENTS[0];
+        const author = document.getElementById('sfRepAuthor')?.value || 'Estudiante';
+        const plant = document.getElementById('sfRepPlant')?.value || 'MECHPLANT';
+        const rec = document.getElementById('sfRepRec')?.value || '';
+        const dateStr = new Date().toLocaleDateString('es-PE', { year: 'numeric', month: 'long', day: 'numeric' });
+        const imgUrl = renderer ? renderer.domElement.toDataURL('image/png') : '';
 
-      document.getElementById("btn-reset-sim02").addEventListener("click", () => {
-        form.reset();
-        matType.value = "ductil";
-        matPreset.value = "sae1045";
-        syncMaterialUI();
-        runCalculation();
-      });
+        document.getElementById('sfPrintableReport').innerHTML = `
+          <div style="display:flex;justify-content:space-between;border-bottom:2px solid #0F2942;padding-bottom:10px;margin-bottom:14px;">
+            <div>
+              <h2 style="color:#0F2942;font-size:1.2rem;">INFORME DE VERIFICACIÓN DE FACTOR DE SEGURIDAD — SAFETYFACTOR 3D</h2>
+              <div style="font-size:0.8rem;color:#475569;">${plant} · Plataforma Educativa MECHPLANT</div>
+            </div>
+            <div style="text-align:right;font-family:var(--font-mono);font-size:0.78rem;">
+              <div><strong>Fecha:</strong> ${dateStr}</div>
+              <div><strong>Autor:</strong> ${author}</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;font-size:0.82rem;margin-bottom:14px;">
+            <div style="background:#F8FAFC;padding:12px;border:1px solid #CBD5E1;border-radius:6px;">
+              <strong>1. Datos del Componente y Material</strong>
+              <ul style="margin-top:6px;padding-left:18px;">
+                <li>Componente: ${comp.name}</li>
+                <li>Material: ${r.mat.name} (${r.mat.spec})</li>
+                <li>Resistencia de referencia: ${fmtStress(r.Sref)} a ${state.params.temp} °C</li>
+                <li>Concentrador geométrico: Kt = ${r.g.Kt.toFixed(2)} (Kf = ${r.g.Kf.toFixed(2)})</li>
+              </ul>
+            </div>
+            <div style="background:#F8FAFC;padding:12px;border:1px solid #CBD5E1;border-radius:6px;">
+              <strong>2. Resultados y Criterio de Falla</strong>
+              <ul style="margin-top:6px;padding-left:18px;">
+                <li>Criterio aplicado: ${r.criterionLabel}</li>
+                <li>Esfuerzo equivalente local: <strong>${fmtStress(r.sigmaEq)}</strong></li>
+                <li>Factor de Seguridad Calculado: <strong>n = ${r.FS.toFixed(2)}</strong></li>
+                <li>Factor Objetivo Requerido: <strong>n_req = ${state.params.nTarget.toFixed(2)}</strong></li>
+              </ul>
+            </div>
+          </div>
+          ${imgUrl ? `<div style="text-align:center;margin-bottom:12px;"><img src="${imgUrl}" style="max-height:210px;border:1px solid #CBD5E1;border-radius:6px;" /></div>` : ''}
+          <div style="background:#F1F5F9;padding:12px;border-radius:6px;font-size:0.81rem;">
+            <strong>Conclusión Técnica:</strong> ${r.FS >= state.params.nTarget ? 'El componente cumple el factor de seguridad objetivo bajo las condiciones estáticas evaluadas.' : 'El componente NO alcanza el factor de seguridad objetivo; se requiere rediseño geométrico o cambio de material.'}<br/>
+            <strong>Recomendaciones:</strong> ${rec}
+          </div>
+        `;
+      }
 
-      syncMaterialUI();
-      runCalculation();
+      // 12. API PÚBLICA
+      return {
+        init() {
+          renderComponentTree();
+          renderControls();
+          renderCasesAndChallenges();
+          this.updateFundDemo(250, 125);
+          init3D();
+          recalculate();
+        },
+
+        switchView(viewName) {
+          ['viewSim', 'viewFundamentals', 'viewMaterials', 'viewCases', 'viewChallenges', 'viewReport'].forEach(id => {
+            document.getElementById(id).classList.remove('is-visible');
+          });
+          document.querySelectorAll('.sf-mod-tab').forEach(b => b.classList.remove('is-active'));
+
+          const map = {
+            fundamentals: 'viewFundamentals',
+            materials: 'viewMaterials',
+            cases: 'viewCases',
+            challenges: 'viewChallenges',
+            report: 'viewReport'
+          };
+          document.getElementById(map[viewName] || 'viewSim').classList.add('is-visible');
+          document.querySelector(`.sf-mod-tab[data-view="${viewName}"]`)?.classList.add('is-active');
+          if (viewName === 'report') renderReport();
+        },
+
+        switchSimMode(mode, btn) {
+          state.simSubMode = mode;
+          ['viewSim', 'viewFundamentals', 'viewMaterials', 'viewCases', 'viewChallenges', 'viewReport'].forEach(id => {
+            document.getElementById(id).classList.toggle('is-visible', id === 'viewSim');
+          });
+          document.querySelectorAll('.sf-mod-tab').forEach(b => b.classList.remove('is-active'));
+          if (btn) btn.classList.add('is-active');
+
+          const labels = { stress: 'M02 · ESFUERZOS', criteria: 'M03 · CRITERIOS', geometry: 'M05 · GEOMETRÍA', kt: 'M06 · CONCENTRACIÓN Kt' };
+          document.getElementById('badgeSimMode').textContent = labels[mode] || 'M02 · ESFUERZOS';
+
+          if (mode === 'kt' && state.params.notchType === 'none') {
+            state.params.notchType = 'step';
+            renderControls();
+          }
+          if (mode === 'geometry') document.getElementById('sfChartSelector').value = 'diam_vs_n';
+          if (mode === 'criteria') document.getElementById('sfChartSelector').value = 'envelope';
+          recalculate();
+        },
+
+        selectComponent(compId) {
+          state.compId = compId;
+          const comp = COMPONENTS.find(c => c.id === compId);
+          if (comp) {
+            state.loadCase = comp.load;
+            state.params.notchType = comp.notch || 'none';
+            document.getElementById('hudTitle').textContent = `${comp.name} — ${comp.load.toUpperCase()}`;
+          }
+          renderComponentTree();
+          renderControls();
+          recalculate();
+        },
+
+        setLoadCase(lc, btn) {
+          state.loadCase = lc;
+          ['btnLoadAxial', 'btnLoadShear', 'btnLoadBend', 'btnLoadTorsion', 'btnLoadComb'].forEach(id => document.getElementById(id).classList.remove('is-active'));
+          if (btn) btn.classList.add('is-active');
+          const comp = COMPONENTS.find(c => c.id === state.compId);
+          document.getElementById('hudTitle').textContent = `${comp ? comp.name : 'Componente'} — ${lc.toUpperCase()}`;
+          renderControls();
+          recalculate();
+        },
+
+        onMaterialChange() {
+          state.matId = document.getElementById('sfSelMaterial').value;
+          const mat = getMat();
+          if (mat.type === 'brittle') state.params.criterion = 'maxNormal';
+          renderControls();
+          recalculate();
+        },
+
+        updateParam(key, val) {
+          if (Number.isNaN(val)) return;
+          state.params[key] = val;
+          if (key === 'notchType') renderControls();
+          if (key === 'temp') document.getElementById('lblTemp').textContent = `${val} °C`;
+          recalculate();
+        },
+
+        setUnits(u) {
+          state.units = u;
+          document.getElementById('sfUnitSI').classList.toggle('is-active', u === 'SI');
+          document.getElementById('sfUnitIMP').classList.toggle('is-active', u === 'IMP');
+          renderControls();
+          recalculate();
+        },
+
+        setCamera(v, btn) {
+          if (!camera || !controls) return;
+          document.querySelectorAll('.sf-view-controls > div:first-child .view-chip').forEach(b => b.classList.remove('is-active'));
+          if (btn) btn.classList.add('is-active');
+          if (v === 'iso') camera.position.set(13, 9, 15);
+          else if (v === 'front') camera.position.set(0, 0, 19);
+          else if (v === 'top') camera.position.set(0, 19, 0.01);
+          else if (v === 'side') camera.position.set(19, 0, 0);
+          controls.target.set(0, 0, 0);
+          controls.update();
+        },
+
+        updateLayers,
+
+        updateFundDemo(sy, sig) {
+          if (sy !== null) state.demoFund.Sy = parseFloat(sy);
+          if (sig !== null) state.demoFund.sig = parseFloat(sig);
+          document.getElementById('demoSyVal').textContent = `${state.demoFund.Sy} MPa`;
+          document.getElementById('demoSigVal').textContent = `${state.demoFund.sig} MPa`;
+          const n = state.demoFund.Sy / state.demoFund.sig;
+          document.getElementById('demoFundResult').innerHTML = `
+            n = ${state.demoFund.Sy} / ${state.demoFund.sig} = <strong style="color:${n >= 1.5 ? '#065F46' : '#991B1B'};font-size:1.05rem;">${n.toFixed(2)}</strong><br/>
+            Esfuerzo admisible (para n_req = 2.0): ${(state.demoFund.Sy / 2).toFixed(1)} MPa
+          `;
+        },
+
+        setCompareMat(slotIdx, matId) {
+          state.compareMats[slotIdx] = matId;
+          renderMaterialsModule();
+        },
+
+        selectMaterialAndGo(matId) {
+          state.matId = matId;
+          this.switchSimMode('stress');
+          renderControls();
+          recalculate();
+        },
+
+        editMatSy(id, val) {
+          const m = MATERIALS.find(x => x.id === id);
+          if (m && val > 0) { m.Sy = val; renderControls(); recalculate(); }
+        },
+
+        loadPlantCase(caseId) {
+          const c = PLANT_CASES.find(x => x.id === caseId);
+          if (!c) return;
+          state.compId = c.compId;
+          state.matId = c.matId;
+          state.loadCase = c.loadCase;
+          Object.assign(state.params, c.params);
+          renderComponentTree();
+          this.switchSimMode('stress');
+          renderControls();
+          recalculate();
+        },
+
+        startChallenge(chId) {
+          const ch = CHALLENGES.find(x => x.id === chId);
+          if (!ch) return;
+          state.activeChallengeId = chId;
+          ch.setup();
+          renderComponentTree();
+          this.switchSimMode('geometry');
+          renderControls();
+          recalculate();
+          alert(`${ch.title}\n\n${ch.desc}`);
+        },
+
+        saveConfig() {
+          localStorage.setItem('mechplant_safetyfactor_cfg', JSON.stringify({ compId: state.compId, matId: state.matId, params: state.params }));
+          alert('Configuración guardada localmente en el navegador.');
+        },
+
+        resetAll() {
+          state.activeChallengeId = null;
+          state.compId = 'bar_cyl';
+          state.matId = 'a36';
+          state.loadCase = 'axial';
+          state.params = {
+            L: 500, d: 40, b: 40, h: 60, t: 10, F: 35000, T: 650, M: 1200,
+            axialDir: 1, shearPlanes: 1, support: 'simple', loadPos: 0.5,
+            temp: 25, criterion: 'vonMises', notchType: 'none', notchRadius: 4,
+            holeDiam: 10, qFatigue: 0.82, nTarget: 2.0
+          };
+          renderComponentTree();
+          this.switchSimMode('stress');
+          renderControls();
+          recalculate();
+        },
+
+        exportCSV() {
+          const r = state.lastResults;
+          const rows = [
+            ['Campo', 'Valor', 'Unidad'],
+            ['Componente', state.compId, '-'],
+            ['Material', r.mat.name, '-'],
+            ['Criterio_Falla', r.criterionLabel, '-'],
+            ['Concentrador_Kt', r.g.Kt.toFixed(2), '-'],
+            ['Esfuerzo_Equivalente_Local', r.sigmaEq.toFixed(2), 'MPa'],
+            ['Resistencia_Referencia', r.Sref.toFixed(2), 'MPa'],
+            ['Factor_Seguridad_Calculado', r.FS.toFixed(2), '-'],
+            ['Factor_Seguridad_Objetivo', state.params.nTarget.toFixed(2), '-']
+          ];
+          const blob = new Blob([rows.map(e => e.join(',')).join('\n')], { type: 'text/csv;charset=utf-8;' });
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = 'SAFETYFACTOR3D_Reporte.csv';
+          a.click();
+        },
+
+        exportPDF() {
+          renderReport();
+          if (window.jspdf && window.jspdf.jsPDF) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const r = state.lastResults;
+            doc.setFontSize(14);
+            doc.text('INFORME DE FACTOR DE SEGURIDAD — SAFETYFACTOR 3D', 14, 18);
+            doc.setFontSize(10);
+            doc.text(`Autor: ${document.getElementById('sfRepAuthor')?.value || 'Estudiante'}`, 14, 28);
+            doc.text(`Componente: ${state.compId} | Material: ${r.mat.name}`, 14, 35);
+            doc.text(`Criterio: ${r.criterionLabel}`, 14, 42);
+            doc.text(`Concentrador Kt: ${r.g.Kt.toFixed(2)} | Esfuerzo Local: ${r.sigmaEq.toFixed(2)} MPa`, 14, 49);
+            doc.text(`Resistencia Ref.: ${r.Sref.toFixed(2)} MPa | FS Calculado: ${r.FS.toFixed(2)} (Objetivo: ${state.params.nTarget})`, 14, 56);
+            if (renderer) {
+              const img = renderer.domElement.toDataURL('image/png');
+              doc.addImage(img, 'PNG', 14, 65, 180, 95);
+            }
+            doc.save('SAFETYFACTOR3D_Informe.pdf');
+          } else {
+            window.print();
+          }
+        },
+
+        renderReport,
+        openModal(id) { document.getElementById(id).classList.add('is-open'); },
+        closeModal(id) { document.getElementById(id).classList.remove('is-open'); }
+      };
     })();
+
+    document.addEventListener('DOMContentLoaded', () => {
+      SafetyApp.init();
+    });
   </script>
 </body>
 </html>
