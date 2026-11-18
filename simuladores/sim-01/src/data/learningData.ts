@@ -1,0 +1,248 @@
+import { LearningQuestion } from '../types/engineering';
+
+export const LEARNING_QUESTIONS: LearningQuestion[] = [
+  // NIVEL 1: APRENDIZAJE GUIADO
+  {
+    id: 'l1-q1',
+    level: 1,
+    title: 'Identificación del Esfuerzo Normal Axial',
+    context: 'Módulo 01 · Tracción y Compresión',
+    type: 'MULTIPLE_CHOICE',
+    prompt: 'Si duplicamos el diámetro de una barra cilíndrica manteniendo constante la fuerza axial F, ¿qué ocurre con el esfuerzo normal σ = F / A?',
+    options: [
+      'Se reduce a la mitad (σ / 2)',
+      'Se reduce a la cuarta parte (σ / 4)',
+      'Se duplica (2σ)',
+      'Permanece constante porque la fuerza F no cambió',
+    ],
+    correctOptionIndex: 1,
+    explanation: 'El área transversal de un círculo es A = π·d²/4. Al duplicar d, el área se multiplica por 4, por lo que el esfuerzo normal σ = F/A disminuye a la cuarta parte.',
+    presetParams: {
+      componentId: 'barra-cilindrica',
+      moduleId: 'M1_AXIAL',
+      materialId: 'sae-1020',
+      diameterMm: 30,
+      forceN: 35000,
+    },
+  },
+  {
+    id: 'l1-q2',
+    level: 1,
+    title: 'Cortante Simple vs. Cortante Doble en Pernos',
+    context: 'Módulo 02 · Esfuerzo Cortante',
+    type: 'MULTIPLE_CHOICE',
+    prompt: 'En una unión con horquilla (clevis), un pasador trabaja a cortante doble (2 planos de corte) bajo fuerza F. ¿Cuál es el esfuerzo cortante promedio en cada plano?',
+    options: [
+      'τ = F / A',
+      'τ = 2F / A',
+      'τ = F / (2A)',
+      'τ = F / (4A)',
+    ],
+    correctOptionIndex: 2,
+    explanation: 'En cortante doble, la fuerza total F se reparte equilibradamente entre dos secciones transversales resistentes (A_total = 2·A), reduciendo τ a F / (2·A).',
+    presetParams: {
+      componentId: 'perno-union',
+      moduleId: 'M2_SHEAR',
+      supportCondition: 'DOUBLE_SHEAR',
+      shearPlanes: 2,
+    },
+  },
+  {
+    id: 'l1-q3',
+    level: 1,
+    title: 'Línea Neutra y Distribución en Flexión',
+    context: 'Módulo 03 · Esfuerzo de Flexión',
+    type: 'MULTIPLE_CHOICE',
+    prompt: 'En una viga simplemente apoyada sometida a carga vertical descendente, ¿dónde se ubica el esfuerzo normal máximo de flexión y qué ocurre en la línea neutra?',
+    options: [
+      'El esfuerzo máximo está en el centro y vale cero en los bordes',
+      'El esfuerzo es cero en la línea neutra y máximo en las fibras superior (compresión) e inferior (tracción)',
+      'Toda la sección transversal sufre compresión uniforme',
+      'El esfuerzo máximo ocurre en la línea neutra por cortante puro',
+    ],
+    correctOptionIndex: 1,
+    explanation: 'Según la fórmula de flexión σ = M·y/I, el esfuerzo varía linealmente con la distancia y desde el eje neutro: vale 0 en y = 0 y alcanza su máximo en las fibras extremas (y = ±c).',
+    presetParams: {
+      componentId: 'viga',
+      moduleId: 'M3_BENDING',
+      supportCondition: 'PINNED_ROLLER',
+    },
+  },
+
+  // NIVEL 2: PRÁCTICA AUTÓNOMA
+  {
+    id: 'l2-n1',
+    level: 2,
+    title: 'Cálculo de Esfuerzo Normal en Barra ASTM A36',
+    context: 'Cálculo numérico · M1_AXIAL',
+    type: 'NUMERIC',
+    prompt: 'Una barra rectangular de Acero ASTM A36 de ancho b = 40 mm y altura h = 25 mm soporta una carga de tracción F = 50 000 N. Calcula el esfuerzo normal σ en MPa.',
+    numericTarget: 50.0,
+    numericUnit: 'MPa',
+    numericTolerancePercent: 2,
+    explanation: 'A = b · h = 40 mm × 25 mm = 1 000 mm². σ = F / A = 50 000 N / 1 000 mm² = 50.0 MPa (y dado Sy = 250 MPa, FS = 5.0).',
+    presetParams: {
+      componentId: 'barra-rectangular',
+      moduleId: 'M1_AXIAL',
+      materialId: 'astm-a36',
+      widthMm: 40,
+      heightMm: 25,
+      forceN: 50000,
+    },
+  },
+  {
+    id: 'l2-n2',
+    level: 2,
+    title: 'Esfuerzo Cortante Máximo por Torsión en Eje Macizo',
+    context: 'Cálculo numérico · M4_TORSION',
+    type: 'NUMERIC',
+    prompt: 'Un eje macizo de diámetro d = 40 mm transmite un torque T = 800 N·m. Calcula el esfuerzo cortante torsional máximo τ_max en MPa (usa J = π·d⁴/32).',
+    numericTarget: 63.66,
+    numericUnit: 'MPa',
+    numericTolerancePercent: 3,
+    explanation: 'τ_max = 16·T / (π·d³) = 16 × 800 000 N·mm / (π × 40³ mm³) = 12 800 000 / 201 061.9 = 63.66 MPa.',
+    presetParams: {
+      componentId: 'eje-transmision',
+      moduleId: 'M4_TORSION',
+      sectionType: 'CIRCULAR',
+      diameterMm: 40,
+      torqueNm: 800,
+    },
+  },
+  {
+    id: 'l2-n3',
+    level: 2,
+    title: 'Esfuerzo Equivalente de Von Mises en Estado Plano',
+    context: 'Cálculo numérico · M5_COMBINED',
+    type: 'NUMERIC',
+    prompt: 'En un punto crítico de un eje actúan σ_x = 120 MPa y τ_xy = 60 MPa. Calcula el esfuerzo equivalente de Von Mises σ_vm = √(σ_x² + 3·τ_xy²) en MPa.',
+    numericTarget: 158.75,
+    numericUnit: 'MPa',
+    numericTolerancePercent: 2,
+    explanation: 'σ_vm = √(120² + 3 × 60²) = √(14 400 + 10 800) = √25 200 = 158.75 MPa.',
+  },
+
+  // NIVEL 3: RETOS INDUSTRIALES
+  {
+    id: 'l3-c1',
+    level: 3,
+    title: 'Reto 1: Rediseño de Perno de Soporte de Motor',
+    context: 'Mantenimiento Industrial · Evaluación en Simulador 3D',
+    type: 'SIMULATION_CHALLENGE',
+    prompt: 'Un perno M12 de SAE 1020 soporta F = 24 000 N en cortante simple (σ_y = 350 MPa) y falla por fluencia. Carga esta configuración en el Simulador 3D y modifica diámetro, planos de corte o material para lograr FS ≥ 2.00 con masa mínima.',
+    explanation: 'Al pasar a un perno M16 de acero AISI 4140 (Sy = 655 MPa) o aplicar doble plano de corte, el esfuerzo cortante cae drásticamente y se cumple FS ≥ 2.00.',
+    presetParams: {
+      componentId: 'soporte-motor',
+      moduleId: 'M2_SHEAR',
+      materialId: 'sae-1020',
+      supportCondition: 'SINGLE_SHEAR',
+      shearPlanes: 1,
+      diameterMm: 12,
+      lengthMm: 85,
+      forceN: 24000,
+    },
+    challengeCondition: {
+      minSafetyFactor: 2.0,
+      description: 'Alcanzar Factor de Seguridad FS ≥ 2.00 en el Módulo 02 (Cortante) manteniendo F ≥ 24 000 N.',
+    },
+  },
+  {
+    id: 'l3-c2',
+    level: 3,
+    title: 'Reto 2: Optimización de Viga de Tolva Industrial',
+    context: 'Mantenimiento Industrial · Evaluación en Simulador 3D',
+    type: 'SIMULATION_CHALLENGE',
+    prompt: 'La viga Perfil I de la tolva (L = 2 400 mm, w = 36 N/mm, ASTM A36) presenta alto esfuerzo flector con peralte h = 140 mm. Modifica la geometría del perfil en el Simulador 3D para alcanzar un Factor de Seguridad FS ≥ 2.00.',
+    explanation: 'Aumentar la altura del Perfil I (h ≥ 190 mm) incrementa I_z en proporción cúbica respecto a la altura, reduciendo el esfuerzo σ = M·y/I con mínimo incremento de masa.',
+    presetParams: {
+      componentId: 'estructura-tolva',
+      moduleId: 'M3_BENDING',
+      materialId: 'astm-a36',
+      sectionType: 'I_BEAM',
+      supportCondition: 'PINNED_ROLLER',
+      loadMode: 'DISTRIBUTED_LOAD',
+      lengthMm: 2400,
+      widthMm: 75,
+      heightMm: 140,
+      flangeThicknessMm: 10,
+      webThicknessMm: 7,
+      distributedLoadNPerMm: 36,
+    },
+    challengeCondition: {
+      minSafetyFactor: 2.0,
+      description: 'Alcanzar Factor de Seguridad FS ≥ 2.00 en la viga Perfil I bajo carga distribuida w = 36 N/mm.',
+    },
+  },
+];
+
+export interface BenchmarkProblem {
+  id: string;
+  reference: string;
+  title: string;
+  inputsSummary: string;
+  theoreticalResult: string;
+  moduleId: 'M1_AXIAL' | 'M2_SHEAR' | 'M3_BENDING' | 'M4_TORSION' | 'M5_COMBINED';
+  params: Record<string, unknown>;
+}
+
+export const VALIDATED_BENCHMARKS = [
+  {
+    id: 'bench-beer-axial',
+    reference: 'Beer, Johnston, DeWolf & Mazurek — Mechanics of Materials (Cap. 2)',
+    title: 'Barra cilíndrica de acero sometida a tracción axial',
+    inputsSummary: 'd = 20 mm, L = 1 000 mm, F = 40 000 N, E = 200 000 MPa',
+    expectedNormalMPa: 127.32,
+    expectedDisplacementMm: 0.6366,
+    params: {
+      componentId: 'barra-cilindrica',
+      moduleId: 'M1_AXIAL' as const,
+      materialId: 'astm-a36',
+      sectionType: 'CIRCULAR' as const,
+      supportCondition: 'FIXED_FREE' as const,
+      loadMode: 'TENSION' as const,
+      diameterMm: 20,
+      lengthMm: 1000,
+      forceN: 40000,
+    },
+  },
+  {
+    id: 'bench-shigley-bending',
+    reference: 'Shigley’s Mechanical Engineering Design (Cap. 3 & 4)',
+    title: 'Viga simplemente apoyada con carga puntual central',
+    inputsSummary: 'b = 50 mm, h = 100 mm, L = 1 000 mm, F = 20 000 N en x = L/2, E = 200 000 MPa',
+    expectedBendingMPa: 60.0,
+    expectedDeflectionMm: 0.50,
+    params: {
+      componentId: 'viga',
+      moduleId: 'M3_BENDING' as const,
+      materialId: 'astm-a36',
+      sectionType: 'RECTANGULAR' as const,
+      supportCondition: 'PINNED_ROLLER' as const,
+      loadMode: 'POINT_LOAD' as const,
+      widthMm: 50,
+      heightMm: 100,
+      lengthMm: 1000,
+      forceN: 20000,
+      loadPositionRatio: 0.5,
+    },
+  },
+  {
+    id: 'bench-norton-torsion',
+    reference: 'Norton — Machine Design (Cap. 4 & 10)',
+    title: 'Eje circular macizo sometido a torsión pura',
+    inputsSummary: 'd = 50 mm, L = 1 000 mm, T = 1 500 N·m, G = 80 000 MPa',
+    expectedShearMPa: 61.12,
+    expectedTwistDeg: 1.750,
+    params: {
+      componentId: 'eje-transmision',
+      moduleId: 'M4_TORSION' as const,
+      materialId: 'sae-1045',
+      sectionType: 'CIRCULAR' as const,
+      supportCondition: 'FIXED_FREE' as const,
+      loadMode: 'TORQUE_CCW' as const,
+      diameterMm: 50,
+      lengthMm: 1000,
+      torqueNm: 1500,
+    },
+  },
+];
