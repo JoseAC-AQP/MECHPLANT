@@ -5,41 +5,47 @@
 
 (function () {
   const body = document.body;
-  const root = body.getAttribute("data-root") || "";
-  const activeSection = body.getAttribute("data-section") || "inicio";
-  const breadcrumbLabel = body.getAttribute("data-breadcrumb") || "Panel Principal de Ingeniería";
+  const root = (body && body.getAttribute("data-root")) || "";
+  const activeSection = (body && body.getAttribute("data-section")) || "inicio";
+  const breadcrumbLabel = (body && body.getAttribute("data-breadcrumb")) || "Panel Principal de Ingeniería";
   const db = window.MECHPLANT_DB;
+
+  if (!db) {
+    console.error("[MECHPLANT] Error: window.MECHPLANT_DB no está cargado antes de navbar.js");
+    return;
+  }
 
   // Recuperar progreso y unidad preferida desde LocalStorage
   const savedUnit = localStorage.getItem("mp_unit_system") || "SI";
   const progressData = JSON.parse(localStorage.getItem("mp_progress") || '{"completedModules": [], "simsRun": 0}');
-  const progressPct = Math.round((progressData.completedModules.length / 8) * 100);
+  const progressPct = Math.round(((progressData.completedModules || []).length / 8) * 100);
 
   // Construir tarjetas del mega-menú de Módulos
-  const modulesDropdownHTML = db.modules.map(m => `
+  const modulesDropdownHTML = (db.modules || []).map(m => `
     <a href="${root}${m.folder}" class="mp-drop-card">
       <span class="mp-drop-card__code">${m.code}</span>
       <span class="mp-drop-card__title">${m.title}</span>
-      <span class="mp-drop-card__meta">Normas: ${m.normas.slice(0, 2).join(", ")}</span>
+      <span class="mp-drop-card__meta">Normas: ${(m.normas || []).slice(0, 2).join(", ")}</span>
     </a>
   `).join("");
 
   // Construir tarjetas del mega-menú de Equipos
+  const cat = db.equiposPorCategoria || { minerales: [], auxiliares: [], manufactureros: [] };
   const allEquipos = [
-    ...db.equiposPorCategoria.minerales,
-    ...db.equiposPorCategoria.auxiliares.slice(0, 2),
-    ...db.equiposPorCategoria.manufactureros.slice(0, 1)
+    ...(cat.minerales || []),
+    ...(cat.auxiliares || []).slice(0, 2),
+    ...(cat.manufactureros || []).slice(0, 1)
   ];
   const equiposDropdownHTML = allEquipos.map(eq => `
     <a href="${root}${eq.urlFicha}" class="mp-drop-card">
       <span class="mp-drop-card__code">${eq.code} • ${eq.proceso}</span>
       <span class="mp-drop-card__title">${eq.name}</span>
-      <span class="mp-drop-card__meta">Módulos: ${eq.modulosRelacionados.join(", ")}</span>
+      <span class="mp-drop-card__meta">Módulos: ${(eq.modulosRelacionados || []).join(", ")}</span>
     </a>
   `).join("");
 
   // Construir tarjetas del mega-menú de Simuladores (primeros 8 + enlace a todos)
-  const simsDropdownHTML = db.simuladores.slice(0, 8).map(s => `
+  const simsDropdownHTML = (db.simuladores || []).slice(0, 8).map(s => `
     <a href="${root}${s.url}" class="mp-drop-card">
       <span class="mp-drop-card__code">${s.code} • ${s.mod}</span>
       <span class="mp-drop-card__title">${s.name}</span>
@@ -108,7 +114,7 @@
         </li>
 
         <li class="mp-nav-item">
-          <a href="${root}referencias/normativa-internacional.html" class="mp-nav-link ${activeSection === 'referencias' ? 'is-active' : ''}">
+          <a href="${root}referencias/index.html" class="mp-nav-link ${activeSection === 'referencias' ? 'is-active' : ''}">
             Normas y Ref.
           </a>
         </li>
@@ -156,8 +162,13 @@
     </div>
   `;
 
-  const headerContainer = document.getElementById("mp-global-header");
+  // Busca #mp-global-header y, como respaldo, #mp-navbar
+  const headerContainer =
+    document.getElementById("mp-global-header") ||
+    document.getElementById("mp-navbar");
+
   if (headerContainer) {
+    headerContainer.classList.add("mp-header");
     headerContainer.innerHTML = headerHTML;
   }
 
@@ -197,23 +208,23 @@
       const matches = [];
 
       // Buscar en módulos y normas
-      db.modules.forEach(m => {
-        const text = `${m.code} ${m.title} ${m.topics.join(" ")} ${m.normas.join(" ")}`.toLowerCase();
+      (db.modules || []).forEach(m => {
+        const text = `${m.code} ${m.title} ${(m.topics || []).join(" ")} ${(m.normas || []).join(" ")}`.toLowerCase();
         if (text.includes(q)) {
-          matches.push({ type: m.code, title: m.title, sub: `Normas: ${m.normas.join(", ")}`, url: root + m.folder });
+          matches.push({ type: m.code, title: m.title, sub: `Normas: ${(m.normas || []).join(", ")}`, url: root + m.folder });
         }
       });
 
       // Buscar en equipos
-      Object.values(db.equiposPorCategoria).flat().forEach(eq => {
-        const text = `${eq.name} ${eq.proceso} ${eq.componentes.join(" ")}`.toLowerCase();
+      Object.values(db.equiposPorCategoria || {}).flat().forEach(eq => {
+        const text = `${eq.name} ${eq.proceso} ${(eq.componentes || []).join(" ")}`.toLowerCase();
         if (text.includes(q)) {
           matches.push({ type: "EQUIPO", title: eq.name, sub: eq.proceso, url: root + eq.urlFicha });
         }
       });
 
       // Buscar en simuladores
-      db.simuladores.forEach(sim => {
+      (db.simuladores || []).forEach(sim => {
         if (`${sim.code} ${sim.name}`.toLowerCase().includes(q)) {
           matches.push({ type: "SIMULADOR", title: sim.name, sub: `Asociado a ${sim.mod}`, url: root + sim.url });
         }
@@ -239,3 +250,4 @@
       }
     });
   }
+})();
