@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+    font-family: var(--font-sans);
+  }
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Precision engineering range input */
+input[type="range"].cae-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  background: #cbd5e1;
+  outline: none;
+}
+
+input[type="range"].cae-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  background: #2563eb;
+  border: 1.5px solid #ffffff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.25);
+  cursor: pointer;
+}
+
+input[type="range"].cae-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  background: #2563eb;
+  border: 1.5px solid #ffffff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.25);
+  cursor: pointer;
+}
+
+/* Thin subtle scrollbars for engineering panels */
+.cae-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.cae-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.cae-scroll::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.cae-scroll::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
