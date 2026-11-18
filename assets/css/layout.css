@@ -2,7 +2,9 @@
    MECHPLANT - SISTEMA DE LAYOUT Y SIDEBAR CONTEXTUAL (layout.css)
    ========================================================================== */
 
-.mp-page-wrapper {
+.mp-page-wrapper,
+.mp-container,
+.container {
   max-width: var(--container-max);
   margin: 0 auto;
   padding: 28px 24px 64px;
